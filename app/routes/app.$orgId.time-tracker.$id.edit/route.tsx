@@ -12,7 +12,7 @@ import {
   type LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Modal, Dialog, Button, Heading } from "react-aria-components";
 import { useForm } from "@conform-to/react";
@@ -32,8 +32,14 @@ import { RADatePicker } from "~/components/ui/react-aria/datepicker";
 import { emitter } from "~/utils/sse/emitter.server";
 
 const schema = z.object({
-  startAt: z.any(),
-  endAt: z.any(),
+  startAt: z
+    .string()
+    .transform((dt) => parseZonedDateTime(dt).toDate())
+    .pipe(z.date()),
+  endAt: z
+    .string()
+    .transform((dt) => parseZonedDateTime(dt).toDate())
+    .pipe(z.date()),
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -54,34 +60,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json({ submission, errorTime: null });
+  if (submission.status !== "success") {
+    return json({ submission: submission.reply(), errorTime: null });
   }
 
   const { startAt, endAt } = submission.value;
 
-  const formattedStartAt =
-    parseZonedDateTime(startAt).toAbsoluteString() || undefined;
-  const formattedEndAt =
-    parseZonedDateTime(endAt).toAbsoluteString() || undefined;
-
-  if (formattedStartAt && formattedEndAt) {
-    if (
-      new Date(formattedStartAt).getTime() > new Date(formattedEndAt).getTime()
-    ) {
-      return json({
-        submission,
-        errorTime: "End time should greater than start time",
-      });
-    }
+  if (startAt.getTime() > endAt.getTime()) {
+    return json({
+      submission,
+      errorTime: "End time should greater than start time",
+    });
   }
 
   await editTimeTracker({
     trackerId,
-    startAt: formattedStartAt,
-    endAt: formattedEndAt,
+    startAt,
+    endAt,
     organizationId,
     userId: loggedInUser.id,
   });
@@ -92,7 +89,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  console.log("HIT");
   const organizationId = params.orgId;
   if (!organizationId) {
     return redirect("/app");
@@ -129,11 +125,11 @@ export default function EditTimeTracker() {
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
 
-  const [form, { endAt, startAt }] = useForm({
-    lastSubmission: actionData?.submission,
+  const [form, fields] = useForm({
+    lastResult: actionData?.submission,
     shouldValidate: "onSubmit",
     onValidate: ({ formData }) => {
-      return parse(formData, { schema });
+      return parseWithZod(formData, { schema });
     },
     defaultValue: {
       startAt: tracker.startAt,
@@ -149,7 +145,7 @@ export default function EditTimeTracker() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             Edit Tracker
           </Heading>
@@ -160,13 +156,13 @@ export default function EditTimeTracker() {
               granularity="second"
               hourCycle={24}
               defaultValue={
-                startAt.defaultValue
-                  ? parseAbsoluteToLocal(startAt.defaultValue)
+                fields.startAt.initialValue
+                  ? parseAbsoluteToLocal(fields.startAt.initialValue)
                   : undefined
               }
             />
             <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-              {startAt.error}
+              {fields.startAt.errors}
             </p>
             <RADatePicker
               label="End at"
@@ -174,13 +170,13 @@ export default function EditTimeTracker() {
               granularity="second"
               hourCycle={24}
               defaultValue={
-                endAt.defaultValue
-                  ? parseAbsoluteToLocal(endAt.defaultValue)
+                fields.endAt.initialValue
+                  ? parseAbsoluteToLocal(fields.endAt.initialValue)
                   : undefined
               }
             />
             <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-              {endAt.errors || actionData?.errorTime}
+              {fields.endAt.errors || actionData?.errorTime}
             </p>
           </div>
           <div className="mt-8 flex justify-end gap-2 w-full">

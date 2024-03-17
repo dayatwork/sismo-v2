@@ -345,8 +345,8 @@ export async function editTimeTracker({
   userId,
 }: {
   trackerId: string;
-  startAt?: string;
-  endAt?: string;
+  startAt?: string | Date;
+  endAt?: string | Date;
   organizationId: string;
   userId: string;
 }) {

@@ -94,12 +94,12 @@ export default function Dashboard() {
                       <Link to={`/app/${orgId}/employees/${orgUser.user.id}`}>
                         <HoverCard>
                           <HoverCardTrigger asChild>
-                            <button className="space-y-3 w-16 group">
+                            <button className="space-y-3 w-20 group">
                               <div className="rounded-md relative">
                                 <img
                                   src={`https://ui-avatars.com/api/?name=${orgUser.user.name}`}
                                   alt={orgUser.user.name}
-                                  className="h-16 w-auto object-cover transition-all group-hover:scale-105 aspect-square rounded-lg"
+                                  className="h-20 w-auto object-cover transition-all group-hover:scale-105 aspect-square rounded-lg"
                                 />
                                 <span
                                   className={cn(

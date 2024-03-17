@@ -39,7 +39,7 @@ export default function Timer({
         <p
           className={cn(
             "flex font-bold",
-            size === "small" ? "text-lg" : "text-2xl",
+            size === "small" ? "text-sm" : "text-2xl",
             color === "green" && "text-green-600"
           )}
         >

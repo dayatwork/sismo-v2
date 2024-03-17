@@ -1,5 +1,5 @@
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import {
   json,
   type ActionFunctionArgs,
@@ -47,10 +47,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const {
@@ -102,7 +102,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function OrganizationSettings() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { settings } = useLoaderData<typeof loader>();
   const [allowEdit, setAllowEdit] = useState(
     () => settings?.allowEditTimeTracker || false
@@ -114,15 +114,13 @@ export default function OrganizationSettings() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
     defaultValue: {
       timeTrackerEditLimitInDays: settings?.timeTrackerEditLimitInDays,
       maxTimeTrackerInHours: settings?.maxTimeTrackerInHours,
     },
   });
-
-  console.log({ lastSubmission });
 
   return (
     <MainContainer>
@@ -132,7 +130,7 @@ export default function OrganizationSettings() {
       <p className="text-muted-foreground mb-8">
         Manage your organization settings here
       </p>
-      <Form method="POST" {...form.props}>
+      <Form method="POST" id={form.id} onSubmit={form.onSubmit}>
         <div className="rounded-md border py-4 bg-neutral-50 dark:bg-neutral-900">
           <div className="flex items-center justify-between space-x-2 px-6">
             <Label
@@ -187,7 +185,7 @@ export default function OrganizationSettings() {
                   className="w-[90px] pr-14 text-right font-semibold"
                   id="timeTrackerEditLimitInDays"
                   name="timeTrackerEditLimitInDays"
-                  defaultValue={fields.timeTrackerEditLimitInDays.defaultValue}
+                  defaultValue={fields.timeTrackerEditLimitInDays.initialValue}
                 />
                 <span className="absolute right-4 text-sm font-semibold">
                   days
@@ -232,7 +230,7 @@ export default function OrganizationSettings() {
                   className="w-[100px] pr-16 text-right font-semibold"
                   id="maxTimeTrackerInHours"
                   name="maxTimeTrackerInHours"
-                  defaultValue={fields.maxTimeTrackerInHours.defaultValue}
+                  defaultValue={fields.maxTimeTrackerInHours.initialValue}
                 />
                 <span className="absolute right-4 text-sm font-semibold">
                   hours
