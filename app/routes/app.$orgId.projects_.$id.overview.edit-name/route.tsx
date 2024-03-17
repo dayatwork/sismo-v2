@@ -1,0 +1,185 @@
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+  useParams,
+} from "@remix-run/react";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import { useForm } from "@conform-to/react";
+import { parse } from "@conform-to/zod";
+import { z } from "zod";
+import { Modal, Dialog, Label, Button, Heading } from "react-aria-components";
+
+import { Input } from "~/components/ui/input";
+import { labelVariants } from "~/components/ui/label";
+import { redirectWithToast } from "~/utils/toast.server";
+import { cn } from "~/lib/utils";
+import { buttonVariants } from "~/components/ui/button";
+import { requirePermission } from "~/utils/auth.server";
+import { editProjectName, getProjectById } from "~/services/project.server";
+
+const schema = z.object({
+  name: z.string().min(1, "Required"),
+  description: z.string(),
+});
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const organizationId = params.orgId;
+  if (!organizationId) {
+    return redirect("/app");
+  }
+
+  const projectId = params.id;
+  if (!projectId) {
+    return redirect(`/app/${organizationId}/projects`);
+  }
+
+  const loggedInUser = await requirePermission(
+    request,
+    organizationId,
+    "manage:project"
+  );
+  if (!loggedInUser) {
+    return redirect("/app");
+  }
+
+  const formData = await request.formData();
+
+  const submission = parse(formData, { schema });
+
+  if (submission.intent !== "submit" || !submission.value) {
+    return json(submission);
+  }
+
+  const { name, description } = submission.value;
+
+  await editProjectName({ organizationId, projectId, description, name });
+
+  return redirectWithToast(
+    `/app/${organizationId}/projects/${projectId}/overview`,
+    {
+      description: `Project edited`,
+      type: "success",
+    }
+  );
+}
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const organizationId = params.orgId;
+  if (!organizationId) {
+    return redirect("/app");
+  }
+
+  const projectId = params.id;
+  if (!projectId) {
+    return redirect(`/app/${organizationId}/projects`);
+  }
+
+  const loggedInUser = await requirePermission(
+    request,
+    organizationId,
+    "manage:project"
+  );
+  if (!loggedInUser) {
+    return redirect("/app");
+  }
+
+  const project = await getProjectById({ id: projectId, organizationId });
+  if (!project) {
+    return redirect(`/app/${organizationId}/projects`);
+  }
+
+  return json({ project });
+}
+
+export default function EditProjectName() {
+  const lastSubmission = useActionData<typeof action>();
+  const { project } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const { orgId } = useParams<{ orgId: string }>();
+  const navigation = useNavigation();
+  const submitting = navigation.state === "submitting";
+
+  const [form, fields] = useForm({
+    lastSubmission,
+    shouldValidate: "onSubmit",
+    defaultValue: {
+      name: project.name,
+      description: project.description || "",
+    },
+  });
+
+  return (
+    <Modal
+      isDismissable
+      isOpen={true}
+      onOpenChange={() =>
+        navigate(`/app/${orgId}/projects/${project.id}/overview`)
+      }
+      className="overflow-hidden w-full max-w-md"
+    >
+      <Dialog className="bg-background border rounded-md p-6 outline-none">
+        <Form method="post" {...form.props}>
+          <Heading slot="title" className="text-lg font-semibold">
+            Edit Project Name & Description
+          </Heading>
+          <div className="mt-4 grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name" className={labelVariants()}>
+                Project Name
+              </Label>
+              <Input
+                id="name"
+                autoFocus
+                name="name"
+                defaultValue={fields.name.defaultValue}
+              />
+              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
+                {fields.name.errors}
+              </p>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description" className={labelVariants()}>
+                Description
+              </Label>
+              <Input
+                id="description"
+                autoFocus
+                name="description"
+                defaultValue={fields.description.defaultValue}
+              />
+              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
+                {fields.description.errors}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end gap-2 w-full">
+            <Button
+              type="button"
+              className={cn(buttonVariants({ variant: "ghost" }))}
+              onPress={() =>
+                navigate(`/app/${orgId}/projects/${project.id}/overview`)
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className={cn(buttonVariants())}
+              isDisabled={submitting}
+            >
+              {submitting ? "Saving" : "Save"}
+            </Button>
+          </div>
+        </Form>
+      </Dialog>
+    </Modal>
+  );
+}

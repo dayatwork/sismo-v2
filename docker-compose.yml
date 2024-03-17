@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  sismo_app:
+    container_name: sismo_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    pull_policy: build
+    # ports:
+    #   - "3000:3000"
+    env_file:
+      - stack.env
+    depends_on:
+      # - sismo_database
+      - sismo_redis
+    networks:
+      - cont_network
+
+  # sismo_database:
+  #   container_name: sismo_database
+  #   image: postgres:15.4
+  #   restart: always
+  #   env_file:
+  #     - stack.env
+  #   volumes:
+  #     - postgres:/var/lib/postgresql/sismo-remix
+  #   # ports:
+  #   #   - "5432:5432"
+  #   networks:
+  #     - cont_network
+
+  sismo_redis:
+    container_name: sismo_redis
+    image: redis:7.2-alpine
+    restart: always
+    # ports:
+    #   - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - redis:/data
+    networks:
+      - cont_network
+
+  # sismo_soketi:
+  #   container_name: sismo_soketi
+  #   image: quay.io/soketi/soketi:1.4-16-debian
+  #   restart: always
+  #   # ports: 
+  #   #   - '6001:6001'
+  #   #   - '9601:9601'
+  #   networks:
+  #     - cont_network
+
+volumes:
+  # postgres:
+  redis:
+
+networks:
+  cont_network:
+    external: true

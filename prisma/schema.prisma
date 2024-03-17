@@ -1,0 +1,738 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id                    String                @id
+  name                  String                @unique
+  description           String                @default("")
+  isActive              Boolean               @default(true)
+  organizationUsers     OrganizationUser[]
+  projects              Project[]
+  stages                Stage[]
+  milestones            Milestone[]
+  tasks                 Task[]
+  timeTrackers          TimeTracker[]
+  attachments           Attachment[]
+  directorates          Directorate[]
+  divisions             Division[]
+  jobLevels             JobLevel[]
+  employeePositions     EmployeePosition[]
+  roles                 Role[]
+  settings              OrganizationSettings?
+  documents             Document[]
+  services              Service[]
+  products              Product[]
+  chartOfAccounts       ChartOfAccount[]
+  expenses              Expense[]
+  meetings              Meeting[]
+  chartOfAccountClasses ChartOfAccountClass[]
+  chartOfAccountTypes   ChartOfAccountType[]
+  mails                 Mail[]
+  Journal               Journal[]
+}
+
+enum MemberStatus {
+  FULLTIME
+  PARTTIME
+  INTERN
+  OUTSOURCED
+}
+
+model OrganizationUser {
+  id             String       @id @default(uuid())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  memberId       String?
+  memberStatus   MemberStatus
+  isActive       Boolean      @default(true)
+  isAdmin        Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@unique([organizationId, userId])
+  @@unique([organizationId, memberId])
+  @@index([organizationId])
+}
+
+model User {
+  id                   String               @id @default(uuid())
+  email                String               @unique
+  name                 String
+  phone                String?              @unique
+  photo                String?
+  isSuperAdmin         Boolean              @default(false)
+  isActive             Boolean              @default(true)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  connections          Connection[]
+  password             Password?
+  organizationUsers    OrganizationUser[]
+  tasks                Task[]
+  timeTrackers         TimeTracker[]
+  attachments          Attachment[]
+  positions            EmployeePosition[]
+  roles                Role[]
+  stageMembers         StageMember[]
+  projects             Project[]
+  documents            Document[]
+  submittedExpenses    Expense[]            @relation("submittedBy")
+  approvedExpenses     Expense[]            @relation("approvedBy")
+  rejectedExpenses     Expense[]            @relation("rejectedBy")
+  meetingParticipants  MeetingParticipant[]
+  inboxMails           Mail[]               @relation("receiver")
+  sentMails            Mail[]               @relation("sender")
+  sentMessages         Message[]            @relation("sender")
+  coversations         Conversation[]       @relation("member")
+  seenMessages         Message[]            @relation("seen")
+  createdConversations Conversation[]       @relation("createdConversation")
+  createdJournals      Journal[]
+  notifications        Notification[]
+
+  @@index([name])
+}
+
+model Password {
+  hash   String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+}
+
+model Connection {
+  id           String   @id @default(uuid())
+  providerName String
+  providerId   String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+
+  @@unique([providerName, providerId])
+  @@unique([providerId, userId])
+}
+
+model Role {
+  id             String       @id @default(uuid())
+  name           String       @unique
+  description    String       @default("")
+  permissions    String[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  users          User[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum ProjectStatus {
+  PROPOSED
+  UNSTARTED
+  ONGOING
+  ONHOLD
+  CLOSING
+  CANCELED
+  COMPLETED
+}
+
+enum ProjectClosingReason {
+  COMPLETE
+  CANCEL
+}
+
+model Project {
+  id             String                @id @default(uuid())
+  name           String
+  code           String
+  description    String                @default("")
+  status         ProjectStatus         @default(UNSTARTED)
+  organization   Organization          @relation(fields: [organizationId], references: [id])
+  organizationId String
+  closingReason  ProjectClosingReason?
+  champion       User?                 @relation(fields: [championId], references: [id])
+  championId     String?
+  service        Service?              @relation(fields: [serviceId], references: [id])
+  serviceId      String?
+  product        Product?              @relation(fields: [productId], references: [id])
+  productId      String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  stages         Stage[]
+  tasks          Task[]
+  attachments    Attachment[]
+  projectClients ProjectClient[]
+  expenses       Expense[]
+
+  @@unique([name, organizationId])
+  @@unique([code, organizationId])
+  @@index([id, organizationId])
+}
+
+enum StageStatus {
+  UNSTARTED
+  ONGOING
+  ONHOLD
+  COMPLETED
+}
+
+model Stage {
+  id             String        @id @default(uuid())
+  project        Project       @relation(fields: [projectId], references: [id])
+  projectId      String
+  stageOrder     Int           @db.SmallInt
+  name           String
+  description    String        @default("")
+  status         StageStatus   @default(UNSTARTED)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  organizationId String
+  milestones     Milestone[]
+  tasks          Task[]
+  attachments    Attachment[]
+  members        StageMember[]
+  expenses       Expense[]
+
+  @@unique([projectId, stageOrder])
+  @@unique([projectId, name])
+  @@index([projectId, organizationId])
+  @@index([id, organizationId])
+}
+
+enum Priority {
+  NO_PRIORITY
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model Milestone {
+  id             String       @id @default(uuid())
+  stage          Stage        @relation(fields: [stageId], references: [id])
+  stageId        String
+  name           String
+  description    String?      @db.Text
+  weight         Int?         @default(0) @db.SmallInt
+  priority       Priority     @default(NO_PRIORITY)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  tasks          Task[]
+
+  @@index([organizationId, id])
+  @@index([organizationId, stageId])
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELED
+}
+
+enum TaskType {
+  PERSONAL
+  PROJECT
+}
+
+model Task {
+  id             String        @id @default(uuid())
+  code           String        @unique
+  name           String
+  description    String        @default("")
+  type           TaskType
+  priority       Priority      @default(NO_PRIORITY)
+  status         TaskStatus    @default(BACKLOG)
+  project        Project?      @relation(fields: [projectId], references: [id])
+  projectId      String?
+  stage          Stage?        @relation(fields: [stageId], references: [id])
+  stageId        String?
+  milestone      Milestone?    @relation(fields: [milestoneId], references: [id])
+  milestoneId    String?
+  dueDate        DateTime?
+  assignee       User?         @relation(fields: [assigneeId], references: [id])
+  assigneeId     String?
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  attachments    Attachment[]
+  trackerItems   TrackerItem[]
+
+  @@index([id, organizationId])
+}
+
+model TimeTracker {
+  id             String        @id @default(uuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  startAt        DateTime      @default(now())
+  endAt          DateTime?
+  week           Int           @db.SmallInt
+  year           Int           @db.SmallInt
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  organizationId String
+  trackerItems   TrackerItem[]
+
+  @@index([id, organizationId])
+  @@index([id, organizationId, userId])
+  @@index([id, organizationId, year])
+  @@index([id, organizationId, userId, year])
+}
+
+model TrackerItem {
+  id                    String       @id @default(uuid())
+  tracker               TimeTracker  @relation(fields: [timeTrackerId], references: [id], onDelete: Cascade)
+  timeTrackerId         String
+  task                  Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId                String
+  taskCompletion        Int          @db.SmallInt
+  workDurationInMinutes Int          @db.SmallInt
+  note                  String?      @default("")
+  attachments           Attachment[]
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@unique([timeTrackerId, taskId])
+}
+
+enum AttachmentType {
+  DOCUMENT
+  LINK
+  FILE
+}
+
+model Attachment {
+  id             String         @id @default(uuid())
+  displayName    String         @default("")
+  url            String         @default("")
+  type           AttachmentType
+  user           User           @relation(fields: [userId], references: [id])
+  userId         String
+  project        Project?       @relation(fields: [projectId], references: [id])
+  projectId      String?
+  stage          Stage?         @relation(fields: [stageId], references: [id])
+  stageId        String?
+  task           Task?          @relation(fields: [taskId], references: [id])
+  taskId         String?
+  trackerItem    TrackerItem?   @relation(fields: [trackerItemId], references: [id])
+  trackerItemId  String?
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime       @default(now())
+
+  @@index([id, organizationId])
+}
+
+model Directorate {
+  id             String       @id @default(uuid())
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  divisions      Division[]
+
+  @@unique([name, organizationId])
+  @@index([id, organizationId])
+}
+
+model Division {
+  id                String             @id @default(uuid())
+  name              String
+  directorate       Directorate        @relation(fields: [directorateId], references: [id])
+  directorateId     String
+  organization      Organization       @relation(fields: [organizationId], references: [id])
+  organizationId    String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  employeePositions EmployeePosition[]
+
+  @@unique([name, directorateId])
+  @@index([id, organizationId])
+}
+
+model JobLevel {
+  id                String             @id @default(uuid())
+  name              String
+  organization      Organization       @relation(fields: [organizationId], references: [id])
+  organizationId    String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  employeePositions EmployeePosition[]
+
+  @@unique([name, organizationId])
+  @@index([id, organizationId])
+}
+
+model EmployeePosition {
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  division       Division     @relation(fields: [divisionId], references: [id])
+  divisionId     String
+  jobLevel       JobLevel     @relation(fields: [jobLevelId], references: [id])
+  jobLevelId     String
+  startAt        DateTime     @default(now())
+  endAt          DateTime?
+
+  @@unique([userId, organizationId])
+  @@index([id, organizationId])
+}
+
+model OrganizationSettings {
+  id                                   String       @id @default(uuid())
+  organization                         Organization @relation(fields: [organizationId], references: [id])
+  organizationId                       String       @unique
+  allowEditTimeTracker                 Boolean      @default(false)
+  timeTrackerEditLimitInDays           Int?         @db.SmallInt
+  timeTrackerLimited                   Boolean      @default(true)
+  maxTimeTrackerInHours                Int?         @default(4) @db.SmallInt
+  allowClockinWithNewTask              Boolean      @default(true)
+  allowClockinWithUnplannedTasks       Boolean      @default(true)
+  requireUploadAttachmentBeforeClockIn Boolean      @default(false)
+  createdAt                            DateTime     @default(now())
+  updatedAt                            DateTime     @updatedAt
+}
+
+enum StageMemberRole {
+  PIC
+  MEMBER
+}
+
+model StageMember {
+  id       String          @id @default(uuid())
+  stage    Stage           @relation(fields: [stageId], references: [id])
+  stageId  String
+  user     User            @relation(fields: [userId], references: [id])
+  userId   String
+  joinDate DateTime        @default(now())
+  role     StageMemberRole @default(MEMBER)
+
+  @@unique([stageId, userId])
+}
+
+model Client {
+  id             String          @id @default(uuid())
+  organizationId String
+  name           String
+  code           String?
+  country        String?
+  state          String?
+  city           String?
+  street         String?
+  postalCode     String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  projectClients ProjectClient[]
+
+  @@unique([organizationId, name])
+  @@unique([organizationId, code])
+  @@index([id, organizationId])
+}
+
+model ProjectClient {
+  id        String   @id @default(uuid())
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  isMain    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id             String       @id @default(uuid())
+  title          String       @default("Untitled")
+  content        String       @default("") @db.Text
+  icon           String?      @db.Text
+  coverImage     String?      @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  isPublished    Boolean      @default(false)
+  whiteList      String[]     @default([])
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  parentId       String?
+  parent         Document?    @relation("parentChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children       Document[]   @relation("parentChildren")
+
+  @@index([id, organizationId])
+  @@index([title, organizationId])
+  @@index([userId, organizationId])
+}
+
+model Service {
+  id             String       @id @default(uuid())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  name           String
+  code           String
+  description    String       @default("")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  projects       Project[]
+
+  @@unique([organizationId, name])
+  @@unique([organizationId, code])
+  @@index([id, organizationId])
+  @@index([organizationId])
+}
+
+model Product {
+  id             String       @id @default(uuid())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  name           String
+  code           String
+  description    String?      @default("")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  parentId       String?
+  parent         Product?     @relation("parentSubProduct", fields: [parentId], references: [id])
+  subProducts    Product[]    @relation("parentSubProduct")
+  projects       Project[]
+
+  @@unique([organizationId, name])
+  @@unique([organizationId, code])
+  @@index([id, organizationId])
+  @@index([parentId, organizationId])
+  @@index([organizationId])
+}
+
+enum NormalBalance {
+  CREDIT
+  DEBIT
+}
+
+model ChartOfAccountClass {
+  id                  String               @id @default(uuid())
+  name                String
+  organization        Organization         @relation(fields: [organizationId], references: [id])
+  organizationId      String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  chartOfAccountTypes ChartOfAccountType[]
+
+  @@unique([name, organizationId])
+  @@index([id, organizationId])
+}
+
+model ChartOfAccountType {
+  id              String              @id @default(uuid())
+  classId         String
+  class           ChartOfAccountClass @relation(fields: [classId], references: [id])
+  name            String
+  organization    Organization        @relation(fields: [organizationId], references: [id])
+  organizationId  String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  chartOfAccounts ChartOfAccount[]
+}
+
+model ChartOfAccount {
+  id             String             @id @default(uuid())
+  organization   Organization       @relation(fields: [organizationId], references: [id])
+  organizationId String
+  type           ChartOfAccountType @relation(fields: [typeId], references: [id])
+  typeId         String
+  code           String
+  accountName    String
+  normalBalance  NormalBalance
+  description    String?            @default("")
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  expenses       Expense[]
+  Journal        Journal[]
+
+  @@unique([code, organizationId])
+  @@index([organizationId, code])
+  @@index([organizationId, accountName])
+  @@index([organizationId, typeId])
+}
+
+enum ExpenseStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model Expense {
+  id               String          @id @default(uuid())
+  organization     Organization    @relation(fields: [organizationId], references: [id])
+  organizationId   String
+  code             String
+  project          Project?        @relation(fields: [projectId], references: [id])
+  projectId        String?
+  stage            Stage?          @relation(fields: [stageId], references: [id])
+  stageId          String?
+  chartOfAccount   ChartOfAccount? @relation(fields: [chartOfAccountId], references: [id])
+  chartOfAccountId String?
+  quantity         Int?            @default(1)
+  description      String?         @default("")
+  unitPrice        Decimal
+  currency         String
+  amount           Decimal
+  note             String?         @db.Text
+  status           ExpenseStatus
+  proofOfPayment   String?
+  submittedAt      DateTime
+  submittedBy      User            @relation("submittedBy", fields: [submittedById], references: [id])
+  submittedById    String
+  approvedAt       DateTime?
+  approvedBy       User?           @relation("approvedBy", fields: [approvedById], references: [id])
+  approvedById     String?
+  rejectedAt       DateTime?
+  rejectedBy       User?           @relation("rejectedBy", fields: [rejectedById], references: [id])
+  rejectedById     String?
+
+  @@unique([code, organizationId])
+  @@index([organizationId, projectId])
+  @@index([organizationId, stageId])
+  @@index([organizationId, status])
+  @@index([organizationId, chartOfAccountId])
+}
+
+model Journal {
+  id               String         @id @default(uuid())
+  organization     Organization   @relation(fields: [organizationId], references: [id])
+  organizationId   String
+  referenceNumber  String
+  chartOfAccount   ChartOfAccount @relation(fields: [chartOfAccountId], references: [id])
+  chartOfAccountId String
+  amount           Decimal
+  currency         String
+  description      String?        @default("")
+  date             DateTime       @default(now())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  createdBy        User           @relation(fields: [createdById], references: [id])
+  createdById      String
+
+  @@unique([referenceNumber, organizationId])
+  @@index([organizationId, id])
+  @@index([organizationId, chartOfAccountId])
+}
+
+enum MeetingStatus {
+  OPEN
+  CLOSE
+}
+
+model Meeting {
+  id                String               @id @default(uuid())
+  roomName          String               @unique
+  description       String?              @default("")
+  organization      Organization         @relation(fields: [organizationId], references: [id])
+  organizationId    String
+  status            MeetingStatus        @default(OPEN)
+  openedAt          DateTime             @default(now())
+  closedAt          DateTime?
+  requireInvitation Boolean              @default(false)
+  participants      MeetingParticipant[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, roomName])
+}
+
+model MeetingParticipant {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  meeting   Meeting   @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  meetingId String
+  joinedAt  DateTime?
+  leavedAt  DateTime?
+
+  @@index([meetingId])
+}
+
+enum MailStatus {
+  DRAFT
+  SENT
+  READ
+}
+
+model Mail {
+  id             String           @id @default(uuid())
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  organizationId String
+  subject        String?
+  code           String
+  body           String           @db.Text
+  createdAt      DateTime         @default(now())
+  sentAt         DateTime
+  parentId       String?
+  parent         Mail?            @relation("ParentChildren", fields: [parentId], references: [id])
+  children       Mail[]           @relation("ParentChildren")
+  sender         User             @relation("sender", fields: [senderId], references: [id])
+  senderId       String
+  receiver       User?            @relation("receiver", fields: [receiverId], references: [id])
+  receiverId     String?
+  status         MailStatus
+  attachments    MailAttachment[]
+
+  @@index([organizationId, senderId])
+  @@index([organizationId, senderId, status])
+  @@index([organizationId, receiverId])
+}
+
+model MailAttachment {
+  id          String  @id @default(uuid())
+  mail        Mail    @relation(fields: [mailId], references: [id], onDelete: Cascade)
+  mailId      String
+  url         String
+  displayName String? @default("attachment")
+}
+
+model Conversation {
+  id            String    @id @default(uuid())
+  name          String?
+  isGroup       Boolean?
+  createdAt     DateTime  @default(now())
+  createdBy     User      @relation("createdConversation", fields: [createdById], references: [id])
+  createdById   String
+  lastMessageAt DateTime  @default(now())
+  messages      Message[]
+  users         User[]    @relation("member")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  body           String?
+  fileUrl        String?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  sender         User         @relation("sender", fields: [senderId], references: [id])
+  senderId       String
+  seen           User[]       @relation("seen")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @default("")
+  isBroadcast Boolean  @default(false)
+  receiver    User?    @relation(fields: [receiverId], references: [id])
+  receiverId  String?
+  read        Boolean  @default(false)
+  type        String?
+  thumbnail   String?
+  link        String
+  createdAt   DateTime @default(now())
+}

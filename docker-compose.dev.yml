@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  sismo_database:
+    container_name: sismo_database
+    image: postgres:15.4
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres:/var/lib/postgresql/sismo-remix
+    ports:
+      - "5432:5432"
+
+  sismo_redis:
+    container_name: sismo_redis
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - redis:/data
+
+  sismo_soketi:
+    container_name: sismo_soketi
+    image: quay.io/soketi/soketi:1.4-16-debian
+    restart: always
+    ports: 
+      - '6001:6001'
+      - '9601:9601'
+
+volumes:
+  postgres:
+  redis:
