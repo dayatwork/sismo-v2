@@ -13,7 +13,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import {
   Modal,
@@ -61,10 +61,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { name, classId } = submission.value;
@@ -103,7 +103,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function CreateCoaType() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { coaClasses } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -111,8 +111,11 @@ export default function CreateCoaType() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -123,7 +126,7 @@ export default function CreateCoaType() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-4">
             Create New COA Type
           </Heading>
@@ -161,7 +164,7 @@ export default function CreateCoaType() {
               <Input
                 id="name"
                 name="name"
-                defaultValue={fields.name.defaultValue}
+                defaultValue={fields.name.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.name.errors}

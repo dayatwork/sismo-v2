@@ -14,7 +14,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 
 import { Button, buttonVariants } from "~/components/ui/button";
@@ -62,10 +62,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { name, description, permissions } = submission.value;
@@ -107,17 +107,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function RoleDetails() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { groupedPermissions, role } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
     defaultValue: {
       name: role.name,
       description: role.description,
+    },
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
     },
   });
 
@@ -136,7 +139,12 @@ export default function RoleDetails() {
           <div className="border rounded-lg bg-neutral-50 dark:bg-neutral-900">
             <h2 className="font-semibold text-lg px-6 py-4">Edit Role</h2>
             <Separator />
-            <Form className="px-6 py-4" method="post" {...form.props}>
+            <Form
+              className="px-6 py-4"
+              method="post"
+              id={form.id}
+              onSubmit={form.onSubmit}
+            >
               <div className="space-y-6">
                 <div className="grid gap-2 max-w-xs">
                   <Label htmlFor="name">Name</Label>
@@ -144,7 +152,7 @@ export default function RoleDetails() {
                     id="name"
                     autoFocus
                     name="name"
-                    defaultValue={fields.name.defaultValue}
+                    defaultValue={fields.name.initialValue}
                   />
                   {fields.name.errors ? (
                     <p
@@ -165,7 +173,7 @@ export default function RoleDetails() {
                   <Textarea
                     id="description"
                     name="description"
-                    defaultValue={fields.description.defaultValue}
+                    defaultValue={fields.description.initialValue}
                   />
                   {fields.description.errors ? (
                     <p

@@ -12,8 +12,9 @@ import {
 } from "@remix-run/react";
 import { Plus, Send, Trash2 } from "lucide-react";
 import { z } from "zod";
-import { parse } from "@conform-to/zod";
-import { useFieldList, useForm, list } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
+// import { useFieldList, useForm, list } from "@conform-to/react";
+import { useForm } from "@conform-to/react";
 import ShortUniqueId from "short-unique-id";
 
 import Tiptap from "~/components/tiptap";
@@ -37,7 +38,6 @@ const schema = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  console.log("HIT");
   const organizationId = params.orgId;
   if (!organizationId) {
     return redirect("/app");
@@ -50,10 +50,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json({ submission, error: null });
+  if (submission.status !== "success") {
+    return json({ submission: submission.reply(), error: null });
   }
 
   const {
@@ -128,13 +128,13 @@ export default function NewMail() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission: actionData?.submission,
+    lastResult: actionData?.submission,
     shouldValidate: "onSubmit",
     onValidate({ formData }) {
-      return parse(formData, { schema });
+      return parseWithZod(formData, { schema });
     },
   });
-  const attachmentList = useFieldList(form.ref, fields.attachments);
+  const attachmentList = fields.attachments.getFieldList();
 
   return (
     <div className="mt-10 max-w-4xl mx-auto border rounded-md bg-neutral-50 dark:bg-neutral-900">
@@ -144,7 +144,8 @@ export default function NewMail() {
         className="p-10"
         encType="multipart/form-data"
         method="POST"
-        {...form.props}
+        id={form.id}
+        onSubmit={form.onSubmit}
       >
         <div className="space-y-4">
           <div className="grid gap-2">
@@ -186,7 +187,10 @@ export default function NewMail() {
                     <input type="file" name={attachment.name} />
                     <button
                       className="w-8 h-8 inline-flex items-center justify-center border rounded text-red-600"
-                      {...list.remove(fields.attachments.name, { index })}
+                      {...form.remove.getButtonProps({
+                        name: fields.attachments.name,
+                        index,
+                      })}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -197,7 +201,10 @@ export default function NewMail() {
           )}
         </div>
         <div className="mt-8 flex justify-between">
-          <Button variant="outline" {...list.insert(fields.attachments.name)}>
+          <Button
+            variant="outline"
+            {...form.insert.getButtonProps({ name: fields.attachments.name })}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Attachment
           </Button>

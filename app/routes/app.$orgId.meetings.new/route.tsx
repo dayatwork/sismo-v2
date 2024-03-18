@@ -7,7 +7,7 @@ import {
 } from "@remix-run/react";
 import { json, type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Modal, Dialog, Label, Button, Heading } from "react-aria-components";
 
@@ -28,10 +28,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { description } = submission.value;
@@ -48,15 +48,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function CreateNewMeeting() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -67,7 +70,7 @@ export default function CreateNewMeeting() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             Create new meeting
           </Heading>
@@ -82,7 +85,7 @@ export default function CreateNewMeeting() {
               <Textarea
                 id="description"
                 name="description"
-                defaultValue={fields.description.defaultValue}
+                defaultValue={fields.description.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.description.errors}

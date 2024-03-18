@@ -13,7 +13,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import {
   Modal,
@@ -68,10 +68,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { accountName, code, normalBalance, typeId, description } =
@@ -117,7 +117,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function CreateChartOfAccount() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { coaClasses, coaTypes } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -130,8 +130,11 @@ export default function CreateChartOfAccount() {
     : coaTypes;
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -142,7 +145,7 @@ export default function CreateChartOfAccount() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-4">
             Create New Chart of Account
           </Heading>
@@ -175,9 +178,6 @@ export default function CreateChartOfAccount() {
                   </ListBox>
                 </Popover>
               </Select>
-              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.classId.errors}
-              </p>
             </div>
             <div className="grid gap-2">
               <Select name="typeId" isDisabled={!classId}>
@@ -214,7 +214,7 @@ export default function CreateChartOfAccount() {
               <Input
                 id="code"
                 name="code"
-                defaultValue={fields.code.defaultValue}
+                defaultValue={fields.code.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.code.errors}
@@ -227,7 +227,7 @@ export default function CreateChartOfAccount() {
               <Input
                 id="accountName"
                 name="accountName"
-                defaultValue={fields.accountName.defaultValue}
+                defaultValue={fields.accountName.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.accountName.errors}
@@ -282,7 +282,7 @@ export default function CreateChartOfAccount() {
               <Textarea
                 id="description"
                 name="description"
-                defaultValue={fields.description.defaultValue}
+                defaultValue={fields.description.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.description.errors}

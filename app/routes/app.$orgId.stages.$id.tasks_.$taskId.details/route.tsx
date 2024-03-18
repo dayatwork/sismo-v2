@@ -160,20 +160,19 @@ export default function TaskDetails() {
             <div>
               <h3 className="py-2 px-6 font-semibold text-primary">Trackers</h3>
               <Separator />
-              {task.timeTrackers.length === 0 ? (
+              {task.trackerItems.length === 0 ? (
                 <p className="py-10 text-center text-muted-foreground">
                   No trackers
                 </p>
               ) : (
                 <ul className="px-6 py-6 rounded-md">
-                  {task.timeTrackers.map((tracker, index) => (
-                    <li key={tracker.id}>
+                  {task.trackerItems.map((trackerItem, index) => (
+                    <li key={trackerItem.id}>
                       <TimeTrackerItem
-                        last={task.timeTrackers.length - 1 === index}
-                        percentage={tracker.taskCompletion}
-                        startAt={tracker.startAt}
-                        endAt={tracker.endAt!}
-                        note={tracker.note}
+                        last={task.trackerItems.length - 1 === index}
+                        percentage={trackerItem.taskCompletion}
+                        workingDuration={trackerItem.workDurationInMinutes}
+                        note={trackerItem.note || ""}
                       />
                     </li>
                   ))}
@@ -231,17 +230,15 @@ export default function TaskDetails() {
 interface TimeTrackerItemProps {
   last: boolean;
   percentage: number;
-  startAt: string;
-  endAt: string;
+  workingDuration: number;
   note: string;
 }
 
 function TimeTrackerItem({
-  endAt,
   last = false,
   percentage,
-  startAt,
   note,
+  workingDuration,
 }: TimeTrackerItemProps) {
   return (
     <div className={cn("relative", last ? "pb-0" : "pb-8")}>
@@ -270,15 +267,9 @@ function TimeTrackerItem({
         </div>
         <div className="flex min-w-0 flex-1 items-center justify-between">
           <div>
-            <div className="whitespace-nowrap space-x-2 text-sm">
-              <time dateTime={startAt}>
-                {dayjs(startAt).format("MMM D, YYYY HH:mm")}
-              </time>
-              <span>-</span>
-              <time dateTime={endAt}>
-                {dayjs(endAt).format("MMM D, YYYY HH:mm")}
-              </time>
-            </div>
+            {/* <p className="whitespace-nowrap  text-sm">
+              {workingDuration} minutes
+            </p> */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -292,13 +283,7 @@ function TimeTrackerItem({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <p className="font-semibold">
-            {Math.floor(
-              (new Date(endAt).getTime() - new Date(startAt).getTime()) /
-                (1000 * 60)
-            )}{" "}
-            min
-          </p>
+          <p className="font-semibold">{workingDuration} min</p>
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import {
   Modal,
@@ -65,10 +65,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { chartOfAccountId, currency, description, amount, referenceNumber } =
@@ -111,7 +111,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function AddNewJournal() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { chartOfAccounts } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -120,8 +120,11 @@ export default function AddNewJournal() {
   const [currency, setCurrency] = useState<string>("IDR");
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -132,7 +135,7 @@ export default function AddNewJournal() {
       className="overflow-hidden w-full max-w-lg"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-4">
             Add New Journal
           </Heading>
@@ -172,7 +175,7 @@ export default function AddNewJournal() {
                 autoFocus
                 name="referenceNumber"
                 min={0}
-                defaultValue={fields.referenceNumber.defaultValue}
+                defaultValue={fields.referenceNumber.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.referenceNumber.errors}
@@ -245,7 +248,7 @@ export default function AddNewJournal() {
               <Textarea
                 id="description"
                 name="description"
-                defaultValue={fields.description.defaultValue}
+                defaultValue={fields.description.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.description.errors}

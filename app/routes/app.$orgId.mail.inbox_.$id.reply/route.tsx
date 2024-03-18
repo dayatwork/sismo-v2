@@ -9,7 +9,7 @@ import {
 } from "@remix-run/react";
 import { Reply, Send } from "lucide-react";
 import { z } from "zod";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
 import Tiptap from "~/components/tiptap";
@@ -41,10 +41,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json({ submission, error: null });
+  if (submission.status !== "success") {
+    return json({ submission: submission.reply(), error: null });
   }
 
   const { body } = submission.value;
@@ -83,7 +83,7 @@ export default function ReplyMail() {
   const user = useLoggedInUser();
 
   const [form, fields] = useForm({
-    lastSubmission: actionData?.submission,
+    lastResult: actionData?.submission,
     shouldValidate: "onSubmit",
   });
 
@@ -107,7 +107,7 @@ export default function ReplyMail() {
           </p>
         </dd>
       </dl>
-      <Form method="post" {...form.props}>
+      <Form method="post" id={form.id} onSubmit={form.onSubmit}>
         <Tiptap name="body" content="" />
         <p className="-mt-1.5 text-sm text-red-600 font-semibold">
           {fields.body.errors}

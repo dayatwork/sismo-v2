@@ -13,7 +13,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Modal, Dialog, Heading } from "react-aria-components";
 
@@ -48,10 +48,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { name } = submission.value;
@@ -94,7 +94,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 // TODO: Add authorization
 
 export default function EditJobLevel() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { jobLevel } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -102,10 +102,13 @@ export default function EditJobLevel() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
     defaultValue: {
       name: jobLevel.name,
+    },
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
     },
   });
 
@@ -117,7 +120,7 @@ export default function EditJobLevel() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             Edit job level
           </Heading>
@@ -128,7 +131,7 @@ export default function EditJobLevel() {
                 id="name"
                 autoFocus
                 name="name"
-                defaultValue={fields.name.defaultValue}
+                defaultValue={fields.name.initialValue}
               />
               {fields.name.errors ? (
                 <p role="alert" className="text-sm font-semibold text-red-600">

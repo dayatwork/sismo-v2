@@ -25,7 +25,7 @@ import {
   Heading,
 } from "react-aria-components";
 import { z } from "zod";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 import { ChevronDownIcon } from "lucide-react";
 
@@ -52,10 +52,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json({ submission, error: null });
+  if (submission.status !== "success") {
+    return json({ submission: submission.reply(), error: null });
   }
 
   const { email, memberId, memberStatus, name } = submission.value;
@@ -95,8 +95,11 @@ export default function AddOrganizationUser() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission: actionData?.submission,
+    lastResult: actionData?.submission,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -107,7 +110,7 @@ export default function AddOrganizationUser() {
       className="overflow-hidden w-full max-w-sm"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             Add new employee
           </Heading>
@@ -125,7 +128,7 @@ export default function AddOrganizationUser() {
                 id="name"
                 autoFocus
                 name="name"
-                defaultValue={fields.name.defaultValue}
+                defaultValue={fields.name.initialValue}
               />
               {fields.name.errors ? (
                 <p role="alert" className="text-sm font-semibold text-red-600">
@@ -141,7 +144,7 @@ export default function AddOrganizationUser() {
                 id="email"
                 type="email"
                 name="email"
-                defaultValue={fields.email.defaultValue}
+                defaultValue={fields.email.initialValue}
               />
               {fields.email.errors ? (
                 <p role="alert" className="text-sm font-semibold text-red-600">
@@ -157,7 +160,7 @@ export default function AddOrganizationUser() {
               <Input
                 id="memberId"
                 name="memberId"
-                defaultValue={fields.memberId.defaultValue}
+                defaultValue={fields.memberId.initialValue}
               />
               {fields.memberId.errors ? (
                 <p role="alert" className="text-sm font-semibold text-red-600">

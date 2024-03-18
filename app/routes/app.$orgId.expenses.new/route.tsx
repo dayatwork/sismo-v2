@@ -13,7 +13,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import {
   Modal,
@@ -70,10 +70,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const {
@@ -129,7 +129,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function SubmitNewExpense() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { chartOfAccounts } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -140,8 +140,11 @@ export default function SubmitNewExpense() {
   const [quantity, setQuantity] = useState("");
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -152,7 +155,7 @@ export default function SubmitNewExpense() {
       className="overflow-hidden w-full max-w-lg"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-4">
             Submit New Expense
           </Heading>
@@ -192,7 +195,7 @@ export default function SubmitNewExpense() {
                 autoFocus
                 name="code"
                 min={0}
-                defaultValue={fields.code.defaultValue}
+                defaultValue={fields.code.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.code.errors}
@@ -247,7 +250,7 @@ export default function SubmitNewExpense() {
                     type="number"
                     min={0}
                     className="pl-8"
-                    defaultValue={fields.unitPrice.defaultValue}
+                    defaultValue={fields.unitPrice.initialValue}
                     value={unitPrice}
                     onChange={(e) => setUnitPrice(e.target.value)}
                   />
@@ -267,7 +270,7 @@ export default function SubmitNewExpense() {
                   name="quantity"
                   type="number"
                   min={0}
-                  defaultValue={fields.quantity.defaultValue}
+                  defaultValue={fields.quantity.initialValue}
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                 />
@@ -307,7 +310,7 @@ export default function SubmitNewExpense() {
               <Textarea
                 id="description"
                 name="description"
-                defaultValue={fields.description.defaultValue}
+                defaultValue={fields.description.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.description.errors}
@@ -323,7 +326,7 @@ export default function SubmitNewExpense() {
               <Textarea
                 id="note"
                 name="note"
-                defaultValue={fields.note.defaultValue}
+                defaultValue={fields.note.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.note.errors}

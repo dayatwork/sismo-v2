@@ -25,7 +25,7 @@ import {
   Heading,
 } from "react-aria-components";
 import { z } from "zod";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
 import { redirectWithToast } from "~/utils/toast.server";
@@ -73,10 +73,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { userId } = submission.value;
@@ -120,7 +120,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function AddUserRole() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { users, role } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId, id } = useParams<{ orgId: string; id: string }>();
@@ -128,8 +128,11 @@ export default function AddUserRole() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -140,7 +143,7 @@ export default function AddUserRole() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             Add new user to role "{role.name}"
           </Heading>

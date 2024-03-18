@@ -13,7 +13,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Modal, Dialog, Button, Heading } from "react-aria-components";
 
@@ -45,10 +45,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { userId } = submission.value;
@@ -105,16 +105,19 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function CreateContact() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { addableContacts } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
 
-  const [form] = useForm({
-    lastSubmission,
+  const [form, fields] = useForm({
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -125,7 +128,7 @@ export default function CreateContact() {
       className="overflow-hidden w-full max-w-sm"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-4">
             Add new contact
           </Heading>
@@ -140,10 +143,9 @@ export default function CreateContact() {
             </p> */}
             {addableContacts.length > 0 ? (
               <>
-                {" "}
                 <AddableContactList contacts={addableContacts} name="userId" />
                 <p className="mt-0.5 text-sm font-semibold text-red-600">
-                  {lastSubmission?.error.userId.toString()}
+                  {fields.userId.errors}
                 </p>
               </>
             ) : (

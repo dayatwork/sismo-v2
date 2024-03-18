@@ -7,7 +7,7 @@ import {
 } from "@remix-run/react";
 import { json, type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Modal, Dialog, Heading } from "react-aria-components";
 
@@ -47,10 +47,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { name, description, code } = submission.value;
@@ -67,15 +67,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function CreateSubProduct() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const navigate = useNavigate();
   const { orgId, id } = useParams<{ orgId: string; id: string }>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -86,7 +89,7 @@ export default function CreateSubProduct() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             Create New Subproduct
           </Heading>
@@ -97,7 +100,7 @@ export default function CreateSubProduct() {
                 id="name"
                 autoFocus
                 name="name"
-                defaultValue={fields.name.defaultValue}
+                defaultValue={fields.name.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.name.errors}
@@ -108,7 +111,7 @@ export default function CreateSubProduct() {
               <Input
                 id="code"
                 name="code"
-                defaultValue={fields.code.defaultValue}
+                defaultValue={fields.code.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.code.errors}
@@ -124,7 +127,7 @@ export default function CreateSubProduct() {
               <Textarea
                 id="description"
                 name="description"
-                defaultValue={fields.description.defaultValue}
+                defaultValue={fields.description.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.description.errors}

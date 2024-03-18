@@ -28,7 +28,7 @@ import { pusherServer } from "~/utils/pusher/pusher.server";
 import { ChatHeader } from "./header";
 import { createMessage, getConversation } from "~/services/chat.server";
 import { z } from "zod";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 
 const schema = z.object({
   file: z.instanceof(File, { message: "File is required" }).optional(),
@@ -53,9 +53,9 @@ export async function action({ params, request }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
+  if (submission.status !== "success") {
     return json(submission);
   }
 

@@ -13,7 +13,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import {
   Modal,
@@ -59,10 +59,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { projectClientId } = submission.value;
@@ -110,7 +110,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 // TODO: Add authorization
 
 export default function SetProjectMainClient() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { projectClients } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { id, orgId } = useParams<{ id: string; orgId: string }>();
@@ -118,8 +118,11 @@ export default function SetProjectMainClient() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   const mainClientIds = projectClients
@@ -134,7 +137,7 @@ export default function SetProjectMainClient() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             Set main client
           </Heading>

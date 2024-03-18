@@ -13,7 +13,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Modal, Dialog, Button, Heading } from "react-aria-components";
 
@@ -53,10 +53,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { name } = submission.value;
@@ -105,7 +105,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function EditChartOfAccountClass() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { coaClass } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -113,10 +113,13 @@ export default function EditChartOfAccountClass() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
     defaultValue: {
       name: coaClass.name,
+    },
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
     },
   });
 
@@ -128,7 +131,7 @@ export default function EditChartOfAccountClass() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-4">
             Edit COA Class
           </Heading>
@@ -139,7 +142,7 @@ export default function EditChartOfAccountClass() {
                 id="name"
                 autoFocus
                 name="name"
-                defaultValue={fields.name.defaultValue}
+                defaultValue={fields.name.initialValue}
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.name.errors}

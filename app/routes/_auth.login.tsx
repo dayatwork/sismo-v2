@@ -5,7 +5,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 import { z } from "zod";
 import { FcGoogle } from "react-icons/fc";
@@ -29,18 +29,19 @@ const loginSchema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const submission = parse(formData, { schema: loginSchema });
+  const formData = await request.clone().formData();
+  const submission = parseWithZod(formData, { schema: loginSchema });
 
-  if (!submission.value || submission.intent !== "submit") {
-    return json({ error: "", submission });
+  if (submission.status !== "success") {
+    return json({ error: "", submission: submission.reply() });
   }
+  // console.log("hit");
 
   try {
     const user = await authenticator.authenticate("form", request, {
       throwOnError: true,
-      context: { formData }, // pass pre-read formData here
     });
+    console.log({ user });
 
     const session = await getSession(request.headers.get("cookie"));
     session.set(authenticator.sessionKey, user);
@@ -53,13 +54,14 @@ export async function action({ request }: ActionFunctionArgs) {
       { headers }
     );
   } catch (error) {
+    console.log("error:", error);
     if (error instanceof AuthorizationError) {
       return json({
         error: error.message,
-        submission,
+        submission: "",
       });
     }
-    return json({ error: "Something went wrong!", submission });
+    return json({ error: "Something went wrong!", submission: "" });
   }
 }
 
@@ -79,9 +81,9 @@ export default function Login() {
   const submitting = navigation.state === "submitting";
 
   const [form, { email, password }] = useForm({
-    lastSubmission: actionData?.submission,
+    // lastResult: actionData?.submission,
     onValidate({ formData }) {
-      return parse(formData, { schema: loginSchema });
+      return parseWithZod(formData, { schema: loginSchema });
     },
   });
 
@@ -105,22 +107,27 @@ export default function Login() {
         </p>
       ) : null}
 
-      <Form method="post" className="mt-4" {...form.props}>
+      <Form
+        method="post"
+        className="mt-4"
+        id={form.id}
+        onSubmit={form.onSubmit}
+      >
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input autoFocus id="email" type="email" name={email.name} />
-          {email.error ? (
+          {email.errors ? (
             <p role="alert" className="mt-1 text-sm text-red-600 font-semibold">
-              {email.error}
+              {email.errors}
             </p>
           ) : null}
         </div>
         <div className="mt-4 grid gap-2">
           <Label htmlFor="password">Password</Label>
           <Input id="password" type="password" name={password.name} />
-          {password.error ? (
+          {password.errors ? (
             <p role="alert" className="mt-1 text-sm text-red-600 font-semibold">
-              {password.error}
+              {password.errors}
             </p>
           ) : null}
         </div>

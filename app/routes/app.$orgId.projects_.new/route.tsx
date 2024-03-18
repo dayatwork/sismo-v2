@@ -14,7 +14,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
@@ -64,10 +64,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { name, description, code, championId, productId, serviceId } =
@@ -114,7 +114,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function CreateNewProject() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { organizationUsers, products, services } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
@@ -123,8 +123,11 @@ export default function CreateNewProject() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -135,7 +138,12 @@ export default function CreateNewProject() {
       >
         &larr; Back to projects
       </Link>
-      <Form className="mt-4" method="post" {...form.props}>
+      <Form
+        className="mt-4"
+        method="post"
+        id={form.id}
+        onSubmit={form.onSubmit}
+      >
         <h1 className="text-lg font-semibold mb-4">Create New Project</h1>
         <div className="grid grid-cols-2 gap-6">
           <div className="grid gap-4 p-6 rounded-md border bg-neutral-50 dark:bg-neutral-900">
@@ -145,7 +153,7 @@ export default function CreateNewProject() {
                 id="name"
                 autoFocus
                 name="name"
-                defaultValue={fields.name.defaultValue}
+                defaultValue={fields.name.initialValue}
                 className=""
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
@@ -162,7 +170,7 @@ export default function CreateNewProject() {
               <Textarea
                 id="description"
                 name="description"
-                defaultValue={fields.description.defaultValue}
+                defaultValue={fields.description.initialValue}
                 className=""
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
@@ -179,7 +187,7 @@ export default function CreateNewProject() {
               <Input
                 id="code"
                 name="code"
-                defaultValue={fields.code.defaultValue}
+                defaultValue={fields.code.initialValue}
                 className=""
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">

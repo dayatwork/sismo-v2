@@ -1,5 +1,5 @@
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { type ActionFunctionArgs, redirect, json } from "@remix-run/node";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
@@ -26,10 +26,10 @@ const setupSchema = z.object({
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const submission = parse(formData, { schema: setupSchema });
+  const submission = parseWithZod(formData, { schema: setupSchema });
 
-  if (!submission.value || submission.intent !== "submit") {
-    return json({ error: "", submission });
+  if (submission.status !== "success") {
+    return json({ error: "", submission: submission.reply() });
   }
 
   const { email, password } = submission.value;
@@ -72,9 +72,9 @@ export default function SetupApp() {
   const submitting = navigation.state === "submitting";
 
   const [form, { email, password }] = useForm({
-    lastSubmission: actionData?.submission,
+    lastResult: actionData?.submission,
     onValidate({ formData }) {
-      return parse(formData, { schema: setupSchema });
+      return parseWithZod(formData, { schema: setupSchema });
     },
   });
 
@@ -91,28 +91,28 @@ export default function SetupApp() {
           <p className="mt-2 mb-10 text-muted-foreground text-center">
             Create account for Super Admin
           </p>
-          <Form method="post" {...form.props}>
+          <Form method="post" id={form.id} onSubmit={form.onSubmit}>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input autoFocus id="email" type="email" name={email.name} />
-              {email.error ? (
+              {email.errors ? (
                 <p
                   role="alert"
                   className="-mt-1 text-sm text-red-600 font-semibold"
                 >
-                  {email.error}
+                  {email.errors}
                 </p>
               ) : null}
             </div>
             <div className="mt-4 grid gap-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" name={password.name} />
-              {password.error ? (
+              {password.errors ? (
                 <p
                   role="alert"
                   className="-mt-1 text-sm text-red-600 font-semibold"
                 >
-                  {password.error}
+                  {password.errors}
                 </p>
               ) : null}
             </div>

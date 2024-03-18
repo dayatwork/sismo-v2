@@ -261,7 +261,7 @@ export async function editTask({
   organizationId: string;
   name?: string;
   description?: string;
-  dueDate?: string;
+  dueDate?: string | Date;
 }) {
   const task = await prisma.task.update({
     where: { id, organizationId },
@@ -329,7 +329,7 @@ export async function changeTaskDueDate({
 }: {
   taskId: string;
   organizationId: string;
-  dueDate?: string;
+  dueDate?: string | Date;
 }) {
   const task = await prisma.task.update({
     where: {

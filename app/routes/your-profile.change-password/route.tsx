@@ -1,5 +1,5 @@
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { type ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -39,10 +39,10 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { oldPassword, newPassword } = submission.value;
@@ -70,13 +70,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function ChangePassword() {
   const navigate = useNavigate();
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   return (
@@ -87,7 +90,12 @@ export default function ChangePassword() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form className="space-y-4" method="post" {...form.props}>
+        <Form
+          className="space-y-4"
+          method="post"
+          id={form.id}
+          onSubmit={form.onSubmit}
+        >
           <Heading slot="title" className="text-lg font-semibold">
             Change password
           </Heading>

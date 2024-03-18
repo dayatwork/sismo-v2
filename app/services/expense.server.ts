@@ -10,7 +10,7 @@ export async function getExpenses({
     where: { organizationId },
     orderBy: { submittedAt: "desc" },
     include: {
-      chartOfAccount: true,
+      chartOfAccount: { include: { type: true } },
       project: { select: { id: true, name: true } },
       stage: { select: { id: true, name: true } },
       approvedBy: { select: { id: true, name: true, photo: true } },

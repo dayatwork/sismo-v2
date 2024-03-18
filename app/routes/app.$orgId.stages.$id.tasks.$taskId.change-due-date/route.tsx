@@ -13,7 +13,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Modal, Dialog, Button, Heading } from "react-aria-components";
 import {
@@ -30,7 +30,10 @@ import { RADatePicker } from "~/components/ui/react-aria/datepicker";
 import { changeTaskDueDate, getTaskById } from "~/services/task.server";
 
 const schema = z.object({
-  dueDate: z.any(),
+  dueDate: z
+    .string()
+    .transform((dt) => parseZonedDateTime(dt).toDate())
+    .pipe(z.date()),
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -51,21 +54,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json(submission);
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const { dueDate } = submission.value;
 
-  const formattedDueDate =
-    parseZonedDateTime(dueDate).toAbsoluteString() || undefined;
-
   await changeTaskDueDate({
     organizationId,
     taskId,
-    dueDate: formattedDueDate,
+    dueDate,
   });
 
   return redirectWithToast(`/app/${organizationId}/stages/${stageId}/tasks`, {
@@ -102,7 +102,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 // TODO: Add authorization
 
 export default function ChangeTaskDueDate() {
-  const lastSubmission = useActionData<typeof action>();
+  const lastResult = useActionData<typeof action>();
   const { task } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { id, orgId } = useParams<{ id: string; orgId: string }>();
@@ -110,10 +110,13 @@ export default function ChangeTaskDueDate() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission,
+    lastResult,
     shouldValidate: "onSubmit",
     defaultValue: {
       dueDate: task.dueDate,
+    },
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
     },
   });
 
@@ -125,7 +128,7 @@ export default function ChangeTaskDueDate() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
             {task.dueDate ? "Change Due Date" : "Set Due Date"}
           </Heading>
@@ -137,8 +140,8 @@ export default function ChangeTaskDueDate() {
                 granularity="second"
                 placeholderValue={now("Asia/Jakarta")}
                 defaultValue={
-                  fields.dueDate.defaultValue
-                    ? parseAbsoluteToLocal(fields.dueDate.defaultValue)
+                  fields.dueDate.initialValue
+                    ? parseAbsoluteToLocal(fields.dueDate.initialValue)
                     : undefined
                 }
               />

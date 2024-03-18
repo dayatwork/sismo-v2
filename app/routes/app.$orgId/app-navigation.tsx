@@ -25,6 +25,7 @@ import {
   Landmark,
   Mail,
   MessageCircle,
+  SquareUserRound,
 } from "lucide-react";
 
 import { Separator } from "~/components/ui/separator";
@@ -162,9 +163,23 @@ const employeeNavigation: NavigationItem[] = [
   {
     name: "Employees",
     href: "employees",
-    icon: UsersIcon,
+    icon: SquareUserRound,
     current: false,
     permissions: ["manage:employee"],
+  },
+  {
+    name: "Departments",
+    href: "departments",
+    icon: NetworkIcon,
+    current: false,
+    permissions: ["manage:department"],
+  },
+  {
+    name: "Teams",
+    href: "teams",
+    icon: UsersIcon,
+    current: false,
+    permissions: ["manage:team"],
   },
   // {
   //   name: "Work Plan",

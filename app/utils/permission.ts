@@ -17,6 +17,16 @@ export const permissions = [
     description: "Akses untuk manage data employee",
   },
   {
+    group: "department",
+    name: "manage:department",
+    description: "Akses untuk manage data department",
+  },
+  {
+    group: "team",
+    name: "manage:team",
+    description: "Akses untuk manage data team",
+  },
+  {
     group: "iam",
     name: "manage:iam",
     description: "Akses untuk manage Identity and Access Management",

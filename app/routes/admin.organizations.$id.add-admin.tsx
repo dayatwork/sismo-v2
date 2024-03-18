@@ -8,7 +8,7 @@ import {
 import { Dialog, Modal, Label, Button, Heading } from "react-aria-components";
 import { useForm } from "@conform-to/react";
 import { z } from "zod";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 
 import { addOrganizationAdmin } from "~/services/organization.server";
 import { getUserById } from "~/services/user.server";
@@ -51,10 +51,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (submission.intent !== "submit" || !submission.value) {
-    return json({ submission, error: null });
+  if (submission.status !== "success") {
+    return json({ submission: submission.reply(), error: null });
   }
 
   const { email, memberId, name, password } = submission.value;
@@ -87,8 +87,11 @@ export default function AdminAddOrganizationAdmin() {
   const submitting = navigation.state === "submitting";
 
   const [form, fields] = useForm({
-    lastSubmission: actionData?.submission,
+    lastResult: actionData?.submission,
     shouldValidate: "onSubmit",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
   });
 
   const handleClose = () => navigate("/admin/organizations");
@@ -101,7 +104,7 @@ export default function AdminAddOrganizationAdmin() {
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6">
-        <Form method="post" {...form.props}>
+        <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-6">
             Add Organization's Admin
           </Heading>
@@ -155,7 +158,7 @@ export default function AdminAddOrganizationAdmin() {
                 id="memberId"
                 autoFocus
                 name="memberId"
-                defaultValue={fields.memberId.defaultValue}
+                defaultValue={fields.memberId.initialValue}
               />
               {fields.memberId.errors ? (
                 <p
