@@ -63,6 +63,9 @@ export async function getDepartmentById({
 }) {
   const organization = await prisma.department.findUnique({
     where: { id, organizationId },
+    include: {
+      departmentMembers: { include: { user: true }, orderBy: { role: "asc" } },
+    },
   });
   return organization;
 }
@@ -77,7 +80,7 @@ export async function addDepartmentMembers({
   members: { userId: string; role: DepartmentRole }[];
 }) {
   const result = await prisma.departmentMember.createMany({
-    skipDuplicates: true,
+    // skipDuplicates: true,
     data: members.map((member) => ({
       departmentId,
       organizationId,

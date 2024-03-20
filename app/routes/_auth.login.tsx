@@ -41,7 +41,6 @@ export async function action({ request }: ActionFunctionArgs) {
     const user = await authenticator.authenticate("form", request, {
       throwOnError: true,
     });
-    console.log({ user });
 
     const session = await getSession(request.headers.get("cookie"));
     session.set(authenticator.sessionKey, user);
