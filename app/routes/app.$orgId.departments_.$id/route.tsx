@@ -148,7 +148,7 @@ export default function DepartmentDetails() {
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
         <TabsContent value="members">
-          {department.departmentMembers.length === 0 && (
+          {department.departmentMembers.length === 0 ? (
             <div className="h-40 flex flex-col gap-2 items-center justify-center">
               <p className="text-muted-foreground">No members</p>
               <Link
@@ -159,68 +159,70 @@ export default function DepartmentDetails() {
                 Add member
               </Link>
             </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mt-6 mb-2">
+                <SearchInput
+                  key={searchText}
+                  onClear={handleClearSearchForm}
+                  onSearch={handleSearchForm}
+                  placeholder="Search by name"
+                  defaultValue={searchText}
+                />
+                <Link
+                  to="add-member"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <PlusIcon className="w-4 h-4 mr-2" />
+                  Add member
+                </Link>
+              </div>
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-4">Name</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>
+                        <span className="sr-only">Action</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {department.departmentMembers.map((dm) => (
+                      <TableRow key={dm.userId}>
+                        <TableCell className="pl-4">
+                          <div className="flex items-center gap-4">
+                            <Avatar>
+                              <AvatarImage src={dm.user.photo || ""} />
+                              <AvatarFallback>{dm.user.name[0]}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p>{dm.user.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {dm.user.email}
+                              </p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{dm.role}</TableCell>
+                        <TableCell className="pr-4">
+                          <div className="flex justify-end">
+                            <Link
+                              to={`remove-member/${dm.userId}`}
+                              className="h-9 w-9 inline-flex justify-center items-center rounded-md border hover:bg-accent text-red-600"
+                            >
+                              <Trash2Icon className="w-4 h-4" />
+                            </Link>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
-
-          <div className="flex items-center justify-between mt-6 mb-2">
-            <SearchInput
-              key={searchText}
-              onClear={handleClearSearchForm}
-              onSearch={handleSearchForm}
-              placeholder="Search by name"
-              defaultValue={searchText}
-            />
-            <Link
-              to="add-member"
-              className={buttonVariants({ variant: "outline" })}
-            >
-              <PlusIcon className="w-4 h-4 mr-2" />
-              Add member
-            </Link>
-          </div>
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="pl-4">Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Action</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {department.departmentMembers.map((dm) => (
-                  <TableRow key={dm.userId}>
-                    <TableCell className="pl-4">
-                      <div className="flex items-center gap-4">
-                        <Avatar>
-                          <AvatarImage src={dm.user.photo || ""} />
-                          <AvatarFallback>{dm.user.name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p>{dm.user.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {dm.user.email}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{dm.role}</TableCell>
-                    <TableCell className="pr-4">
-                      <div className="flex justify-end">
-                        <Link
-                          to={`remove-member/${dm.userId}`}
-                          className="h-9 w-9 inline-flex justify-center items-center rounded-md border hover:bg-accent text-red-600"
-                        >
-                          <Trash2Icon className="w-4 h-4" />
-                        </Link>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
         </TabsContent>
         <TabsContent value="documents">Documents</TabsContent>
       </Tabs>

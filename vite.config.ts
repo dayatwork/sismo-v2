@@ -4,4 +4,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [remix(), tsconfigPaths()],
+  server: {
+    warmup: {
+      clientFiles: [
+        "./app/entry-client.tsx",
+        "./app/root.tsx",
+        "./app/routes/**/*",
+      ],
+    },
+  },
 });
