@@ -87,7 +87,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return json({});
 }
 
-export default function AddOrganizationUser() {
+export default function EditDepartment() {
   const actionData = useActionData<typeof action>();
   const loaderData = useRouteLoaderData<typeof departmentIdLoader>(
     "routes/app.$orgId.departments_.$id"

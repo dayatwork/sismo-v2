@@ -48,10 +48,10 @@ export async function getDepartments({
 }: {
   organizationId: string;
 }) {
-  const organizations = await prisma.department.findMany({
+  const departments = await prisma.department.findMany({
     where: { organizationId },
   });
-  return organizations;
+  return departments;
 }
 
 export async function getDepartmentById({
@@ -61,13 +61,13 @@ export async function getDepartmentById({
   organizationId: string;
   id: string;
 }) {
-  const organization = await prisma.department.findUnique({
+  const department = await prisma.department.findUnique({
     where: { id, organizationId },
     include: {
       departmentMembers: { include: { user: true }, orderBy: { role: "asc" } },
     },
   });
-  return organization;
+  return department;
 }
 
 export async function addDepartmentMembers({

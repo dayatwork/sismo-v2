@@ -4,6 +4,7 @@ import {
   useNavigate,
   useNavigation,
   useParams,
+  useRouteLoaderData,
 } from "@remix-run/react";
 import {
   json,
@@ -21,9 +22,10 @@ import { labelVariants } from "~/components/ui/label";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import { createDepartment } from "~/services/department.server";
 import { Textarea } from "~/components/ui/textarea";
 import { requirePermission } from "~/utils/auth.server";
+import { type loader as teamIdLoader } from "../app.$orgId.teams_.$id/route";
+import { updateTeam } from "~/services/team.server";
 
 const schema = z.object({
   name: z.string(),
@@ -34,6 +36,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const organizationId = params.orgId;
   if (!organizationId) {
     return redirect("/app");
+  }
+
+  const teamId = params.id;
+  if (!teamId) {
+    return redirect(`/app/${organizationId}/teams`);
   }
 
   const formData = await request.formData();
@@ -47,13 +54,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { name, description } = submission.value;
 
   try {
-    await createDepartment({
+    await updateTeam({
       name,
-      organizationId,
       description,
+      id: teamId,
     });
-    return redirectWithToast(`/app/${organizationId}/departments`, {
-      description: `New department created`,
+    return redirectWithToast(`/app/${organizationId}/teams/${teamId}`, {
+      description: `Team updated`,
       type: "success",
     });
   } catch (error: any) {
@@ -69,7 +76,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const loggedInUser = await requirePermission(
     request,
     organizationId,
-    "manage:department"
+    "manage:team"
   );
   if (!loggedInUser) {
     return redirect("/app");
@@ -77,10 +84,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return json({});
 }
 
-export default function AddDepartment() {
+export default function EditTeam() {
   const actionData = useActionData<typeof action>();
+  const loaderData = useRouteLoaderData<typeof teamIdLoader>(
+    "routes/app.$orgId.teams_.$id"
+  );
   const navigate = useNavigate();
-  const { orgId } = useParams<{ orgId: string }>();
+  const { orgId, id } = useParams<{ orgId: string; id: string }>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
 
@@ -90,19 +100,23 @@ export default function AddDepartment() {
     onValidate({ formData }) {
       return parseWithZod(formData, { schema });
     },
+    defaultValue: {
+      description: loaderData?.team.description || "",
+      name: loaderData?.team.name || "",
+    },
   });
 
   return (
     <Modal
       isDismissable
       isOpen={true}
-      onOpenChange={() => navigate(`/app/${orgId}/departments`)}
+      onOpenChange={() => navigate(`/app/${orgId}/teams/${id}`)}
       className="overflow-hidden w-full max-w-sm"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
         <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
-            Create New Department
+            Edit Team
           </Heading>
           {actionData?.error ? (
             <p className="mt-4 text-sm font-semibold px-2 py-1 rounded text-red-600 border border-red-600">
@@ -146,7 +160,7 @@ export default function AddDepartment() {
             <Button
               type="button"
               className={buttonVariants({ variant: "ghost" })}
-              onPress={() => navigate(`/app/${orgId}/departments`)}
+              onPress={() => navigate(`/app/${orgId}/teams/${id}`)}
             >
               Cancel
             </Button>
@@ -155,7 +169,7 @@ export default function AddDepartment() {
               className={cn(buttonVariants())}
               isDisabled={submitting}
             >
-              {submitting ? "Submitting" : "Submit"}
+              {submitting ? "Saving" : "Save"}
             </Button>
           </div>
         </Form>

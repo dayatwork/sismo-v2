@@ -21,9 +21,9 @@ import { labelVariants } from "~/components/ui/label";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import { createDepartment } from "~/services/department.server";
 import { Textarea } from "~/components/ui/textarea";
 import { requirePermission } from "~/utils/auth.server";
+import { createTeam } from "~/services/team.server";
 
 const schema = z.object({
   name: z.string(),
@@ -47,13 +47,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { name, description } = submission.value;
 
   try {
-    await createDepartment({
+    await createTeam({
       name,
       organizationId,
       description,
     });
-    return redirectWithToast(`/app/${organizationId}/departments`, {
-      description: `New department created`,
+    return redirectWithToast(`/app/${organizationId}/teams`, {
+      description: `New team created`,
       type: "success",
     });
   } catch (error: any) {
@@ -69,7 +69,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const loggedInUser = await requirePermission(
     request,
     organizationId,
-    "manage:department"
+    "manage:team"
   );
   if (!loggedInUser) {
     return redirect("/app");
@@ -77,7 +77,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return json({});
 }
 
-export default function AddDepartment() {
+export default function AddTeam() {
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
@@ -96,13 +96,13 @@ export default function AddDepartment() {
     <Modal
       isDismissable
       isOpen={true}
-      onOpenChange={() => navigate(`/app/${orgId}/departments`)}
+      onOpenChange={() => navigate(`/app/${orgId}/teams`)}
       className="overflow-hidden w-full max-w-sm"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
         <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
-            Create New Department
+            Create New Team
           </Heading>
           {actionData?.error ? (
             <p className="mt-4 text-sm font-semibold px-2 py-1 rounded text-red-600 border border-red-600">
@@ -146,7 +146,7 @@ export default function AddDepartment() {
             <Button
               type="button"
               className={buttonVariants({ variant: "ghost" })}
-              onPress={() => navigate(`/app/${orgId}/departments`)}
+              onPress={() => navigate(`/app/${orgId}/teams`)}
             >
               Cancel
             </Button>
