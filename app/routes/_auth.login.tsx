@@ -52,7 +52,6 @@ export async function action({ request }: ActionFunctionArgs) {
       { headers }
     );
   } catch (error) {
-    console.log("error:", error);
     if (error instanceof AuthorizationError) {
       return json({
         error: error.message,
