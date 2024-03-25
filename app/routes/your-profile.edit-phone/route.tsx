@@ -19,17 +19,15 @@ import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { authenticator } from "~/services/auth.server";
-import { changePhoneNumber, getUserById } from "~/services/user.server";
+import { changePhoneNumber } from "~/services/user.server";
+import { requireUser } from "~/utils/auth.server";
 
 const schema = z.object({
   phone: z.string({ required_error: "Phone is required" }),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const loggedInUser = await requireUser(request);
 
   const formData = await request.formData();
   const submission = parseWithZod(formData, { schema });
@@ -40,22 +38,15 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { phone } = submission.value;
 
-  await changePhoneNumber(id, phone);
+  await changePhoneNumber(loggedInUser.id, phone);
 
   return redirect("/your-profile");
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const loggedInUser = await requireUser(request);
 
-  const user = await getUserById(id);
-  if (!user) {
-    return await authenticator.logout(request, { redirectTo: "/login" });
-  }
-
-  return json({ user });
+  return json({ user: loggedInUser });
 }
 
 export default function EditPhone() {

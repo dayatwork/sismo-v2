@@ -5,21 +5,23 @@ import { type LoggedInUserPayload } from "./auth.server";
 
 export function useLoggedInUser() {
   const matches = useMatches();
-  const data = matches.find((match) => match.id === "routes/app.$orgId")
-    ?.data as { loggedInUser: LoggedInUserPayload } | undefined;
+  const data = matches.find((match) => match.id === "routes/app")?.data as
+    | { loggedInUser: LoggedInUserPayload }
+    | undefined;
   return data?.loggedInUser;
 }
 
 export function useUserPermissions() {
   const matches = useMatches();
-  const data = matches.find((match) => match.id === "routes/app.$orgId")
-    ?.data as { loggedInUser: LoggedInUserPayload } | undefined;
+  const data = matches.find((match) => match.id === "routes/app")?.data as
+    | { loggedInUser: LoggedInUserPayload }
+    | undefined;
   const userPermissions: string[] = [];
 
   data?.loggedInUser?.roles.forEach((role) =>
     userPermissions.push(...role.permissions)
   );
-  return { userPermissions, isAdmin: data?.loggedInUser?.isAdmin };
+  return { userPermissions, isSuperAdmin: data?.loggedInUser?.isSuperAdmin };
 }
 
 export function ProtectComponent({
@@ -29,9 +31,9 @@ export function ProtectComponent({
   permission?: PermissionName | PermissionName[];
   children: React.ReactNode;
 }) {
-  const { userPermissions, isAdmin } = useUserPermissions();
+  const { userPermissions, isSuperAdmin } = useUserPermissions();
 
-  if (isAdmin) {
+  if (isSuperAdmin) {
     return children;
   }
 

@@ -1,13 +1,9 @@
 import ShortUniqueId from "short-unique-id";
 import prisma from "~/lib/prisma";
 
-export async function getOpenedMeetings({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
+export async function getOpenedMeetings() {
   const meetings = await prisma.meeting.findMany({
-    where: { organizationId, status: "OPEN" },
+    where: { status: "OPEN" },
     include: {
       participants: {
         include: { user: { select: { id: true, name: true, photo: true } } },
@@ -17,13 +13,9 @@ export async function getOpenedMeetings({
   return meetings;
 }
 
-export async function getClosedMeetings({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
+export async function getClosedMeetings() {
   const meetings = await prisma.meeting.findMany({
-    where: { organizationId, status: "CLOSE" },
+    where: { status: "CLOSE" },
     include: {
       participants: {
         include: { user: { select: { id: true, name: true, photo: true } } },
@@ -54,27 +46,23 @@ export async function getClosedMeetingByRoomName({
 }
 
 export async function closeMeetingByRoomName({
-  organizationId,
   roomName,
 }: {
-  organizationId: string;
   roomName: string;
 }) {
   const meeting = await prisma.meeting.update({
-    where: { organizationId, roomName },
+    where: { roomName },
     data: { status: "CLOSE" },
   });
   return meeting;
 }
 
 export async function createMeeting({
-  organizationId,
   description,
   roomName,
 }: {
   roomName?: string;
   description?: string;
-  organizationId: string;
 }) {
   const uid = new ShortUniqueId({ length: 8 });
 
@@ -84,7 +72,6 @@ export async function createMeeting({
     data: {
       roomName: _roomName,
       description,
-      organizationId,
     },
   });
 
@@ -92,14 +79,12 @@ export async function createMeeting({
 }
 
 export async function deleteClosedMeetingByRoomName({
-  organizationId,
   roomName,
 }: {
-  organizationId: string;
   roomName: string;
 }) {
   const meeting = await prisma.meeting.delete({
-    where: { organizationId, roomName },
+    where: { roomName },
   });
   return meeting;
 }

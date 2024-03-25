@@ -1,13 +1,8 @@
 import { type Prisma } from "@prisma/client";
 import prisma from "~/lib/prisma";
 
-export async function getExpenses({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
+export async function getExpenses() {
   const expenses = await prisma.expense.findMany({
-    where: { organizationId },
     orderBy: { submittedAt: "desc" },
     include: {
       chartOfAccount: { include: { type: true } },
@@ -21,15 +16,9 @@ export async function getExpenses({
   return expenses;
 }
 
-export async function getExpenseById({
-  organizationId,
-  expenseId,
-}: {
-  organizationId: string;
-  expenseId: string;
-}) {
+export async function getExpenseById({ expenseId }: { expenseId: string }) {
   const expense = await prisma.expense.findUnique({
-    where: { organizationId, id: expenseId },
+    where: { id: expenseId },
     include: {
       chartOfAccount: true,
       project: { select: { id: true, name: true } },
@@ -52,11 +41,9 @@ export async function submitExpense({
   note,
   projectId,
   stageId,
-  organizationId,
   submittedById,
   unitPrice,
 }: {
-  organizationId: string;
   projectId?: string;
   stageId?: string;
   quantity: number;
@@ -71,7 +58,6 @@ export async function submitExpense({
 }) {
   const expense = await prisma.expense.create({
     data: {
-      organizationId,
       projectId,
       stageId,
       amount,
@@ -93,16 +79,14 @@ export async function submitExpense({
 export async function approveExpense({
   expenseId,
   note,
-  organizationId,
   approvedById,
 }: {
-  organizationId: string;
   expenseId: string;
   approvedById: string;
   note?: string;
 }) {
   const expense = await prisma.expense.update({
-    where: { id: expenseId, organizationId },
+    where: { id: expenseId },
     data: {
       note,
       approvedById,
@@ -118,16 +102,14 @@ export async function approveExpense({
 export async function rejectExpense({
   expenseId,
   note,
-  organizationId,
   rejectedById,
 }: {
-  organizationId: string;
   expenseId: string;
   rejectedById: string;
   note?: string;
 }) {
   const expense = await prisma.expense.update({
-    where: { id: expenseId, organizationId },
+    where: { id: expenseId },
     data: {
       note,
       rejectedById,
@@ -148,11 +130,9 @@ export async function editExpense({
   note,
   projectId,
   stageId,
-  organizationId,
   submittedById,
 }: {
   expenseId: string;
-  organizationId: string;
   projectId?: string;
   stageId?: string;
   quantity: number;
@@ -162,9 +142,8 @@ export async function editExpense({
   submittedById: string;
 }) {
   const expense = await prisma.expense.update({
-    where: { id: expenseId, organizationId },
+    where: { id: expenseId },
     data: {
-      organizationId,
       projectId,
       stageId,
       amount,
@@ -185,28 +164,20 @@ export async function editExpense({
 export async function editExpenseChartOfAccount({
   chartOfAccountId,
   expenseId,
-  organizationId,
 }: {
   expenseId: string;
-  organizationId: string;
   chartOfAccountId: string;
 }) {
   const expense = await prisma.expense.update({
-    where: { id: expenseId, organizationId },
+    where: { id: expenseId },
     data: { chartOfAccountId },
   });
   return expense;
 }
 
-export async function deleteExpense({
-  organizationId,
-  expenseId,
-}: {
-  expenseId: string;
-  organizationId: string;
-}) {
+export async function deleteExpense({ expenseId }: { expenseId: string }) {
   const expense = await prisma.expense.delete({
-    where: { id: expenseId, organizationId },
+    where: { id: expenseId },
   });
   return expense;
 }

@@ -35,7 +35,6 @@ export async function action({ request }: ActionFunctionArgs) {
   if (submission.status !== "success") {
     return json({ error: "", submission: submission.reply() });
   }
-  // console.log("hit");
 
   try {
     const user = await authenticator.authenticate("form", request, {
@@ -80,7 +79,6 @@ export default function Login() {
   const submitting = navigation.state === "submitting";
 
   const [form, { email, password }] = useForm({
-    // lastResult: actionData?.submission,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: loginSchema });
     },

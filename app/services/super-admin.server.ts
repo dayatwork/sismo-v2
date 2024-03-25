@@ -1,10 +1,7 @@
 import prisma from "~/lib/prisma";
 
 export async function getSuperAdminDashboardData() {
-  const [totalOrganizations, totalUsers] = await Promise.all([
-    prisma.organization.count(),
-    prisma.user.count(),
-  ]);
+  const totalUsers = await prisma.user.count();
 
-  return { totalOrganizations, totalUsers };
+  return { totalUsers };
 }

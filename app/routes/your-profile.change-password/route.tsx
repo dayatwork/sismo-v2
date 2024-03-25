@@ -20,6 +20,7 @@ import {
   verifyPassword,
 } from "~/services/auth.server";
 import { getUserByIdWithPasswordHash } from "~/services/user.server";
+import { requireUser } from "~/utils/auth.server";
 
 const schema = z.object({
   oldPassword: z.string(),
@@ -27,10 +28,9 @@ const schema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
-  const user = await getUserByIdWithPasswordHash(id);
+  const loggedInUser = await requireUser(request);
+
+  const user = await getUserByIdWithPasswordHash(loggedInUser.id);
   if (!user) {
     return await authenticator.logout(request, { redirectTo: "/login" });
   }

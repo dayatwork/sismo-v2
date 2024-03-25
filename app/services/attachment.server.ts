@@ -9,16 +9,13 @@ import { s3Client } from "~/lib/s3.server";
 // =================
 
 export async function getProjectAttachments({
-  organizationId,
   projectId,
 }: {
   projectId: string;
-  organizationId: string;
 }) {
   const attachments = await prisma.attachment.findMany({
     where: {
       projectId,
-      organizationId,
       stageId: null,
       taskId: null,
       trackerItemId: null,
@@ -30,17 +27,10 @@ export async function getProjectAttachments({
   return attachments;
 }
 
-export async function getStageAttachments({
-  organizationId,
-  stageId,
-}: {
-  stageId: string;
-  organizationId: string;
-}) {
+export async function getStageAttachments({ stageId }: { stageId: string }) {
   const attachments = await prisma.attachment.findMany({
     where: {
       stageId,
-      organizationId,
       taskId: null,
       trackerItemId: null,
     },
@@ -57,7 +47,6 @@ export async function getStageAttachments({
 
 export async function createProjectAttachmentTypeLink({
   displayName,
-  organizationId,
   projectId,
   url,
   userId,
@@ -66,7 +55,6 @@ export async function createProjectAttachmentTypeLink({
   url: string;
   displayName: string;
   userId: string;
-  organizationId: string;
 }) {
   const attachment = await prisma.attachment.create({
     data: {
@@ -75,7 +63,6 @@ export async function createProjectAttachmentTypeLink({
       url,
       displayName,
       userId,
-      organizationId,
     },
   });
   return attachment;
@@ -83,7 +70,6 @@ export async function createProjectAttachmentTypeLink({
 
 export async function createProjectAttachmentTypeFile({
   displayName,
-  organizationId,
   projectId,
   file,
   userId,
@@ -92,10 +78,9 @@ export async function createProjectAttachmentTypeFile({
   file: File;
   displayName?: string;
   userId: string;
-  organizationId: string;
 }) {
   const fileId = uuid();
-  const fileName = `${organizationId}/project/${projectId}/${fileId}.${file.name
+  const fileName = `project/${projectId}/${fileId}.${file.name
     .split(".")
     .slice(-1)}`;
 
@@ -118,7 +103,6 @@ export async function createProjectAttachmentTypeFile({
       url,
       displayName: displayName || fileId,
       userId,
-      organizationId,
     },
   });
 
@@ -127,7 +111,6 @@ export async function createProjectAttachmentTypeFile({
 
 export async function createStageAttachmentTypeLink({
   displayName,
-  organizationId,
   stageId,
   url,
   userId,
@@ -136,10 +119,9 @@ export async function createStageAttachmentTypeLink({
   url: string;
   displayName: string;
   userId: string;
-  organizationId: string;
 }) {
   const stage = await prisma.stage.findUnique({
-    where: { id: stageId, organizationId },
+    where: { id: stageId },
   });
   if (!stage) {
     throw new Error("Stage not found");
@@ -153,7 +135,6 @@ export async function createStageAttachmentTypeLink({
       url,
       displayName,
       userId,
-      organizationId,
     },
   });
 
@@ -162,7 +143,6 @@ export async function createStageAttachmentTypeLink({
 
 export async function createStageAttachmentTypeFile({
   displayName,
-  organizationId,
   stageId,
   file,
   userId,
@@ -171,17 +151,16 @@ export async function createStageAttachmentTypeFile({
   file: File;
   displayName?: string;
   userId: string;
-  organizationId: string;
 }) {
   const stage = await prisma.stage.findUnique({
-    where: { id: stageId, organizationId },
+    where: { id: stageId },
   });
   if (!stage) {
     throw new Error("Stage not found");
   }
 
   const fileId = uuid();
-  const fileName = `${organizationId}/stage/${stageId}/${fileId}.${file.name
+  const fileName = `stage/${stageId}/${fileId}.${file.name
     .split(".")
     .slice(-1)}`;
 
@@ -205,7 +184,6 @@ export async function createStageAttachmentTypeFile({
       url,
       displayName: displayName || fileId,
       userId,
-      organizationId,
     },
   });
 
@@ -214,7 +192,6 @@ export async function createStageAttachmentTypeFile({
 
 export async function createTaskAttachmentTypeLink({
   displayName,
-  organizationId,
   taskId,
   url,
   userId,
@@ -223,7 +200,6 @@ export async function createTaskAttachmentTypeLink({
   url: string;
   displayName: string;
   userId: string;
-  organizationId: string;
 }) {
   const task = await prisma.task.findUnique({ where: { id: taskId } });
 
@@ -240,7 +216,6 @@ export async function createTaskAttachmentTypeLink({
       url,
       displayName,
       userId,
-      organizationId,
     },
   });
 
@@ -249,7 +224,6 @@ export async function createTaskAttachmentTypeLink({
 
 export async function createTaskAttachmentTypeFile({
   displayName,
-  organizationId,
   taskId,
   file,
   userId,
@@ -258,7 +232,6 @@ export async function createTaskAttachmentTypeFile({
   file: File;
   displayName?: string;
   userId: string;
-  organizationId: string;
 }) {
   const task = await prisma.task.findUnique({ where: { id: taskId } });
 
@@ -267,9 +240,7 @@ export async function createTaskAttachmentTypeFile({
   }
 
   const fileId = uuid();
-  const fileName = `${organizationId}/task/${taskId}/${fileId}.${file.name
-    .split(".")
-    .slice(-1)}`;
+  const fileName = `task/${taskId}/${fileId}.${file.name.split(".").slice(-1)}`;
 
   const command = new PutObjectCommand({
     Bucket: process.env.S3_BUCKET_NAME,
@@ -292,7 +263,6 @@ export async function createTaskAttachmentTypeFile({
       url,
       displayName: displayName || fileId,
       userId,
-      organizationId,
     },
   });
 
@@ -301,7 +271,6 @@ export async function createTaskAttachmentTypeFile({
 
 export async function createTrackerAttachmentTypeLink({
   displayName,
-  organizationId,
   trackerItemId,
   url,
   userId,
@@ -311,10 +280,9 @@ export async function createTrackerAttachmentTypeLink({
   url: string;
   displayName: string;
   userId: string;
-  organizationId: string;
   type?: "DOCUMENT" | "LINK";
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   const trackerItem = await prisma.trackerItem.findUnique({
@@ -336,7 +304,6 @@ export async function createTrackerAttachmentTypeLink({
       url,
       displayName,
       userId,
-      organizationId,
     },
   });
 
@@ -345,7 +312,6 @@ export async function createTrackerAttachmentTypeLink({
 
 export async function createTrackerAttachmentTypeFile({
   displayName,
-  organizationId,
   trackerItemId,
   file,
   userId,
@@ -354,9 +320,8 @@ export async function createTrackerAttachmentTypeFile({
   file: File;
   displayName?: string;
   userId: string;
-  organizationId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   const trackerItem = await prisma.trackerItem.findUnique({
@@ -369,7 +334,7 @@ export async function createTrackerAttachmentTypeFile({
   }
 
   const fileId = uuid();
-  const fileName = `${organizationId}/task/${
+  const fileName = `task/${
     trackerItem.taskId
   }/tracker/${trackerItemId}/${fileId}.${file.name.split(".").slice(-1)}`;
 
@@ -395,7 +360,6 @@ export async function createTrackerAttachmentTypeFile({
       url,
       displayName: displayName || fileId,
       userId,
-      organizationId,
     },
   });
 
@@ -404,18 +368,16 @@ export async function createTrackerAttachmentTypeFile({
 
 export async function deleteAttachmentById({
   attachmentId,
-  organizationId,
   userId,
 }: {
   attachmentId: string;
-  organizationId: string;
   userId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   const attachment = await prisma.attachment.delete({
-    where: { id: attachmentId, organizationId },
+    where: { id: attachmentId },
   });
   return attachment;
 }

@@ -8,15 +8,12 @@ import prisma from "~/lib/prisma";
 // ======== QUERIES ========
 // =========================
 export async function getInboxMailCount({
-  organizationId,
   receiverId,
 }: {
-  organizationId: string;
   receiverId: string;
 }) {
   const inboxMailCount = await prisma.mail.count({
     where: {
-      organizationId,
       status: "SENT",
       receiverId,
     },
@@ -24,16 +21,9 @@ export async function getInboxMailCount({
   return inboxMailCount;
 }
 
-export async function getSentMailCount({
-  organizationId,
-  senderId,
-}: {
-  organizationId: string;
-  senderId: string;
-}) {
+export async function getSentMailCount({ senderId }: { senderId: string }) {
   const sentMailCount = await prisma.mail.count({
     where: {
-      organizationId,
       status: "SENT",
       senderId,
     },
@@ -41,16 +31,9 @@ export async function getSentMailCount({
   return sentMailCount;
 }
 
-export async function getDraftMailCount({
-  organizationId,
-  senderId,
-}: {
-  organizationId: string;
-  senderId: string;
-}) {
+export async function getDraftMailCount({ senderId }: { senderId: string }) {
   const draftMailCount = await prisma.mail.count({
     where: {
-      organizationId,
       status: "DRAFT",
       senderId,
     },
@@ -58,16 +41,9 @@ export async function getDraftMailCount({
   return draftMailCount;
 }
 
-export async function getInboxMails({
-  organizationId,
-  receiverId,
-}: {
-  organizationId: string;
-  receiverId: string;
-}) {
+export async function getInboxMails({ receiverId }: { receiverId: string }) {
   const inboxMails = await prisma.mail.findMany({
     where: {
-      organizationId,
       status: "SENT",
       receiverId,
     },
@@ -101,16 +77,9 @@ export async function getInboxMailById({ id }: { id: string }) {
   return inbox;
 }
 
-export async function getSentMails({
-  organizationId,
-  senderId,
-}: {
-  organizationId: string;
-  senderId: string;
-}) {
+export async function getSentMails({ senderId }: { senderId: string }) {
   const sentMails = await prisma.mail.findMany({
     where: {
-      organizationId,
       status: "SENT",
       senderId,
     },
@@ -122,16 +91,9 @@ export async function getSentMails({
   return sentMails;
 }
 
-export async function getDraftMails({
-  organizationId,
-  senderId,
-}: {
-  organizationId: string;
-  senderId: string;
-}) {
+export async function getDraftMails({ senderId }: { senderId: string }) {
   const draftMails = await prisma.mail.findMany({
     where: {
-      organizationId,
       status: "DRAFT",
       senderId,
     },
@@ -154,7 +116,6 @@ export async function getMailById({ id }: { id: string }) {
 export async function createMail({
   body,
   code,
-  organizationId,
   receiverId,
   senderId,
   parentId,
@@ -162,7 +123,6 @@ export async function createMail({
   code: string;
   body: string;
   parentId?: string;
-  organizationId: string;
   senderId: string;
   receiverId: string | null;
 }) {
@@ -171,7 +131,6 @@ export async function createMail({
       code,
       body,
       parentId,
-      organizationId,
       senderId,
       receiverId,
       sentAt: new Date(),
@@ -184,7 +143,6 @@ export async function createMail({
 export async function createMailForManyReceivers({
   body,
   code,
-  organizationId,
   receiverIds,
   senderId,
   subject,
@@ -193,7 +151,6 @@ export async function createMailForManyReceivers({
   code: string;
   body: string;
   parentId?: string;
-  organizationId: string;
   senderId: string;
   receiverIds: string[];
   subject: string;
@@ -204,7 +161,7 @@ export async function createMailForManyReceivers({
   if (attachments) {
     const filesInfo = attachments.map((attachment) => {
       const fileId = uuid();
-      const fileName = `${organizationId}/mail-attachments/${fileId}.${attachment.name
+      const fileName = `mail-attachments/${fileId}.${attachment.name
         .split(".")
         .slice(-1)}`;
 
@@ -241,7 +198,6 @@ export async function createMailForManyReceivers({
         sentAt: new Date(),
         status: "SENT",
         subject,
-        organizationId,
         senderId,
         receiverId,
       })),

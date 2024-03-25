@@ -1,6 +1,5 @@
 export type Attachment = {
   id: string;
-  organizationId: string;
   url: string;
   displayName: string;
   projectId: string | null;

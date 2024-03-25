@@ -137,15 +137,15 @@ export async function changePassword(id: string, newHashedPassword: string) {
 export async function createUser({
   email,
   name,
-  organizationId,
   password,
+  memberId,
   memberStatus,
 }: {
   name: string;
   email: string;
-  password: string;
-  organizationId: string;
-  memberStatus: "FULLTIME" | "INTERN" | "OUTSOURCED";
+  password?: string;
+  memberId?: string;
+  memberStatus: "FULLTIME" | "PARTTIME" | "INTERN" | "OUTSOURCED";
 }) {
   const foundUser = await prisma.user.findUnique({
     where: { email },
@@ -165,7 +165,8 @@ export async function createUser({
     data: {
       email,
       name,
-      organizationUsers: { create: { organizationId, memberStatus } },
+      memberStatus,
+      memberId,
       password: hash ? { create: { hash } } : undefined,
     },
   });
