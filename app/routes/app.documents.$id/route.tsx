@@ -90,7 +90,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
       });
       return json({ document });
     } catch (error) {
-      console.log("error", error);
       return json({ message: "Error" });
     }
   }
@@ -176,9 +175,7 @@ export default function Document() {
       method: "POST",
       body: formData,
     });
-    console.log({ response });
     const data = await response.json();
-    console.log({ data });
     return data.url;
   };
 
