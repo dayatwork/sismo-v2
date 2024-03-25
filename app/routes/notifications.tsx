@@ -4,23 +4,21 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 
-import { authenticator } from "~/services/auth.server";
 import {
   getUserNotifications,
   readNotification,
   readUserNotifications,
 } from "~/services/notification.server";
+import { requireUser } from "~/utils/auth.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const loggedInUser = await requireUser(request);
   const formData = await request.formData();
   const action = formData.get("action");
   const notificationId = formData.get("notificationId");
 
   if (action === "read-all") {
-    await readUserNotifications({ userId: id });
+    await readUserNotifications({ userId: loggedInUser.id });
     return json({ success: true });
   } else if (action === "read" && typeof notificationId === "string") {
     await readNotification({ notificationId });
@@ -31,11 +29,9 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const loggedInUser = await requireUser(request);
 
-  const notifications = await getUserNotifications({ userId: id });
+  const notifications = await getUserNotifications({ userId: loggedInUser.id });
   return json({ notifications });
 }
 

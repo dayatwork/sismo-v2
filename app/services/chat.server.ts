@@ -50,13 +50,11 @@ export async function createConversation({
 }
 
 export async function createMessage({
-  organizationId,
   body,
   conversationId,
   senderId,
   file,
 }: {
-  organizationId: string;
   conversationId: string;
   senderId: string;
   body: string;
@@ -66,7 +64,7 @@ export async function createMessage({
 
   if (file) {
     const fileId = uuid();
-    const fileName = `${organizationId}/chat/${conversationId}/${fileId}.${file.name
+    const fileName = `chat/${conversationId}/${fileId}.${file.name
       .split(".")
       .slice(-1)}`;
 

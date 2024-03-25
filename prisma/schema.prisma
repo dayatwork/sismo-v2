@@ -10,62 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Organization {
-  id                    String                @id
-  name                  String                @unique
-  description           String                @default("")
-  isActive              Boolean               @default(true)
-  organizationUsers     OrganizationUser[]
-  projects              Project[]
-  stages                Stage[]
-  milestones            Milestone[]
-  tasks                 Task[]
-  timeTrackers          TimeTracker[]
-  attachments           Attachment[]
-  directorates          Directorate[]
-  divisions             Division[]
-  jobLevels             JobLevel[]
-  employeePositions     EmployeePosition[]
-  roles                 Role[]
-  settings              OrganizationSettings?
-  documents             Document[]
-  services              Service[]
-  products              Product[]
-  chartOfAccounts       ChartOfAccount[]
-  expenses              Expense[]
-  meetings              Meeting[]
-  chartOfAccountClasses ChartOfAccountClass[]
-  chartOfAccountTypes   ChartOfAccountType[]
-  mails                 Mail[]
-  journals              Journal[]
-  departments           Department[]
-  teams                 Team[]
-  departmentMembers     DepartmentMember[]
-  teamMembers           TeamMember[]
-}
-
 enum MemberStatus {
   FULLTIME
   PARTTIME
   INTERN
   OUTSOURCED
-}
-
-model OrganizationUser {
-  id             String       @id @default(uuid())
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String
-  memberId       String?
-  memberStatus   MemberStatus
-  isActive       Boolean      @default(true)
-  isAdmin        Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-
-  @@unique([organizationId, userId])
-  @@unique([organizationId, memberId])
-  @@index([organizationId])
 }
 
 model User {
@@ -76,11 +25,12 @@ model User {
   photo                String?
   isSuperAdmin         Boolean              @default(false)
   isActive             Boolean              @default(true)
+  memberId             String?              @unique
+  memberStatus         MemberStatus?
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   connections          Connection[]
   password             Password?
-  organizationUsers    OrganizationUser[]
   tasks                Task[]
   timeTrackers         TimeTracker[]
   attachments          Attachment[]
@@ -127,15 +77,13 @@ model Connection {
 }
 
 model Role {
-  id             String       @id @default(uuid())
-  name           String       @unique
-  description    String       @default("")
-  permissions    String[]
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  users          User[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String   @default("")
+  permissions String[]
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum ProjectStatus {
@@ -159,8 +107,6 @@ model Project {
   code           String
   description    String                @default("")
   status         ProjectStatus         @default(UNSTARTED)
-  organization   Organization          @relation(fields: [organizationId], references: [id])
-  organizationId String
   closingReason  ProjectClosingReason?
   champion       User?                 @relation(fields: [championId], references: [id])
   championId     String?
@@ -176,9 +122,8 @@ model Project {
   projectClients ProjectClient[]
   expenses       Expense[]
 
-  @@unique([name, organizationId])
-  @@unique([code, organizationId])
-  @@index([id, organizationId])
+  @@unique([name])
+  @@unique([code])
 }
 
 enum StageStatus {
@@ -189,27 +134,24 @@ enum StageStatus {
 }
 
 model Stage {
-  id             String        @id @default(uuid())
-  project        Project       @relation(fields: [projectId], references: [id])
-  projectId      String
-  stageOrder     Int           @db.SmallInt
-  name           String
-  description    String        @default("")
-  status         StageStatus   @default(UNSTARTED)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  organizationId String
-  milestones     Milestone[]
-  tasks          Task[]
-  attachments    Attachment[]
-  members        StageMember[]
-  expenses       Expense[]
+  id          String        @id @default(uuid())
+  project     Project       @relation(fields: [projectId], references: [id])
+  projectId   String
+  stageOrder  Int           @db.SmallInt
+  name        String
+  description String        @default("")
+  status      StageStatus   @default(UNSTARTED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  milestones  Milestone[]
+  tasks       Task[]
+  attachments Attachment[]
+  members     StageMember[]
+  expenses    Expense[]
 
   @@unique([projectId, stageOrder])
   @@unique([projectId, name])
-  @@index([projectId, organizationId])
-  @@index([id, organizationId])
+  @@index([projectId])
 }
 
 enum Priority {
@@ -221,19 +163,16 @@ enum Priority {
 }
 
 model Milestone {
-  id             String       @id @default(uuid())
-  stage          Stage        @relation(fields: [stageId], references: [id])
-  stageId        String
-  name           String
-  description    String?      @db.Text
-  weight         Int?         @default(0) @db.SmallInt
-  priority       Priority     @default(NO_PRIORITY)
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  tasks          Task[]
+  id          String   @id @default(uuid())
+  stage       Stage    @relation(fields: [stageId], references: [id])
+  stageId     String
+  name        String
+  description String?  @db.Text
+  weight      Int?     @default(0) @db.SmallInt
+  priority    Priority @default(NO_PRIORITY)
+  tasks       Task[]
 
-  @@index([organizationId, id])
-  @@index([organizationId, stageId])
+  @@index([stageId])
 }
 
 enum TaskStatus {
@@ -250,48 +189,44 @@ enum TaskType {
 }
 
 model Task {
-  id             String        @id @default(uuid())
-  code           String        @unique
-  name           String
-  description    String        @default("")
-  type           TaskType
-  priority       Priority      @default(NO_PRIORITY)
-  status         TaskStatus    @default(BACKLOG)
-  project        Project?      @relation(fields: [projectId], references: [id])
-  projectId      String?
-  stage          Stage?        @relation(fields: [stageId], references: [id])
-  stageId        String?
-  milestone      Milestone?    @relation(fields: [milestoneId], references: [id])
-  milestoneId    String?
-  dueDate        DateTime?
-  assignee       User?         @relation(fields: [assigneeId], references: [id])
-  assigneeId     String?
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  organizationId String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  attachments    Attachment[]
-  trackerItems   TrackerItem[]
+  id           String        @id @default(uuid())
+  code         String        @unique
+  name         String
+  description  String        @default("")
+  type         TaskType
+  priority     Priority      @default(NO_PRIORITY)
+  status       TaskStatus    @default(BACKLOG)
+  project      Project?      @relation(fields: [projectId], references: [id])
+  projectId    String?
+  stage        Stage?        @relation(fields: [stageId], references: [id])
+  stageId      String?
+  milestone    Milestone?    @relation(fields: [milestoneId], references: [id])
+  milestoneId  String?
+  dueDate      DateTime?
+  assignee     User?         @relation(fields: [assigneeId], references: [id])
+  assigneeId   String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  attachments  Attachment[]
+  trackerItems TrackerItem[]
 
-  @@index([id, organizationId])
+  @@index([assigneeId])
+  @@index([projectId])
 }
 
 model TimeTracker {
-  id             String        @id @default(uuid())
-  user           User          @relation(fields: [userId], references: [id])
-  userId         String
-  startAt        DateTime      @default(now())
-  endAt          DateTime?
-  week           Int           @db.SmallInt
-  year           Int           @db.SmallInt
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  organizationId String
-  trackerItems   TrackerItem[]
+  id           String        @id @default(uuid())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String
+  startAt      DateTime      @default(now())
+  endAt        DateTime?
+  week         Int           @db.SmallInt
+  year         Int           @db.SmallInt
+  trackerItems TrackerItem[]
 
-  @@index([id, organizationId])
-  @@index([id, organizationId, userId])
-  @@index([id, organizationId, year])
-  @@index([id, organizationId, userId, year])
+  @@index([userId])
+  @@index([year])
+  @@index([userId, year])
 }
 
 model TrackerItem {
@@ -308,6 +243,8 @@ model TrackerItem {
   updatedAt             DateTime     @updatedAt
 
   @@unique([timeTrackerId, taskId])
+  @@index([taskId])
+  @@index([timeTrackerId])
 }
 
 enum AttachmentType {
@@ -317,98 +254,77 @@ enum AttachmentType {
 }
 
 model Attachment {
-  id             String         @id @default(uuid())
-  displayName    String         @default("")
-  url            String         @default("")
-  type           AttachmentType
-  user           User           @relation(fields: [userId], references: [id])
-  userId         String
-  project        Project?       @relation(fields: [projectId], references: [id])
-  projectId      String?
-  stage          Stage?         @relation(fields: [stageId], references: [id])
-  stageId        String?
-  task           Task?          @relation(fields: [taskId], references: [id])
-  taskId         String?
-  trackerItem    TrackerItem?   @relation(fields: [trackerItemId], references: [id])
-  trackerItemId  String?
-  organization   Organization   @relation(fields: [organizationId], references: [id])
-  organizationId String
-  createdAt      DateTime       @default(now())
+  id            String         @id @default(uuid())
+  displayName   String         @default("")
+  url           String         @default("")
+  type          AttachmentType
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+  project       Project?       @relation(fields: [projectId], references: [id])
+  projectId     String?
+  stage         Stage?         @relation(fields: [stageId], references: [id])
+  stageId       String?
+  task          Task?          @relation(fields: [taskId], references: [id])
+  taskId        String?
+  trackerItem   TrackerItem?   @relation(fields: [trackerItemId], references: [id])
+  trackerItemId String?
+  createdAt     DateTime       @default(now())
 
-  @@index([id, organizationId])
+  @@index([userId])
+  @@index([taskId])
 }
 
 model Directorate {
-  id             String       @id @default(uuid())
-  name           String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  divisions      Division[]
-
-  @@unique([name, organizationId])
-  @@index([id, organizationId])
+  id        String     @id @default(uuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  divisions Division[]
 }
 
 model Division {
   id                String             @id @default(uuid())
-  name              String
+  name              String             @unique
   directorate       Directorate        @relation(fields: [directorateId], references: [id])
   directorateId     String
-  organization      Organization       @relation(fields: [organizationId], references: [id])
-  organizationId    String
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   employeePositions EmployeePosition[]
-
-  @@unique([name, directorateId])
-  @@index([id, organizationId])
 }
 
 model JobLevel {
   id                String             @id @default(uuid())
-  name              String
-  organization      Organization       @relation(fields: [organizationId], references: [id])
-  organizationId    String
+  name              String             @unique
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   employeePositions EmployeePosition[]
-
-  @@unique([name, organizationId])
-  @@index([id, organizationId])
 }
 
 model EmployeePosition {
-  id             String       @id @default(uuid())
-  user           User         @relation(fields: [userId], references: [id])
-  userId         String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  division       Division     @relation(fields: [divisionId], references: [id])
-  divisionId     String
-  jobLevel       JobLevel     @relation(fields: [jobLevelId], references: [id])
-  jobLevelId     String
-  startAt        DateTime     @default(now())
-  endAt          DateTime?
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  division   Division  @relation(fields: [divisionId], references: [id])
+  divisionId String
+  jobLevel   JobLevel  @relation(fields: [jobLevelId], references: [id])
+  jobLevelId String
+  startAt    DateTime  @default(now())
+  endAt      DateTime?
 
-  @@unique([userId, organizationId])
-  @@index([id, organizationId])
+  @@index([userId])
 }
 
-model OrganizationSettings {
-  id                                   String       @id @default(uuid())
-  organization                         Organization @relation(fields: [organizationId], references: [id])
-  organizationId                       String       @unique
-  allowEditTimeTracker                 Boolean      @default(false)
-  timeTrackerEditLimitInDays           Int?         @db.SmallInt
-  timeTrackerLimited                   Boolean      @default(true)
-  maxTimeTrackerInHours                Int?         @default(4) @db.SmallInt
-  allowClockinWithNewTask              Boolean      @default(true)
-  allowClockinWithUnplannedTasks       Boolean      @default(true)
-  requireUploadAttachmentBeforeClockIn Boolean      @default(false)
-  createdAt                            DateTime     @default(now())
-  updatedAt                            DateTime     @updatedAt
+model Settings {
+  id                                   String   @id
+  allowEditTimeTracker                 Boolean  @default(false)
+  timeTrackerEditLimitInDays           Int?     @db.SmallInt
+  timeTrackerLimited                   Boolean  @default(true)
+  maxTimeTrackerInHours                Int?     @default(4) @db.SmallInt
+  allowClockinWithNewTask              Boolean  @default(true)
+  allowClockinWithUnplannedTasks       Boolean  @default(true)
+  requireUploadAttachmentBeforeClockIn Boolean  @default(false)
+  createdAt                            DateTime @default(now())
+  updatedAt                            DateTime @updatedAt
 }
 
 enum StageMemberRole {
@@ -430,9 +346,8 @@ model StageMember {
 
 model Client {
   id             String          @id @default(uuid())
-  organizationId String
-  name           String
-  code           String?
+  name           String          @unique
+  code           String?         @unique
   country        String?
   state          String?
   city           String?
@@ -441,10 +356,6 @@ model Client {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   projectClients ProjectClient[]
-
-  @@unique([organizationId, name])
-  @@unique([organizationId, code])
-  @@index([id, organizationId])
 }
 
 model ProjectClient {
@@ -459,64 +370,48 @@ model ProjectClient {
 }
 
 model Document {
-  id             String       @id @default(uuid())
-  title          String       @default("Untitled")
-  content        String       @default("") @db.Text
-  icon           String?      @db.Text
-  coverImage     String?      @db.Text
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  isPublished    Boolean      @default(false)
-  whiteList      String[]     @default([])
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  parentId       String?
-  parent         Document?    @relation("parentChildren", fields: [parentId], references: [id], onDelete: Cascade)
-  children       Document[]   @relation("parentChildren")
+  id          String     @id @default(uuid())
+  title       String     @default("Untitled")
+  content     String     @default("") @db.Text
+  icon        String?    @db.Text
+  coverImage  String?    @db.Text
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  isPublished Boolean    @default(false)
+  whiteList   String[]   @default([])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  parentId    String?
+  parent      Document?  @relation("parentChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Document[] @relation("parentChildren")
 
-  @@index([id, organizationId])
-  @@index([title, organizationId])
-  @@index([userId, organizationId])
+  @@index([title])
+  @@index([userId])
 }
 
 model Service {
-  id             String       @id @default(uuid())
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  name           String
-  code           String
-  description    String       @default("")
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  projects       Project[]
-
-  @@unique([organizationId, name])
-  @@unique([organizationId, code])
-  @@index([id, organizationId])
-  @@index([organizationId])
+  id          String    @id @default(uuid())
+  name        String    @unique
+  code        String    @unique
+  description String    @default("")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  projects    Project[]
 }
 
 model Product {
-  id             String       @id @default(uuid())
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  name           String
-  code           String
-  description    String?      @default("")
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  parentId       String?
-  parent         Product?     @relation("parentSubProduct", fields: [parentId], references: [id])
-  subProducts    Product[]    @relation("parentSubProduct")
-  projects       Project[]
+  id          String    @id @default(uuid())
+  name        String    @unique
+  code        String    @unique
+  description String?   @default("")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  parentId    String?
+  parent      Product?  @relation("parentSubProduct", fields: [parentId], references: [id])
+  subProducts Product[] @relation("parentSubProduct")
+  projects    Project[]
 
-  @@unique([organizationId, name])
-  @@unique([organizationId, code])
-  @@index([id, organizationId])
-  @@index([parentId, organizationId])
-  @@index([organizationId])
+  @@index([parentId])
 }
 
 enum NormalBalance {
@@ -526,15 +421,10 @@ enum NormalBalance {
 
 model ChartOfAccountClass {
   id                  String               @id @default(uuid())
-  name                String
-  organization        Organization         @relation(fields: [organizationId], references: [id])
-  organizationId      String
+  name                String               @unique
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   chartOfAccountTypes ChartOfAccountType[]
-
-  @@unique([name, organizationId])
-  @@index([id, organizationId])
 }
 
 model ChartOfAccountType {
@@ -542,32 +432,26 @@ model ChartOfAccountType {
   classId         String
   class           ChartOfAccountClass @relation(fields: [classId], references: [id])
   name            String
-  organization    Organization        @relation(fields: [organizationId], references: [id])
-  organizationId  String
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   chartOfAccounts ChartOfAccount[]
 }
 
 model ChartOfAccount {
-  id             String             @id @default(uuid())
-  organization   Organization       @relation(fields: [organizationId], references: [id])
-  organizationId String
-  type           ChartOfAccountType @relation(fields: [typeId], references: [id])
-  typeId         String
-  code           String
-  accountName    String
-  normalBalance  NormalBalance
-  description    String?            @default("")
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  expenses       Expense[]
-  Journal        Journal[]
+  id            String             @id @default(uuid())
+  type          ChartOfAccountType @relation(fields: [typeId], references: [id])
+  typeId        String
+  code          String             @unique
+  accountName   String
+  normalBalance NormalBalance
+  description   String?            @default("")
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  expenses      Expense[]
+  Journal       Journal[]
 
-  @@unique([code, organizationId])
-  @@index([organizationId, code])
-  @@index([organizationId, accountName])
-  @@index([organizationId, typeId])
+  @@index([accountName])
+  @@index([typeId])
 }
 
 enum ExpenseStatus {
@@ -578,9 +462,7 @@ enum ExpenseStatus {
 
 model Expense {
   id               String          @id @default(uuid())
-  organization     Organization    @relation(fields: [organizationId], references: [id])
-  organizationId   String
-  code             String
+  code             String          @unique
   project          Project?        @relation(fields: [projectId], references: [id])
   projectId        String?
   stage            Stage?          @relation(fields: [stageId], references: [id])
@@ -605,18 +487,15 @@ model Expense {
   rejectedBy       User?           @relation("rejectedBy", fields: [rejectedById], references: [id])
   rejectedById     String?
 
-  @@unique([code, organizationId])
-  @@index([organizationId, projectId])
-  @@index([organizationId, stageId])
-  @@index([organizationId, status])
-  @@index([organizationId, chartOfAccountId])
+  @@index([projectId])
+  @@index([stageId])
+  @@index([status])
+  @@index([chartOfAccountId])
 }
 
 model Journal {
   id               String         @id @default(uuid())
-  organization     Organization   @relation(fields: [organizationId], references: [id])
-  organizationId   String
-  referenceNumber  String
+  referenceNumber  String         @unique
   chartOfAccount   ChartOfAccount @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountId String
   amount           Decimal
@@ -628,9 +507,7 @@ model Journal {
   createdBy        User           @relation(fields: [createdById], references: [id])
   createdById      String
 
-  @@unique([referenceNumber, organizationId])
-  @@index([organizationId, id])
-  @@index([organizationId, chartOfAccountId])
+  @@index([chartOfAccountId])
 }
 
 enum MeetingStatus {
@@ -642,17 +519,13 @@ model Meeting {
   id                String               @id @default(uuid())
   roomName          String               @unique
   description       String?              @default("")
-  organization      Organization         @relation(fields: [organizationId], references: [id])
-  organizationId    String
   status            MeetingStatus        @default(OPEN)
   openedAt          DateTime             @default(now())
   closedAt          DateTime?
   requireInvitation Boolean              @default(false)
   participants      MeetingParticipant[]
 
-  @@index([organizationId])
-  @@index([organizationId, status])
-  @@index([organizationId, roomName])
+  @@index([status])
 }
 
 model MeetingParticipant {
@@ -674,27 +547,25 @@ enum MailStatus {
 }
 
 model Mail {
-  id             String           @id @default(uuid())
-  organization   Organization     @relation(fields: [organizationId], references: [id])
-  organizationId String
-  subject        String?
-  code           String
-  body           String           @db.Text
-  createdAt      DateTime         @default(now())
-  sentAt         DateTime
-  parentId       String?
-  parent         Mail?            @relation("ParentChildren", fields: [parentId], references: [id])
-  children       Mail[]           @relation("ParentChildren")
-  sender         User             @relation("sender", fields: [senderId], references: [id])
-  senderId       String
-  receiver       User?            @relation("receiver", fields: [receiverId], references: [id])
-  receiverId     String?
-  status         MailStatus
-  attachments    MailAttachment[]
+  id          String           @id @default(uuid())
+  subject     String?
+  code        String
+  body        String           @db.Text
+  createdAt   DateTime         @default(now())
+  sentAt      DateTime
+  parentId    String?
+  parent      Mail?            @relation("ParentChildren", fields: [parentId], references: [id])
+  children    Mail[]           @relation("ParentChildren")
+  sender      User             @relation("sender", fields: [senderId], references: [id])
+  senderId    String
+  receiver    User?            @relation("receiver", fields: [receiverId], references: [id])
+  receiverId  String?
+  status      MailStatus
+  attachments MailAttachment[]
 
-  @@index([organizationId, senderId])
-  @@index([organizationId, senderId, status])
-  @@index([organizationId, receiverId])
+  @@index([senderId])
+  @@index([senderId, status])
+  @@index([receiverId])
 }
 
 model MailAttachment {
@@ -745,17 +616,12 @@ model Notification {
 
 model Department {
   id                String             @id @default(uuid())
-  organization      Organization       @relation(fields: [organizationId], references: [id])
-  organizationId    String
-  name              String
+  name              String             @unique
   description       String             @default("")
   logo              String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   departmentMembers DepartmentMember[]
-
-  @@index([organizationId, id])
-  @@index([organizationId, name])
 }
 
 enum DepartmentRole {
@@ -764,31 +630,24 @@ enum DepartmentRole {
 }
 
 model DepartmentMember {
-  organization   Organization   @relation(fields: [organizationId], references: [id])
-  organizationId String
-  user           User           @relation(fields: [userId], references: [id])
-  userId         String
-  role           DepartmentRole
-  department     Department     @relation(fields: [departmentId], references: [id])
-  departmentId   String
+  user         User           @relation(fields: [userId], references: [id])
+  userId       String
+  department   Department     @relation(fields: [departmentId], references: [id])
+  departmentId String
+  role         DepartmentRole
 
   @@id([userId, departmentId])
-  @@index([organizationId, departmentId])
+  @@index([departmentId])
 }
 
 model Team {
-  id             String       @id @default(uuid())
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  name           String
-  description    String       @default("")
-  logo           String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  teamMembers    TeamMember[]
-
-  @@index([organizationId, id])
-  @@index([organizationId, name])
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String       @default("")
+  logo        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  teamMembers TeamMember[]
 }
 
 enum TeamRole {
@@ -797,14 +656,12 @@ enum TeamRole {
 }
 
 model TeamMember {
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  user           User         @relation(fields: [userId], references: [id])
-  userId         String
-  team           Team         @relation(fields: [teamId], references: [id])
-  teamId         String
-  role           TeamRole
+  user   User     @relation(fields: [userId], references: [id])
+  userId String
+  team   Team     @relation(fields: [teamId], references: [id])
+  teamId String
+  role   TeamRole
 
   @@id([userId, teamId])
-  @@index([organizationId, teamId])
+  @@index([teamId])
 }

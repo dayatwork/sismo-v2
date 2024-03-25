@@ -1,65 +1,43 @@
+import { type User, type Role } from "@prisma/client";
 import { authenticator } from "~/services/auth.server";
-import { getOrganizationUser } from "~/services/user.server";
 import { type PermissionName } from "./permission";
+import { getUserById } from "~/services/user.server";
+import { redirect } from "@remix-run/node";
 
-export type LoggedInUserPayload = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  photo: string | null;
-  isSuperAdmin: boolean;
-  hasPassword: boolean;
-  isAdmin: boolean;
-  roles: { id: string; name: string; permissions: string[] }[];
-  memberId: string | null;
-  memberStatus: "FULLTIME" | "INTERN" | "OUTSOURCED" | "PARTTIME";
-  organization: {
-    id: string;
-    name: string;
-    isActive: boolean;
-  } | null;
-};
+export type LoggedInUserPayload =
+  | Omit<User, "password"> & { roles: Role[]; hasPassword: boolean };
 
-export async function requireOrganizationUser(
-  request: Request,
-  organizationId: string
-) {
+export async function requireUser(
+  request: Request
+): Promise<LoggedInUserPayload> {
   const { id: userId } = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
-  const organizationUser = await getOrganizationUser({
-    organizationId,
-    userId,
-  });
-
-  const loggedInUser = organizationUserToLoggedInUser(organizationUser);
+  const loggedInUser = await getUserById(userId);
+  if (!loggedInUser) {
+    throw redirect("/login");
+  }
 
   return loggedInUser;
 }
 
 export async function requirePermission(
   request: Request,
-  organizationId: string,
-  permission: PermissionName
-) {
+  permission: PermissionName,
+  failureRedirect?: string
+): Promise<LoggedInUserPayload> {
   const { id: userId } = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
-  const organizationUser = await getOrganizationUser({
-    organizationId,
-    userId,
-  });
-
-  const loggedInUser = organizationUserToLoggedInUser(organizationUser);
+  const loggedInUser = await getUserById(userId);
 
   if (!loggedInUser) {
-    return null;
+    throw redirect("/login");
   }
 
-  if (loggedInUser.isAdmin) {
+  if (loggedInUser.isSuperAdmin) {
     return loggedInUser;
   }
 
@@ -71,35 +49,9 @@ export async function requirePermission(
 
   const hasPermission = allPermissions.includes(permission);
 
-  if (hasPermission) {
-    return loggedInUser;
+  if (!hasPermission) {
+    throw redirect(failureRedirect || "/unauthorized");
   }
 
-  return null;
-}
-
-export function organizationUserToLoggedInUser(
-  organizationUser: Awaited<ReturnType<typeof getOrganizationUser>>
-): LoggedInUserPayload | null {
-  if (!organizationUser) {
-    return null;
-  }
-  return {
-    id: organizationUser.user.id,
-    name: organizationUser.user.name,
-    email: organizationUser.user.email,
-    phone: organizationUser.user.phone,
-    photo: organizationUser.user.photo,
-    hasPassword: !!organizationUser.user.password?.hash,
-    isSuperAdmin: organizationUser.user.isSuperAdmin,
-    isAdmin: organizationUser.isAdmin,
-    roles: organizationUser.user.roles,
-    memberId: organizationUser.memberId,
-    memberStatus: organizationUser.memberStatus,
-    organization: {
-      id: organizationUser.organization.id,
-      name: organizationUser.organization.name,
-      isActive: organizationUser.organization.isActive,
-    },
-  };
+  return loggedInUser;
 }

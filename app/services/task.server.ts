@@ -8,17 +8,14 @@ import prisma from "~/lib/prisma";
 
 export async function getUnfinishedTasks({
   assigneeId,
-  organizationId,
   excludeIds,
 }: {
   assigneeId: string;
-  organizationId: string;
   excludeIds?: string[];
 }) {
   const tasks = await prisma.task.findMany({
     where: {
       assigneeId,
-      organizationId,
       status: { in: ["BACKLOG", "TODO", "IN_PROGRESS"] },
       id: { notIn: excludeIds },
     },
@@ -29,15 +26,9 @@ export async function getUnfinishedTasks({
   return tasks;
 }
 
-export async function getTaskById({
-  id,
-  organizationId,
-}: {
-  id: string;
-  organizationId: string;
-}) {
+export async function getTaskById({ id }: { id: string }) {
   const task = await prisma.task.findUnique({
-    where: { id, organizationId },
+    where: { id },
     include: {
       assignee: true,
       attachments: { include: { user: true } },
@@ -50,7 +41,6 @@ export async function getTaskById({
 
 type GetAssigneeTasksProps = {
   assigneeId: string;
-  organizationId: string;
   taskNameOrCode?: string;
   stageId?: string;
   status?: {
@@ -63,7 +53,6 @@ type GetAssigneeTasksProps = {
 
 export async function getAssigneeTasks({
   assigneeId,
-  organizationId,
   pageSize,
   skip,
   sort,
@@ -75,7 +64,6 @@ export async function getAssigneeTasks({
     prisma.task.findMany({
       where: {
         assigneeId,
-        organizationId,
         OR: taskNameOrCode
           ? [
               {
@@ -114,7 +102,6 @@ export async function getAssigneeTasks({
     prisma.task.count({
       where: {
         assigneeId,
-        organizationId,
         OR: taskNameOrCode
           ? [
               {
@@ -139,14 +126,12 @@ export async function getAssigneeTasks({
 export async function getAssigneeTaskById({
   assigneeId,
   taskId,
-  organizationId,
 }: {
   assigneeId: string;
   taskId: string;
-  organizationId: string;
 }) {
   const task = await prisma.task.findUnique({
-    where: { id: taskId, assigneeId, organizationId },
+    where: { id: taskId, assigneeId },
     include: {
       trackerItems: true,
       attachments: { include: { user: true } },
@@ -157,16 +142,14 @@ export async function getAssigneeTaskById({
 }
 
 export async function getStageTasks({
-  organizationId,
   stageId,
   milestoneId,
 }: {
   stageId: string;
-  organizationId: string;
   milestoneId?: string;
 }) {
   const tasks = await prisma.task.findMany({
-    where: { stageId, organizationId, milestoneId },
+    where: { stageId, milestoneId },
     include: { assignee: true, milestone: true },
     orderBy: { createdAt: "desc" },
   });
@@ -180,7 +163,6 @@ export async function getStageTasks({
 export async function createPersonalTask({
   assigneeId,
   name,
-  organizationId,
   description,
   dueDate,
 }: {
@@ -188,7 +170,6 @@ export async function createPersonalTask({
   description?: string;
   assigneeId: string;
   dueDate?: string;
-  organizationId: string;
 }) {
   const uid = new ShortUniqueId({ length: 10 });
 
@@ -200,7 +181,6 @@ export async function createPersonalTask({
       assigneeId,
       type: "PERSONAL",
       dueDate,
-      organizationId,
     },
   });
   return task;
@@ -209,13 +189,11 @@ export async function createPersonalTask({
 export async function createStageTask({
   assigneeId,
   name,
-  organizationId,
   description,
   dueDate,
   stageId,
   milestoneId,
 }: {
-  organizationId: string;
   stageId: string;
   name: string;
   description?: string;
@@ -224,7 +202,7 @@ export async function createStageTask({
   milestoneId?: string;
 }) {
   const stage = await prisma.stage.findUnique({
-    where: { organizationId, id: stageId },
+    where: { id: stageId },
   });
   if (!stage) {
     throw new Error("Stage not found");
@@ -241,7 +219,6 @@ export async function createStageTask({
       projectId: stage.projectId,
       stageId,
       description,
-      organizationId,
       type: "PROJECT",
       milestoneId,
     },
@@ -252,19 +229,17 @@ export async function createStageTask({
 
 export async function editTask({
   id,
-  organizationId,
   description,
   dueDate,
   name,
 }: {
   id: string;
-  organizationId: string;
   name?: string;
   description?: string;
   dueDate?: string | Date;
 }) {
   const task = await prisma.task.update({
-    where: { id, organizationId },
+    where: { id },
     data: {
       name,
       description,
@@ -276,15 +251,13 @@ export async function editTask({
 
 export async function assignTask({
   assigneeId,
-  organizationId,
   taskId,
 }: {
   taskId: string;
-  organizationId: string;
   assigneeId: string;
 }) {
   const task = await prisma.task.update({
-    where: { id: taskId, organizationId },
+    where: { id: taskId },
     data: {
       assigneeId,
     },
@@ -292,15 +265,9 @@ export async function assignTask({
   return task;
 }
 
-export async function unassignTask({
-  organizationId,
-  taskId,
-}: {
-  taskId: string;
-  organizationId: string;
-}) {
+export async function unassignTask({ taskId }: { taskId: string }) {
   const task = await prisma.task.update({
-    where: { id: taskId, organizationId },
+    where: { id: taskId },
     data: {
       assigneeId: null,
     },
@@ -308,33 +275,24 @@ export async function unassignTask({
   return task;
 }
 
-export async function cancelTask({
-  organizationId,
-  taskId,
-}: {
-  taskId: string;
-  organizationId: string;
-}) {
+export async function cancelTask({ taskId }: { taskId: string }) {
   const task = await prisma.task.update({
-    where: { id: taskId, organizationId },
+    where: { id: taskId },
     data: { status: "CANCELED" },
   });
   return task;
 }
 
 export async function changeTaskDueDate({
-  organizationId,
   taskId,
   dueDate,
 }: {
   taskId: string;
-  organizationId: string;
   dueDate?: string | Date;
 }) {
   const task = await prisma.task.update({
     where: {
       id: taskId,
-      organizationId,
     },
     data: {
       dueDate,
@@ -348,28 +306,16 @@ export async function deleteTaskById({ id }: { id: string }) {
   return task;
 }
 
-export async function deleteTask({
-  organizationId,
-  taskId,
-}: {
-  taskId: string;
-  organizationId: string;
-}) {
+export async function deleteTask({ taskId }: { taskId: string }) {
   const task = await prisma.task.delete({
-    where: { id: taskId, organizationId },
+    where: { id: taskId },
   });
   return task;
 }
 
-export async function removeTaskDueDate({
-  organizationId,
-  taskId,
-}: {
-  taskId: string;
-  organizationId: string;
-}) {
+export async function removeTaskDueDate({ taskId }: { taskId: string }) {
   const task = await prisma.task.update({
-    where: { id: taskId, organizationId },
+    where: { id: taskId },
     data: { dueDate: null },
   });
   return task;

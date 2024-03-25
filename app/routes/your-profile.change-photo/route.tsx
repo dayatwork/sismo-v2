@@ -13,22 +13,15 @@ import { Dialog, Heading, Modal } from "react-aria-components";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { authenticator } from "~/services/auth.server";
-import { changeUserPhoto, getUserById } from "~/services/user.server";
+import { changeUserPhoto } from "~/services/user.server";
+import { requireUser } from "~/utils/auth.server";
 
 const schema = z.object({
   photo: z.instanceof(File, { message: "Photo is required" }),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
-
-  const user = await getUserById(id);
-  if (!user) {
-    return await authenticator.logout(request, { redirectTo: "/login" });
-  }
+  const loggedInUser = await requireUser(request);
 
   const formData = await request.formData();
   const submission = parseWithZod(formData, { schema });
@@ -39,7 +32,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { photo } = submission.value;
 
-  await changeUserPhoto({ userId: id, photo });
+  await changeUserPhoto({ userId: loggedInUser.id, photo });
 
   return redirect("/your-profile");
 }

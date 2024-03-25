@@ -1,14 +1,8 @@
 import prisma from "~/lib/prisma";
 
-export async function getStages({
-  organizationId,
-  projectId,
-}: {
-  organizationId: string;
-  projectId: string;
-}) {
+export async function getStages({ projectId }: { projectId: string }) {
   const stages = await prisma.stage.findMany({
-    where: { organizationId, projectId },
+    where: { projectId },
     include: {
       milestones: { include: { tasks: true } },
       members: { include: { user: true } },
@@ -18,15 +12,9 @@ export async function getStages({
   return stages;
 }
 
-export async function getUserStages({
-  userId,
-  organizationId,
-}: {
-  userId: string;
-  organizationId: string;
-}) {
+export async function getUserStages({ userId }: { userId: string }) {
   const stages = await prisma.stage.findMany({
-    where: { organizationId, members: { some: { userId } } },
+    where: { members: { some: { userId } } },
     select: {
       id: true,
       name: true,
@@ -36,15 +24,9 @@ export async function getUserStages({
   return stages;
 }
 
-export async function getStageById({
-  id,
-  organizationId,
-}: {
-  organizationId: string;
-  id: string;
-}) {
+export async function getStageById({ id }: { id: string }) {
   const stage = await prisma.stage.findUnique({
-    where: { id, organizationId },
+    where: { id },
     include: { project: true, members: { include: { user: true } } },
   });
   return stage;
@@ -53,21 +35,18 @@ export async function getStageById({
 export async function createStage({
   description,
   name,
-  organizationId,
   projectId,
 }: {
-  organizationId: string;
   projectId: string;
   name: string;
   description: string;
 }) {
   const stagesCount = await prisma.stage.count({
-    where: { organizationId, projectId },
+    where: { projectId },
   });
 
   const stage = await prisma.stage.create({
     data: {
-      organizationId,
       name,
       description,
       projectId,
@@ -78,43 +57,25 @@ export async function createStage({
   return stage;
 }
 
-export async function startStage({
-  organizationId,
-  stageId,
-}: {
-  stageId: string;
-  organizationId: string;
-}) {
+export async function startStage({ stageId }: { stageId: string }) {
   const stage = await prisma.stage.update({
-    where: { id: stageId, organizationId },
+    where: { id: stageId },
     data: { status: "ONGOING" },
   });
   return stage;
 }
 
-export async function holdStage({
-  organizationId,
-  stageId,
-}: {
-  stageId: string;
-  organizationId: string;
-}) {
+export async function holdStage({ stageId }: { stageId: string }) {
   const stage = await prisma.stage.update({
-    where: { id: stageId, organizationId },
+    where: { id: stageId },
     data: { status: "ONHOLD" },
   });
   return stage;
 }
 
-export async function completeStage({
-  organizationId,
-  stageId,
-}: {
-  stageId: string;
-  organizationId: string;
-}) {
+export async function completeStage({ stageId }: { stageId: string }) {
   const stage = await prisma.stage.update({
-    where: { id: stageId, organizationId },
+    where: { id: stageId },
     data: { status: "COMPLETED" },
   });
   return stage;

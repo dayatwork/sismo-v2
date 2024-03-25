@@ -14,23 +14,19 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { authenticator, setPassword } from "~/services/auth.server";
-import { getUserByIdWithPasswordHash } from "~/services/user.server";
+import { requireUser } from "~/utils/auth.server";
 
 const schema = z.object({
   password: z.string().min(6, "Minimum 6 characters"),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
-  const user = await getUserByIdWithPasswordHash(id);
-  if (!user) {
-    return await authenticator.logout(request, { redirectTo: "/login" });
-  }
-  if (user.password) {
+  const loggedInUser = await requireUser(request);
+
+  if (loggedInUser.hasPassword) {
     return redirect("/your-profile");
   }
+
   const formData = await request.formData();
   const submission = parseWithZod(formData, { schema });
 
@@ -40,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { password } = submission.value;
 
-  await setPassword(user.id, password);
+  await setPassword(loggedInUser.id, password);
 
   return authenticator.logout(request, { redirectTo: "/login" });
 }

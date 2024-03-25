@@ -4,25 +4,16 @@ import { KeyRoundIcon, PenSquareIcon, UploadCloudIcon } from "lucide-react";
 
 import AppLogo from "~/components/app-logo";
 import ProfileDropdown from "~/components/profile-dropdown";
-import { authenticator } from "~/services/auth.server";
-import { getUserById } from "~/services/user.server";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { ThemeSwitch } from "../action.set-theme";
+import { requireUser } from "~/utils/auth.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const loggedInUser = await requireUser(request);
 
-  const user = await getUserById(id);
-
-  if (!user) {
-    return await authenticator.logout(request, { redirectTo: "/login" });
-  }
-
-  return json({ user });
+  return json({ user: loggedInUser });
 }
 
 export default function YourProfile() {

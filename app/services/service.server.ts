@@ -1,26 +1,15 @@
 import prisma from "~/lib/prisma";
 
-export async function getServices({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
+export async function getServices() {
   const services = await prisma.service.findMany({
-    where: { organizationId },
     orderBy: { createdAt: "asc" },
   });
   return services;
 }
 
-export async function getServiceById({
-  organizationId,
-  serviceId,
-}: {
-  organizationId: string;
-  serviceId: string;
-}) {
+export async function getServiceById({ serviceId }: { serviceId: string }) {
   const service = await prisma.service.findUnique({
-    where: { organizationId, id: serviceId },
+    where: { id: serviceId },
   });
   return service;
 }
@@ -29,15 +18,13 @@ export async function createService({
   code,
   name,
   description,
-  organizationId,
 }: {
   name: string;
   code: string;
   description?: string;
-  organizationId: string;
 }) {
   const service = await prisma.service.create({
-    data: { code, name, organizationId, description },
+    data: { code, name, description },
   });
   return service;
 }
@@ -46,31 +33,23 @@ export async function editService({
   code,
   name,
   description,
-  organizationId,
   serviceId,
 }: {
   name?: string;
   code?: string;
   description?: string;
-  organizationId: string;
   serviceId: string;
 }) {
   const service = await prisma.service.update({
-    where: { id: serviceId, organizationId },
+    where: { id: serviceId },
     data: { code, name, description },
   });
   return service;
 }
 
-export async function deleteService({
-  organizationId,
-  serviceId,
-}: {
-  serviceId: string;
-  organizationId: string;
-}) {
+export async function deleteService({ serviceId }: { serviceId: string }) {
   const service = await prisma.service.delete({
-    where: { id: serviceId, organizationId },
+    where: { id: serviceId },
   });
   return service;
 }

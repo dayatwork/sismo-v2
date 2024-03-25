@@ -6,13 +6,11 @@ export async function createNewProject({
   name,
   description,
   code,
-  organizationId,
   championId,
   productId,
   serviceId,
 }: {
   name: string;
-  organizationId: string;
   code?: string;
   description?: string;
   championId?: string;
@@ -26,7 +24,6 @@ export async function createNewProject({
       code: code || uid.rnd(),
       name,
       description,
-      organizationId,
       championId,
       productId,
       serviceId,
@@ -35,13 +32,8 @@ export async function createNewProject({
   return project;
 }
 
-export async function getProjects({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
+export async function getProjects() {
   const projects = await prisma.project.findMany({
-    where: { organizationId },
     include: {
       projectClients: { include: { client: true } },
       champion: { select: { id: true, name: true, photo: true } },
@@ -52,15 +44,9 @@ export async function getProjects({
   return projects;
 }
 
-export async function getProjectById({
-  id,
-  organizationId,
-}: {
-  id: string;
-  organizationId: string;
-}) {
+export async function getProjectById({ id }: { id: string }) {
   const project = await prisma.project.findUnique({
-    where: { id, organizationId },
+    where: { id },
     include: {
       projectClients: { include: { client: true } },
       champion: { select: { id: true, name: true, photo: true } },
@@ -105,13 +91,11 @@ export async function addProjectClient({
 
 export async function getClientsAndExcludeSomeIds({
   excludeIds,
-  organizationId,
 }: {
   excludeIds: string[];
-  organizationId: string;
 }) {
   const clients = await prisma.client.findMany({
-    where: { organizationId, id: { notIn: excludeIds } },
+    where: { id: { notIn: excludeIds } },
   });
   return clients;
 }
@@ -138,122 +122,86 @@ export async function setMainClient({
   });
 }
 
-export async function cancelProject({
-  organizationId,
-  projectId,
-}: {
-  projectId: string;
-  organizationId: string;
-}) {
+export async function cancelProject({ projectId }: { projectId: string }) {
   const project = await prisma.project.update({
-    where: { id: projectId, organizationId },
+    where: { id: projectId },
     data: { status: "CANCELED" },
   });
   return project;
 }
 
 export async function closeProject({
-  organizationId,
   projectId,
   closingReason,
 }: {
-  organizationId: string;
   projectId: string;
   closingReason: "COMPLETE" | "CANCEL";
 }) {
   const project = await prisma.project.update({
-    where: { id: projectId, organizationId },
+    where: { id: projectId },
     data: { status: "CLOSING", closingReason },
   });
   return project;
 }
 
-export async function completeProject({
-  organizationId,
-  projectId,
-}: {
-  organizationId: string;
-  projectId: string;
-}) {
+export async function completeProject({ projectId }: { projectId: string }) {
   const project = await prisma.project.update({
-    where: { id: projectId, organizationId },
+    where: { id: projectId },
     data: { status: "COMPLETED" },
   });
   return project;
 }
 
-export async function holdProject({
-  organizationId,
-  projectId,
-}: {
-  organizationId: string;
-  projectId: string;
-}) {
+export async function holdProject({ projectId }: { projectId: string }) {
   const project = await prisma.project.update({
-    where: { id: projectId, organizationId },
+    where: { id: projectId },
     data: { status: "ONHOLD" },
   });
   return project;
 }
 
-export async function startProject({
-  organizationId,
-  projectId,
-}: {
-  organizationId: string;
-  projectId: string;
-}) {
+export async function startProject({ projectId }: { projectId: string }) {
   const project = await prisma.project.update({
-    where: { id: projectId, organizationId },
+    where: { id: projectId },
     data: { status: "ONGOING" },
   });
   return project;
 }
 
-export async function deleteProject({
-  organizationId,
-  projectId,
-}: {
-  projectId: string;
-  organizationId: string;
-}) {
+export async function deleteProject({ projectId }: { projectId: string }) {
   const project = await prisma.project.delete({
-    where: { id: projectId, organizationId },
+    where: { id: projectId },
   });
   return project;
 }
 
 export async function editProjectName({
-  organizationId,
   projectId,
   description,
   name,
 }: {
-  organizationId: string;
   projectId: string;
   name?: string;
   description?: string;
 }) {
   const project = await prisma.project.update({
-    where: { organizationId, id: projectId },
+    where: { id: projectId },
     data: { name, description },
   });
   return project;
 }
 
 export async function editProjectServiceOrProduct({
-  organizationId,
   projectId,
   serviceId,
   productId,
 }: {
-  organizationId: string;
   projectId: string;
   serviceId?: string;
   productId?: string;
 }) {
   const project = await prisma.project.update({
-    where: { organizationId, id: projectId },
+    where: { id: projectId },
     data: { serviceId, productId },
   });
   return project;
@@ -261,30 +209,25 @@ export async function editProjectServiceOrProduct({
 
 export async function changeProjectChampion({
   championId,
-  organizationId,
   projectId,
 }: {
-  organizationId: string;
   projectId: string;
   championId: string;
 }) {
   const project = await prisma.project.update({
-    where: { organizationId, id: projectId },
+    where: { id: projectId },
     data: { championId },
   });
   return project;
 }
 
 export async function getProjectsWithStatistic({
-  organizationId,
   search,
 }: {
-  organizationId: string;
   search?: string;
 }) {
   const projects = await prisma.project.findMany({
     where: {
-      organizationId,
       OR: search
         ? [
             { name: { contains: search, mode: "insensitive" } },

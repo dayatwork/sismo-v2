@@ -1,40 +1,31 @@
 import prisma from "~/lib/prisma";
 
-export async function getRoles(organizationId: string) {
+export async function getRoles() {
   const roles = await prisma.role.findMany({
-    where: { organizationId },
     include: { users: { select: { id: true, name: true } } },
   });
   return roles;
 }
 
-export async function getRoleById({
-  id,
-  organizationId,
-}: {
-  id: string;
-  organizationId: string;
-}) {
+export async function getRoleById({ id }: { id: string }) {
   const role = await prisma.role.findUnique({
-    where: { id, organizationId },
+    where: { id },
     include: { users: true },
   });
   return role;
 }
 
 export async function createRole({
-  organizationId,
   name,
   permissions,
   description,
 }: {
-  organizationId: string;
   name: string;
   description?: string;
   permissions: string[];
 }) {
   const role = await prisma.role.create({
-    data: { name, description, organizationId, permissions },
+    data: { name, description, permissions },
   });
   return role;
 }
@@ -57,33 +48,25 @@ export async function editRole({
   return role;
 }
 
-export async function deleteRole({
-  id,
-  organizationId,
-}: {
-  id: string;
-  organizationId: string;
-}) {
-  const role = await prisma.role.delete({ where: { id, organizationId } });
+export async function deleteRole({ id }: { id: string }) {
+  const role = await prisma.role.delete({ where: { id } });
   return role;
 }
 
 export async function assignRoleToUser({
-  organizationId,
   roleId,
   userId,
 }: {
   roleId: string;
-  organizationId: string;
   userId: string;
 }) {
-  const [userOrganizationCount, roleCount] = await Promise.all([
-    prisma.organizationUser.count({ where: { userId, organizationId } }),
-    prisma.role.count({ where: { id: roleId, organizationId } }),
+  const [userCount, roleCount] = await Promise.all([
+    prisma.user.count({ where: { id: userId } }),
+    prisma.role.count({ where: { id: roleId } }),
   ]);
 
-  if (!userOrganizationCount || !roleCount) {
-    throw new Error("User or role not found in this organization");
+  if (!userCount || !roleCount) {
+    throw new Error("User or role not found");
   }
 
   const user = await prisma.user.update({
@@ -94,22 +77,12 @@ export async function assignRoleToUser({
 }
 
 export async function removeRoleFromUser({
-  organizationId,
   roleId,
   userId,
 }: {
   roleId: string;
-  organizationId: string;
   userId: string;
 }) {
-  const organizationUser = await prisma.organizationUser.count({
-    where: { userId, organizationId },
-  });
-
-  if (!organizationUser) {
-    throw new Error("User not found in this organization");
-  }
-
   const user = await prisma.user.update({
     where: { id: userId },
     data: { roles: { disconnect: { id: roleId } } },
@@ -118,26 +91,13 @@ export async function removeRoleFromUser({
   return user;
 }
 
-export async function getUsersForAssignRole({
-  organizationId,
-  roleId,
-}: {
-  organizationId: string;
-  roleId: string;
-}) {
-  // const users = await prisma.user.findMany({
-  //   where: { id: { notIn: role.users.map((u) => u.id) } },
-  //   include: { employee: true },
-  // });
-  const [role, organizationUsers] = await Promise.all([
+export async function getUsersForAssignRole({ roleId }: { roleId: string }) {
+  const [role, users] = await Promise.all([
     prisma.role.findUnique({
-      where: { id: roleId, organizationId },
+      where: { id: roleId },
       include: { users: true },
     }),
-    prisma.organizationUser.findMany({
-      where: { organizationId },
-      include: { user: true },
-    }),
+    prisma.user.findMany(),
   ]);
 
   if (!role) {
@@ -146,9 +106,9 @@ export async function getUsersForAssignRole({
 
   const roleUserIds = role.users.map((user) => user.id);
 
-  const selectableUsers = organizationUsers
-    .filter((orgUser) => !roleUserIds.includes(orgUser.userId))
-    .map((orgUser) => orgUser.user);
+  const selectableUsers = users.filter(
+    (user) => !roleUserIds.includes(user.id)
+  );
 
   return selectableUsers;
 }

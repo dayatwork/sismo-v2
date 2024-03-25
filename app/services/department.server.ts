@@ -2,18 +2,16 @@ import { type DepartmentRole } from "@prisma/client";
 import prisma from "~/lib/prisma";
 
 export async function createDepartment({
-  organizationId,
   name,
   description,
   logo,
 }: {
-  organizationId: string;
   name: string;
   description?: string;
   logo?: string;
 }) {
   const department = await prisma.department.create({
-    data: { organizationId, name, description, logo },
+    data: { name, description, logo },
   });
   return department;
 }
@@ -43,26 +41,14 @@ export async function deleteDepartment({ id }: { id: string }) {
   return department;
 }
 
-export async function getDepartments({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
-  const departments = await prisma.department.findMany({
-    where: { organizationId },
-  });
+export async function getDepartments() {
+  const departments = await prisma.department.findMany();
   return departments;
 }
 
-export async function getDepartmentById({
-  id,
-  organizationId,
-}: {
-  organizationId: string;
-  id: string;
-}) {
+export async function getDepartmentById({ id }: { id: string }) {
   const department = await prisma.department.findUnique({
-    where: { id, organizationId },
+    where: { id },
     include: {
       departmentMembers: { include: { user: true }, orderBy: { role: "asc" } },
     },
@@ -73,17 +59,14 @@ export async function getDepartmentById({
 export async function addDepartmentMembers({
   departmentId,
   members,
-  organizationId,
 }: {
   departmentId: string;
-  organizationId: string;
   members: { userId: string; role: DepartmentRole }[];
 }) {
   const result = await prisma.departmentMember.createMany({
     // skipDuplicates: true,
     data: members.map((member) => ({
       departmentId,
-      organizationId,
       role: member.role,
       userId: member.userId,
     })),
@@ -94,16 +77,13 @@ export async function addDepartmentMembers({
 export async function removeDepartmentMembers({
   departmentId,
   members,
-  organizationId,
 }: {
   departmentId: string;
-  organizationId: string;
   members: { userId: string }[];
 }) {
   const result = await prisma.departmentMember.deleteMany({
     where: {
       departmentId,
-      organizationId,
       userId: { in: members.map((member) => member.userId) },
     },
   });

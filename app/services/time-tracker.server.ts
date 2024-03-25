@@ -15,10 +15,8 @@ type GetTimeTrackerOptions = {
 
 export async function getTimeTrackers({
   from,
-  organizationId,
   to,
 }: {
-  organizationId: string;
   from: string | null;
   to: string | null;
 }) {
@@ -26,7 +24,6 @@ export async function getTimeTrackers({
 
   const trackers = await prisma.timeTracker.findMany({
     where: {
-      organizationId,
       endAt: { not: null },
       startAt: { gte: from || undefined, lte: to || undefined },
     },
@@ -50,11 +47,10 @@ export async function getTimeTrackers({
 }
 
 export async function getUserTimeTrackers(
-  organizationId: string,
   userId: string,
   options: GetTimeTrackerOptions = { skip: 0, take: 10 }
 ) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   const { skip, take } = options;
 
   let trackers: (TimeTracker & {
@@ -77,7 +73,6 @@ export async function getUserTimeTrackers(
     trackers = await prisma.timeTracker.findMany({
       where: {
         userId,
-        organizationId,
       },
       orderBy: { startAt: "desc" },
       take,
@@ -131,14 +126,12 @@ export async function getTrackerItemById({ id }: { id: string }) {
 }
 
 export async function getTotalInCompleteTrackers({
-  organizationId,
   userId,
 }: {
   userId: string;
-  organizationId: string;
 }) {
   const total = await prisma.timeTracker.count({
-    where: { userId, organizationId, endAt: null },
+    where: { userId, endAt: null },
   });
   return total;
 }
@@ -164,31 +157,27 @@ export async function getPreviousTaskTracker({
 }
 
 export async function getUserTrackersInAYear({
-  organizationId,
   userId,
   year,
 }: {
   userId: string;
-  organizationId: string;
   year: number;
 }) {
   const trackers = await prisma.timeTracker.findMany({
-    where: { organizationId, userId, year, endAt: { not: null } },
+    where: { userId, year, endAt: { not: null } },
     select: { id: true, startAt: true, endAt: true, week: true, year: true },
   });
   return trackers;
 }
 
 export async function checkAllowClockIn({
-  organizationId,
   totalLastTrackersToCheck = 10,
   userId,
 }: {
   userId: string;
-  organizationId: string;
   totalLastTrackersToCheck?: number;
 }) {
-  const timeTrackers = await getUserTimeTrackers(organizationId, userId);
+  const timeTrackers = await getUserTimeTrackers(userId);
 
   const trackersWithoutItem = timeTrackers.filter(
     (tracker) => tracker.trackerItems.length === 0
@@ -204,23 +193,21 @@ export async function checkAllowClockIn({
 // ====================
 
 export async function clockin({
-  organizationId,
   userId,
   week,
   year,
 }: {
-  organizationId: string;
   userId: string;
   week: number;
   year: number;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   return await prisma.$transaction(async (tx) => {
     // 1. Check is already have a running trackers
     const totalInCompleteTrackers = await tx.timeTracker.count({
-      where: { userId, organizationId, endAt: null },
+      where: { userId, endAt: null },
     });
 
     if (totalInCompleteTrackers > 0) {
@@ -230,7 +217,6 @@ export async function clockin({
     const timeTracker = await tx.timeTracker.create({
       data: {
         userId,
-        organizationId,
         week,
         year,
       },
@@ -242,14 +228,12 @@ export async function clockin({
 
 export async function clockout({
   trackerId,
-  organizationId,
   userId,
 }: {
   trackerId: string;
   userId: string;
-  organizationId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   return await prisma.$transaction(async (tx) => {
@@ -273,7 +257,6 @@ export async function clockout({
 export async function addTrackerItems({
   trackerItems,
   userId,
-  organizationId,
 }: {
   trackerItems: {
     timeTrackerId: string;
@@ -282,10 +265,9 @@ export async function addTrackerItems({
     workDurationInMinutes: number;
     note?: string;
   }[];
-  organizationId: string;
   userId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   const items = await prisma.trackerItem.createMany({
@@ -300,7 +282,6 @@ export async function editTrackerItem({
   taskCompletion,
   taskId,
   workDurationInMinutes,
-  organizationId,
   userId,
 }: {
   id: string;
@@ -308,10 +289,9 @@ export async function editTrackerItem({
   taskCompletion?: number;
   workDurationInMinutes?: number;
   note?: string;
-  organizationId: string;
   userId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   const trackerItem = await prisma.trackerItem.update({
@@ -323,14 +303,12 @@ export async function editTrackerItem({
 
 export async function deleteTrackerItem({
   id,
-  organizationId,
   userId,
 }: {
   id: string;
-  organizationId: string;
   userId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   const trackerItem = await prisma.trackerItem.delete({ where: { id } });
@@ -341,16 +319,14 @@ export async function editTimeTracker({
   trackerId,
   endAt,
   startAt,
-  organizationId,
   userId,
 }: {
   trackerId: string;
   startAt?: string | Date;
   endAt?: string | Date;
-  organizationId: string;
   userId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   return await prisma.$transaction(async (tx) => {
@@ -374,13 +350,11 @@ export async function editTimeTracker({
 export async function deleteTimeTracker({
   trackerId,
   userId,
-  organizationId,
 }: {
   userId: string;
   trackerId: string;
-  organizationId: string;
 }) {
-  const cacheKey = `tracker:${organizationId}:${userId}`;
+  const cacheKey = `tracker:${userId}`;
   await redisClient.del(cacheKey);
 
   return await prisma.$transaction(async (tx) => {

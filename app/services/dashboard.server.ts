@@ -1,22 +1,18 @@
-import prisma from "~/lib/prisma";
+// import prisma from "~/lib/prisma";
 
-export async function getOrganizationUsersForDashboard({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
-  const organizationUsers = await prisma.organizationUser.findMany({
-    where: { organizationId },
-    include: {
-      user: {
-        include: {
-          timeTrackers: { where: { endAt: null } },
-        },
-      },
-    },
-  });
-  return organizationUsers;
-}
+// export async function getOrganizationUsersForDashboard() {
+//   const organizationUsers = await prisma.organizationUser.findMany({
+//     where: { organizationId },
+//     include: {
+//       user: {
+//         include: {
+//           timeTrackers: { where: { endAt: null } },
+//         },
+//       },
+//     },
+//   });
+//   return organizationUsers;
+// }
 
 // export async function getDashboardData({
 //   organizationId,

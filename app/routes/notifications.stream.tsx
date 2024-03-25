@@ -1,13 +1,11 @@
 import { type LoaderFunctionArgs } from "@remix-run/node";
 import { eventStream } from "remix-utils/sse/server";
-import { authenticator } from "~/services/auth.server";
+import { requireUser } from "~/utils/auth.server";
 // import { createEventStream } from "~/utils/sse/create-event-stream.server";
 import { emitter } from "~/utils/sse/emitter.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const loggedInUser = await requireUser(request);
   // return createEventStream(request, `notifications-${id}-new`);
   return eventStream(request.signal, (send) => {
     const handle = () => {
@@ -17,10 +15,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       });
     };
 
-    emitter.addListener(`notifications-${id}-new`, handle);
+    emitter.addListener(`notifications-${loggedInUser.id}-new`, handle);
 
     return () => {
-      emitter.removeListener(`notifications-${id}-new`, handle);
+      emitter.removeListener(`notifications-${loggedInUser.id}-new`, handle);
     };
   });
 }
