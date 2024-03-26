@@ -149,7 +149,7 @@ export default function AppTimeTracker() {
             </div>
           </div>
         ) : (
-          <div className="flex-1 px-4 py-4 border-dashed border-2 border-primary bg-primary/10 rounded flex items-stretch justify-between gap-6 md:gap-8 xl:gap-10">
+          <div className="flex-1 px-4 py-4 border-dashed border-2 border-primary bg-primary/10 rounded-lg flex items-stretch justify-between gap-6 md:gap-8 xl:gap-10">
             <div className="flex-1 flex flex-col gap-4">
               {/* <div className="space-y-2">
                 <h2 className="text-2xl font-bold">

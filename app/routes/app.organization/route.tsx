@@ -25,10 +25,6 @@ export default function OrganizationLayout() {
         onValueChange={(v) => navigate(`/app/organization/${v}`)}
       >
         <TabsList className="h-12">
-          <TabsTrigger className="h-10 px-6" value="details">
-            <FileText className="h-5 w-5 mr-2" />
-            <span>Details</span>
-          </TabsTrigger>
           <TabsTrigger className="h-10 px-6" value="directorate">
             <FileText className="h-5 w-5 mr-2" />
             <span>Directorate</span>

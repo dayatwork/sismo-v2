@@ -69,7 +69,11 @@ export default function Employees() {
                 <TableCell className="pl-5">
                   <div className="flex items-center gap-4">
                     <Avatar>
-                      <AvatarImage src={user.photo || ""} alt={user.name} />
+                      <AvatarImage
+                        src={user.photo || ""}
+                        alt={user.name}
+                        className="object-cover"
+                      />
                       <AvatarFallback>{user.name[0]}</AvatarFallback>
                     </Avatar>
                     <span className="font-semibold">{user.name}</span>

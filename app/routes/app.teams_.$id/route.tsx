@@ -126,7 +126,7 @@ export default function TeamDetails() {
         </TabsList>
         <TabsContent value="members">
           {team.teamMembers.length === 0 ? (
-            <div className="h-40 flex flex-col gap-2 items-center justify-center">
+            <div className="h-40 flex flex-col gap-2 items-center justify-center border-2 border-dashed rounded-lg">
               <p className="text-muted-foreground">No members</p>
               <Link
                 to="add-member"
@@ -201,7 +201,18 @@ export default function TeamDetails() {
             </>
           )}
         </TabsContent>
-        <TabsContent value="documents">Documents</TabsContent>
+        <TabsContent value="documents">
+          <div className="h-40 flex flex-col gap-2 items-center justify-center border-2 border-dashed rounded-lg">
+            <p className="text-muted-foreground">No documents</p>
+            <Link
+              to="add-document"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Add Document
+            </Link>
+          </div>
+        </TabsContent>
       </Tabs>
     </MainContainer>
   );

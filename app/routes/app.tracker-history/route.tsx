@@ -100,7 +100,7 @@ export default function TrackerHistory() {
             onSelect={handleSelectDate}
           />
 
-          <div className="border rounded-md flex-1 flex items-center justify-center h-52 border-dashed">
+          <div className="border-2 rounded-xl flex-1 flex items-center justify-center h-52 border-dashed">
             <p className="text-center text-muted-foreground">Select date</p>
           </div>
         </div>

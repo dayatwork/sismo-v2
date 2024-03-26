@@ -8,7 +8,6 @@ import {
 import {
   json,
   type ActionFunctionArgs,
-  redirect,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
@@ -36,6 +35,7 @@ import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import { memberStatuses } from "~/services/user.server";
 import { createUser } from "~/services/auth.server";
+import { requirePermission } from "~/utils/auth.server";
 
 const schema = z.object({
   name: z.string(),
@@ -45,6 +45,8 @@ const schema = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
+  await requirePermission(request, "manage:employee");
+
   const formData = await request.formData();
 
   const submission = parseWithZod(formData, { schema });
@@ -72,10 +74,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const organizationId = params.orgId;
-  if (!organizationId) {
-    return redirect("/app");
-  }
+  await requirePermission(request, "manage:employee");
 
   return json({ memberStatuses });
 }

@@ -67,7 +67,7 @@ export default function Meetings() {
           </div>
         </div>
         {meetings.length === 0 && (
-          <p className="py-24 text-muted-foreground text-center border border-dashed rounded-xl mt-6">
+          <p className="py-24 text-muted-foreground text-center border-2 border-dashed rounded-xl mt-6">
             No meetings
           </p>
         )}

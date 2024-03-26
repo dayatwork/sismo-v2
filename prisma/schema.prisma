@@ -630,9 +630,9 @@ enum DepartmentRole {
 }
 
 model DepartmentMember {
-  user         User           @relation(fields: [userId], references: [id])
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  department   Department     @relation(fields: [departmentId], references: [id])
+  department   Department     @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   departmentId String
   role         DepartmentRole
 
@@ -656,9 +656,9 @@ enum TeamRole {
 }
 
 model TeamMember {
-  user   User     @relation(fields: [userId], references: [id])
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  team   Team     @relation(fields: [teamId], references: [id])
+  team   Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId String
   role   TeamRole
 
