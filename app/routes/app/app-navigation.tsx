@@ -189,20 +189,6 @@ const employeeNavigation: NavigationItem[] = [
   //   icon: CalendarDaysIcon,
   //   current: false,
   // },
-  {
-    name: "Employee Work",
-    href: "employee-work",
-    icon: ClipboardListIcon,
-    current: false,
-    permissions: ["manage:employee"],
-  },
-  {
-    name: "Reports",
-    href: "reports",
-    icon: BarChart3,
-    current: false,
-    permissions: ["manage:employee"],
-  },
 ];
 
 const financeNavigation: NavigationItem[] = [
@@ -250,6 +236,29 @@ const organizationNavigation: NavigationItem[] = [
     icon: SettingsIcon,
     current: false,
     permissions: ["manage:organization"],
+  },
+];
+
+const workManagementNavigation: NavigationItem[] = [
+  {
+    name: "Workspaces",
+    href: "workspaces",
+    icon: MessageCircle,
+    current: false,
+  },
+  {
+    name: "Employee Work",
+    href: "employee-work",
+    icon: ClipboardListIcon,
+    current: false,
+    permissions: ["manage:employee"],
+  },
+  {
+    name: "Reports",
+    href: "reports",
+    icon: BarChart3,
+    current: false,
+    permissions: ["manage:employee"],
   },
 ];
 
@@ -383,6 +392,99 @@ export default function AppNavigation() {
             ))}
           </ul>
         </li>
+
+        {hasAccessToNavigation({
+          isSuperAdmin,
+          userPermissions,
+          navigationItems: workManagementNavigation,
+        }) && (
+          <>
+            <Separator className="my-4" />
+            <li>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                Work & Report
+              </h3>
+              <ul className="-mx-2 space-y-1">
+                {workManagementNavigation.map((item) => (
+                  <ProtectComponent
+                    key={item.name}
+                    permission={item.permissions}
+                  >
+                    <li key={item.name}>
+                      <Link
+                        to={`/app/${item.href}`}
+                        className={cn(
+                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
+                          pathname === item.href
+                            ? "bg-primary/20 hover:bg-primary/10"
+                            : "hover:bg-muted"
+                        )}
+                      >
+                        <item.icon
+                          className={cn(
+                            "w- h-5 mr-3",
+                            pathname === item.href
+                              ? "bg-transparent"
+                              : "hover:bg-transparent hover:underline"
+                          )}
+                          aria-hidden="true"
+                        />
+                        {item.name}
+                      </Link>
+                    </li>
+                  </ProtectComponent>
+                ))}
+              </ul>
+            </li>
+          </>
+        )}
+
+        {hasAccessToNavigation({
+          isSuperAdmin,
+          userPermissions,
+          navigationItems: employeeNavigation,
+        }) && (
+          <>
+            <Separator className="my-4" />
+            <li>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                Employee & Group
+              </h3>
+              <ul className="-mx-2 space-y-1">
+                {employeeNavigation.map((item) => (
+                  <ProtectComponent
+                    key={item.name}
+                    permission={item.permissions}
+                  >
+                    <li key={item.name}>
+                      <Link
+                        to={`/app/${item.href}`}
+                        className={cn(
+                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
+                          pathname === item.href
+                            ? "bg-primary/20 hover:bg-primary/10"
+                            : "hover:bg-muted"
+                        )}
+                      >
+                        <item.icon
+                          className={cn(
+                            "w- h-5 mr-3",
+                            pathname === item.href
+                              ? "bg-transparent"
+                              : "hover:bg-transparent hover:underline"
+                          )}
+                          aria-hidden="true"
+                        />
+                        {item.name}
+                      </Link>
+                    </li>
+                  </ProtectComponent>
+                ))}
+              </ul>
+            </li>
+          </>
+        )}
+
         {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
@@ -429,51 +531,6 @@ export default function AppNavigation() {
           </>
         )}
 
-        {hasAccessToNavigation({
-          isSuperAdmin,
-          userPermissions,
-          navigationItems: employeeNavigation,
-        }) && (
-          <>
-            <Separator className="my-4" />
-            <li>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Employee
-              </h3>
-              <ul className="-mx-2 space-y-1">
-                {employeeNavigation.map((item) => (
-                  <ProtectComponent
-                    key={item.name}
-                    permission={item.permissions}
-                  >
-                    <li key={item.name}>
-                      <Link
-                        to={`/app/${item.href}`}
-                        className={cn(
-                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname === item.href
-                            ? "bg-primary/20 hover:bg-primary/10"
-                            : "hover:bg-muted"
-                        )}
-                      >
-                        <item.icon
-                          className={cn(
-                            "w- h-5 mr-3",
-                            pathname === item.href
-                              ? "bg-transparent"
-                              : "hover:bg-transparent hover:underline"
-                          )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
-                    </li>
-                  </ProtectComponent>
-                ))}
-              </ul>
-            </li>
-          </>
-        )}
         {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,

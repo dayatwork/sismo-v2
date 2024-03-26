@@ -53,6 +53,12 @@ model User {
   notifications        Notification[]
   departmentMembers    DepartmentMember[]
   teamMembers          TeamMember[]
+  workspaces           Workspace[]
+  workspaceMembers     WorkspaceMember[]
+  boardMembers         BoardMember[]
+  boardTasks           BoardTask[]
+  taskTrackers         TaskTracker[]
+  attachmentsV2        AttachmentV2[]
 
   @@index([name])
 }
@@ -664,4 +670,207 @@ model TeamMember {
 
   @@id([userId, teamId])
   @@index([teamId])
+}
+
+enum WorkspacePrivacy {
+  OPEN
+  CLOSED
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+model Workspace {
+  id               String            @id @default(uuid())
+  name             String
+  description      String            @default("")
+  privacy          WorkspacePrivacy
+  status           WorkspaceStatus   @default(ACTIVE)
+  owner            User              @relation(fields: [ownerId], references: [id])
+  ownerId          String
+  icon             String?
+  brandColor       String?
+  coverImage       String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  workspaceRoles   WorkspaceRole[]
+  workspaceMembers WorkspaceMember[]
+  boards           Board[]
+
+  @@index([name])
+}
+
+model WorkspaceRole {
+  id               String            @id @default(uuid())
+  workspace        Workspace         @relation(fields: [workspaceId], references: [id])
+  workspaceId      String
+  name             String
+  permissions      String[]
+  workspaceMembers WorkspaceMember[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+}
+
+model WorkspaceMember {
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+  role        WorkspaceRole @relation(fields: [roleId], references: [id])
+  roleId      String
+
+  @@id([userId, workspaceId])
+}
+
+enum BoardPrivacy {
+  PUBLIC
+  PRIVATE
+}
+
+enum BoardStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+model Board {
+  id           String           @id @default(uuid())
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id])
+  workspaceId  String
+  name         String
+  description  String           @default("")
+  privacy      BoardPrivacy
+  status       BoardStatus      @default(ACTIVE)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  boardMembers BoardMember[]
+  taskGroups   BoardTaskGroup[]
+  tasks        BoardTask[]
+
+  @@index([workspaceId])
+  @@index([name])
+  @@index([workspaceId, name])
+}
+
+model BoardMember {
+  board   Board   @relation(fields: [boardId], references: [id])
+  boardId String
+  user    User    @relation(fields: [userId], references: [id])
+  userId  String
+  isOwner Boolean @default(false)
+
+  @@id([boardId, userId])
+}
+
+model BoardTaskGroup {
+  id      String      @id @default(uuid())
+  board   Board       @relation(fields: [boardId], references: [id])
+  boardId String
+  name    String
+  color   String
+  tasks   BoardTask[]
+
+  @@unique([boardId, name])
+  @@index([boardId])
+}
+
+enum BoardTaskStatus {
+  DONE
+  IN_PROGRESS
+  TODO
+  BACKLOG
+  STUCK
+  ON_HOLD
+}
+
+enum BoardTaskPriority {
+  NO_PRIORITY
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model BoardTask {
+  id                     String            @id @default(cuid())
+  name                   String
+  status                 BoardTaskStatus   @default(BACKLOG)
+  priority               BoardTaskPriority @default(NO_PRIORITY)
+  owner                  User              @relation(fields: [ownerId], references: [id])
+  ownerId                String
+  board                  Board?            @relation(fields: [boardId], references: [id])
+  boardId                String?
+  group                  BoardTaskGroup?   @relation(fields: [groupId], references: [id])
+  groupId                String?
+  timelineStart          DateTime?
+  timelineEnd            DateTime?
+  plannedEffortInMinutes Int?
+  effortSpentInMinutes   Int?
+  completionDate         DateTime?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  parentTaskId           String?
+  parentTask             BoardTask?        @relation("TaskSubTasks", fields: [parentTaskId], references: [id])
+  subTasks               BoardTask[]       @relation("TaskSubTasks")
+  dependencies           BoardTask[]       @relation("Dependency")
+  dependents             BoardTask[]       @relation("Dependency")
+  trackerItems           TaskTrackerItem[]
+  attachments            AttachmentV2[]
+
+  @@index([boardId])
+  @@index([ownerId])
+  @@index([ownerId, boardId])
+}
+
+model TaskTracker {
+  id           String            @id @default(uuid())
+  owner        User              @relation(fields: [ownerId], references: [id])
+  ownerId      String
+  startAt      DateTime          @default(now())
+  endAt        DateTime?
+  week         Int               @db.SmallInt
+  year         Int               @db.SmallInt
+  trackerItems TaskTrackerItem[]
+
+  @@index([ownerId])
+  @@index([ownerId, week, year])
+}
+
+model TaskTrackerItem {
+  id                    String         @id @default(uuid())
+  tracker               TaskTracker    @relation(fields: [trackerId], references: [id])
+  trackerId             String
+  task                  BoardTask?     @relation(fields: [taskId], references: [id])
+  taskId                String?
+  note                  String         @default("")
+  taskCompletion        Int            @db.SmallInt
+  workDurationInMinutes Int            @db.SmallInt
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  attachments           AttachmentV2[]
+
+  @@index([taskId])
+  @@index([trackerId])
+}
+
+model AttachmentV2 {
+  id            String           @id @default(uuid())
+  displayName   String           @default("")
+  url           String
+  owner         User             @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  trackerItem   TaskTrackerItem? @relation(fields: [trackerItemId], references: [id])
+  trackerItemId String?
+  task          BoardTask?       @relation(fields: [taskId], references: [id])
+  taskId        String?
+  createdAt     DateTime         @default(now())
+
+  @@index([trackerItemId])
+  @@index([taskId])
+  @@index([ownerId])
+  @@index([displayName])
 }
