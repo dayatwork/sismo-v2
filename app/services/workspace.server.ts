@@ -1,5 +1,9 @@
 import { type WorkspacePrivacy } from "@prisma/client";
 import prisma from "~/lib/prisma";
+import { type LoggedInUserPayload } from "~/utils/auth.server";
+import { authenticator } from "./auth.server";
+import { getUserById } from "./user.server";
+import { redirect } from "@remix-run/node";
 
 export async function createWorkspace({
   name,
@@ -116,8 +120,12 @@ export async function getWorkspaceById({ id }: { id: string }) {
       boards: true,
       owner: { select: { id: true, name: true, photo: true } },
       workspaceMembers: {
-        include: { user: { select: { id: true, name: true, photo: true } } },
+        include: {
+          user: { select: { id: true, name: true, photo: true } },
+          role: true,
+        },
       },
+      workspaceRoles: true,
     },
   });
   return workspace;
@@ -170,4 +178,139 @@ export async function updateWorkspaceMemberRole({
     data: { roleId },
   });
   return workspaceMember;
+}
+
+// ===============================================
+// =========== WORKSPACE PERMISSIONS =============
+// ===============================================
+export type WorkspacePermission = {
+  group: string;
+  name: string;
+  description: string;
+};
+
+export const workspacePermissions = [
+  {
+    group: "board",
+    name: "manage:board",
+    description: "Akses untuk manage workspace board",
+  },
+  {
+    group: "member",
+    name: "manage:member",
+    description: "Akses untuk manage workspace member",
+  },
+  {
+    group: "permission",
+    name: "manage:permission",
+    description: "Akses untuk manage workspace permission",
+  },
+] as const;
+
+export type WorkspacePermissionName =
+  (typeof workspacePermissions)[number]["name"];
+
+type GroupedWorkspacePermission = {
+  groupName: string;
+  permissions: {
+    group: string;
+    name: string;
+    description: string;
+  }[];
+};
+
+export const groupedWorkspacePermissions = workspacePermissions.reduce(
+  (acc, permission) => {
+    const existingGroup = acc.find(
+      (group) => group.groupName === permission.group
+    );
+
+    if (existingGroup) {
+      existingGroup.permissions.push({
+        group: permission.group,
+        name: permission.name,
+        description: permission.description,
+      });
+    } else {
+      acc.push({
+        groupName: permission.group,
+        permissions: [
+          {
+            group: permission.group,
+            name: permission.name,
+            description: permission.description,
+          },
+        ],
+      });
+    }
+
+    return acc;
+  },
+  [] as GroupedWorkspacePermission[]
+);
+
+type WorkspacePermissionLookup = Record<string, WorkspacePermission>;
+
+export const workspacePermissionsLookup = workspacePermissions.reduce(
+  (acc, curr) => {
+    return { ...acc, [curr.name]: curr };
+  },
+  {} as WorkspacePermissionLookup
+);
+
+export const hasWorkspacePermissions = (permission: string | string[]) => {
+  if (typeof permission === "string") {
+    return Boolean(workspacePermissionsLookup[permission]);
+  }
+  permission.forEach((p) => {
+    if (workspacePermissionsLookup[p]) {
+      return true;
+    }
+  });
+  return false;
+};
+
+export async function requireWorkspacePermission(
+  request: Request,
+  workspaceId: string,
+  permission: WorkspacePermissionName
+): Promise<{
+  user: LoggedInUserPayload;
+  workspace: Awaited<ReturnType<typeof getWorkspaceById>>;
+  allowed: boolean;
+}> {
+  const { id: userId } = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
+
+  const user = await getUserById(userId);
+
+  if (!user) {
+    throw redirect("/login");
+  }
+
+  const workspace = await getWorkspaceById({ id: workspaceId });
+  if (!workspace) {
+    throw redirect("/app/workspaces");
+  }
+
+  if (user.isSuperAdmin) {
+    return { user, workspace, allowed: true };
+  }
+
+  if (workspace.ownerId === user.id) {
+    return { user, workspace, allowed: true };
+  }
+
+  const userMember = workspace.workspaceMembers.find(
+    (wm) => wm.userId === user.id
+  );
+
+  if (!userMember) {
+    return { user, workspace, allowed: false };
+  }
+
+  const allowed = userMember.role.permissions.includes(permission);
+
+  return { user, workspace, allowed };
 }
