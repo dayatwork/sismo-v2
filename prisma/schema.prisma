@@ -708,6 +708,7 @@ model WorkspaceRole {
   workspace        Workspace         @relation(fields: [workspaceId], references: [id])
   workspaceId      String
   name             String
+  description      String            @default("")
   permissions      String[]
   workspaceMembers WorkspaceMember[]
 

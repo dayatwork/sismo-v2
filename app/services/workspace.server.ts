@@ -4,6 +4,7 @@ import { type LoggedInUserPayload } from "~/utils/auth.server";
 import { authenticator } from "./auth.server";
 import { getUserById } from "./user.server";
 import { redirect } from "@remix-run/node";
+import { type WorkspacePermissionName } from "~/utils/workspace.permission";
 
 export async function createWorkspace({
   name,
@@ -101,6 +102,18 @@ export async function hardDeleteWorkspace({ id }: { id: string }) {
   });
 }
 
+export async function getWorkspaceRoles({
+  workspaceId,
+}: {
+  workspaceId: string;
+}) {
+  const workspaceRoles = await prisma.workspaceRole.findMany({
+    where: { workspaceId },
+  });
+
+  return workspaceRoles;
+}
+
 export async function getWorkspaces() {
   const workspaces = await prisma.workspace.findMany({
     include: {
@@ -180,96 +193,26 @@ export async function updateWorkspaceMemberRole({
   return workspaceMember;
 }
 
+export async function createWorkspaceRole({
+  name,
+  permissions,
+  workspaceId,
+  description,
+}: {
+  workspaceId: string;
+  name: string;
+  description?: string;
+  permissions: string[];
+}) {
+  const workspaceRole = await prisma.workspaceRole.create({
+    data: { name, description, workspaceId, permissions },
+  });
+  return workspaceRole;
+}
+
 // ===============================================
 // =========== WORKSPACE PERMISSIONS =============
 // ===============================================
-export type WorkspacePermission = {
-  group: string;
-  name: string;
-  description: string;
-};
-
-export const workspacePermissions = [
-  {
-    group: "board",
-    name: "manage:board",
-    description: "Akses untuk manage workspace board",
-  },
-  {
-    group: "member",
-    name: "manage:member",
-    description: "Akses untuk manage workspace member",
-  },
-  {
-    group: "permission",
-    name: "manage:permission",
-    description: "Akses untuk manage workspace permission",
-  },
-] as const;
-
-export type WorkspacePermissionName =
-  (typeof workspacePermissions)[number]["name"];
-
-type GroupedWorkspacePermission = {
-  groupName: string;
-  permissions: {
-    group: string;
-    name: string;
-    description: string;
-  }[];
-};
-
-export const groupedWorkspacePermissions = workspacePermissions.reduce(
-  (acc, permission) => {
-    const existingGroup = acc.find(
-      (group) => group.groupName === permission.group
-    );
-
-    if (existingGroup) {
-      existingGroup.permissions.push({
-        group: permission.group,
-        name: permission.name,
-        description: permission.description,
-      });
-    } else {
-      acc.push({
-        groupName: permission.group,
-        permissions: [
-          {
-            group: permission.group,
-            name: permission.name,
-            description: permission.description,
-          },
-        ],
-      });
-    }
-
-    return acc;
-  },
-  [] as GroupedWorkspacePermission[]
-);
-
-type WorkspacePermissionLookup = Record<string, WorkspacePermission>;
-
-export const workspacePermissionsLookup = workspacePermissions.reduce(
-  (acc, curr) => {
-    return { ...acc, [curr.name]: curr };
-  },
-  {} as WorkspacePermissionLookup
-);
-
-export const hasWorkspacePermissions = (permission: string | string[]) => {
-  if (typeof permission === "string") {
-    return Boolean(workspacePermissionsLookup[permission]);
-  }
-  permission.forEach((p) => {
-    if (workspacePermissionsLookup[p]) {
-      return true;
-    }
-  });
-  return false;
-};
-
 export async function requireWorkspacePermission(
   request: Request,
   workspaceId: string,

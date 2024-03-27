@@ -9,6 +9,8 @@ import {
   PlusIcon,
   UsersRoundIcon,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,8 +21,20 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getWorkspaceById } from "~/services/workspace.server";
+import { getUsers } from "~/services/user.server";
+import {
+  getWorkspaceById,
+  getWorkspaceRoles,
+} from "~/services/workspace.server";
 
 import { requireUser } from "~/utils/auth.server";
 
@@ -37,7 +51,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect("/app/workspaces");
   }
 
-  return json({ workspace });
+  const [workspaceRoles, users] = await Promise.all([
+    getWorkspaceRoles({ workspaceId }),
+    getUsers(),
+  ]);
+
+  return json({ workspace, workspaceRoles, users });
 }
 
 export default function Workspaces() {
@@ -45,14 +64,6 @@ export default function Workspaces() {
 
   return (
     <div>
-      {/* <div className="h-40 bg-neutral-950 border-b relative group hover:bg-neutral-900">
-        <Button
-          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all"
-          variant="outline"
-        >
-          Change Cover
-        </Button>
-      </div> */}
       <Outlet />
       <div className="relative max-w-7xl mx-auto px-4 mt-5">
         <div className="flex gap-5">
@@ -104,18 +115,27 @@ export default function Workspaces() {
           </Button>
         </div>
         <Tabs defaultValue="boards" className="mt-6">
-          <TabsList>
-            <TabsTrigger className="w-32" value="boards">
+          <TabsList className="gap-1">
+            <TabsTrigger
+              className="pl-6 pr-8 hover:bg-background"
+              value="boards"
+            >
               <FolderKanbanIcon className="w-4 h-4 mr-2" />
               Boards
             </TabsTrigger>
-            <TabsTrigger className="w-32" value="members">
+            <TabsTrigger
+              className="pl-6 pr-8 hover:bg-background"
+              value="members"
+            >
               <UsersRoundIcon className="w-4 h-4 mr-2" />
               Members
             </TabsTrigger>
-            <TabsTrigger className="w-32" value="permissions">
+            <TabsTrigger
+              className="pl-6 pr-8 hover:bg-background"
+              value="permissions"
+            >
               <KeyRoundIcon className="w-4 h-4 mr-2" />
-              Permissions
+              Role & Permissions
             </TabsTrigger>
           </TabsList>
           <TabsContent value="boards">
@@ -128,9 +148,42 @@ export default function Workspaces() {
                 <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Board
               </Link>
             </div>
-            {workspace.boards.length === 0 && (
+            {workspace.boards.length === 0 ? (
               <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl">
                 <p className="text-muted-foreground">No boards</p>
+              </div>
+            ) : (
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-4">Name</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Privacy</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="pr-4">
+                        <span className="sr-only">Action</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {workspace.boards.map((board) => (
+                      <TableRow key={board.id}>
+                        <TableCell className="pl-4">{board.name}</TableCell>
+                        <TableCell>{board.description}</TableCell>
+                        <TableCell>{board.privacy}</TableCell>
+                        <TableCell>{board.status}</TableCell>
+                        <TableCell className="pr-4">
+                          <div className="flex justify-end">
+                            <Button variant="outline" size="icon">
+                              <MoreHorizontalIcon className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </TabsContent>
@@ -144,9 +197,51 @@ export default function Workspaces() {
                 <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Member
               </Link>
             </div>
-            {workspace.workspaceMembers.length === 0 && (
+            {workspace.workspaceMembers.length === 0 ? (
               <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl">
                 <p className="text-muted-foreground">No members</p>
+              </div>
+            ) : (
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-4">Name</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead className="pr-4">
+                        <span className="sr-only">Action</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {workspace.workspaceMembers.map((wm) => (
+                      <TableRow key={wm.userId}>
+                        <TableCell className="pl-4">
+                          <div className="flex gap-2 items-center">
+                            <Avatar>
+                              <AvatarImage
+                                src={wm.user.photo || ""}
+                                className="object-cover"
+                              />
+                              <AvatarFallback>{wm.user.name[0]}</AvatarFallback>
+                            </Avatar>
+                            <span className="font-semibold">
+                              {wm.user.name}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{wm.role.name}</TableCell>
+                        <TableCell className="pr-4">
+                          <div className="flex justify-end">
+                            <Button variant="outline" size="icon">
+                              <MoreHorizontalIcon className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </TabsContent>
@@ -160,9 +255,46 @@ export default function Workspaces() {
                 <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Role
               </Link>
             </div>
-            {workspace.workspaceRoles.length === 0 && (
+            {workspace.workspaceRoles.length === 0 ? (
               <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl">
                 <p className="text-muted-foreground">No roles</p>
+              </div>
+            ) : (
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-4">Name</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Permissions</TableHead>
+                      <TableHead className="pr-4">
+                        <span className="sr-only">Action</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {workspace.workspaceRoles.map((role) => (
+                      <TableRow key={role.id}>
+                        <TableCell className="pl-4">{role.name}</TableCell>
+                        <TableCell>{role.description}</TableCell>
+                        <TableCell className="space-x-1">
+                          {role.permissions.map((permission) => (
+                            <Badge key={permission} className="uppercase">
+                              {permission}
+                            </Badge>
+                          ))}
+                        </TableCell>
+                        <TableCell className="pr-4">
+                          <div className="flex justify-end">
+                            <Button variant="outline" size="icon">
+                              <MoreHorizontalIcon className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </TabsContent>
