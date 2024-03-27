@@ -1,11 +1,12 @@
 import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import {
   Building2,
   FolderKanbanIcon,
   KeyRoundIcon,
   LayoutDashboard,
   MoreHorizontalIcon,
+  PenSquareIcon,
   PlusIcon,
   UsersRoundIcon,
 } from "lucide-react";
@@ -20,6 +21,14 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { Button, buttonVariants } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import {
   Table,
@@ -59,8 +68,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json({ workspace, workspaceRoles, users });
 }
 
-export default function Workspaces() {
+export default function WorkspaceDetail() {
   const { workspace } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -107,12 +117,63 @@ export default function Workspaces() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <h2 className="text-3xl font-bold">{workspace.name}</h2>
+            <div className="flex items-center gap-4 mb-2">
+              <h2 className="text-3xl font-bold leading-none">
+                {workspace.name}
+              </h2>
+              <Badge className="uppercase pl-2">
+                {workspace.privacy === "OPEN" ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-4 h-4 mr-1"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-4 h-4 mr-1"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                    />
+                  </svg>
+                )}
+                {workspace.privacy}
+              </Badge>
+            </div>
             <p className="text-muted-foreground">{workspace.description}</p>
           </div>
-          <Button size="icon" className="ml-auto mt-4" variant="outline">
-            <MoreHorizontalIcon className="w-4 h-4" />
-          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" className="ml-auto mt-4" variant="outline">
+                <MoreHorizontalIcon className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Action</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("edit")}>
+                <PenSquareIcon className="w-4 h-4 mr-2" />
+                Edit workspace
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Tabs defaultValue="boards" className="mt-6">
           <TabsList className="gap-1">

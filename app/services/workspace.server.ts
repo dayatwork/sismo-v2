@@ -29,30 +29,18 @@ export async function updateWorkspace({
   description,
   coverImage,
   brandColor,
+  privacy,
 }: {
   id: string;
   name?: string;
   description?: string;
   coverImage?: string;
   brandColor?: string;
+  privacy?: WorkspacePrivacy;
 }) {
   const workspace = await prisma.workspace.update({
     where: { id },
-    data: { name, description, coverImage, brandColor },
-  });
-  return workspace;
-}
-
-export async function changeWorkspacePrivacy({
-  id,
-  privacy,
-}: {
-  id: string;
-  privacy: WorkspacePrivacy;
-}) {
-  const workspace = await prisma.workspace.update({
-    where: { id },
-    data: { privacy },
+    data: { name, description, coverImage, brandColor, privacy },
   });
   return workspace;
 }
