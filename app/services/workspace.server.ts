@@ -155,15 +155,15 @@ export async function addWorkspaceMembers({
 
 export async function removeWorkspaceMembers({
   workspaceId,
-  members,
+  memberIds,
 }: {
   workspaceId: string;
-  members: { userId: string }[];
+  memberIds: string[];
 }) {
   const result = await prisma.workspaceMember.deleteMany({
     where: {
       workspaceId,
-      userId: { in: members.map((member) => member.userId) },
+      userId: { in: memberIds },
     },
   });
   return result;
@@ -200,6 +200,22 @@ export async function createWorkspaceRole({
     data: { name, description, workspaceId, permissions },
   });
   return workspaceRole;
+}
+
+export async function removeWorkspaceRoles({
+  workspaceId,
+  roleIds,
+}: {
+  workspaceId: string;
+  roleIds: string[];
+}) {
+  const result = await prisma.workspaceRole.deleteMany({
+    where: {
+      workspaceId,
+      id: { in: roleIds },
+    },
+  });
+  return result;
 }
 
 // ===============================================

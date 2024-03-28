@@ -292,7 +292,14 @@ export default function WorkspaceDetail() {
           <TabsContent value="boards">
             <div className="flex items-center justify-between mt-4 mb-2">
               <Input placeholder="Search board..." className="max-w-[250px]" />
-              {workspace.status === "ACTIVE"}
+              {workspace.status === "ACTIVE" && (
+                <Link
+                  to="boards/new"
+                  className={buttonVariants({ size: "sm", variant: "outline" })}
+                >
+                  <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Board
+                </Link>
+              )}
             </div>
             {workspace.boards.length === 0 ? (
               <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl">
@@ -338,7 +345,7 @@ export default function WorkspaceDetail() {
               <Input placeholder="Search member..." className="max-w-[250px]" />
               {workspace.status === "ACTIVE" && (
                 <Link
-                  to="new-member"
+                  to="members/new"
                   className={buttonVariants({ size: "sm", variant: "outline" })}
                 >
                   <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Member
@@ -380,10 +387,31 @@ export default function WorkspaceDetail() {
                         </TableCell>
                         <TableCell>{wm.role.name}</TableCell>
                         <TableCell className="pr-4">
-                          <div className="flex justify-end">
-                            <Button variant="outline" size="icon">
-                              <MoreHorizontalIcon className="w-4 h-4" />
-                            </Button>
+                          <div className="flex justify-end items-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  className="ml-auto"
+                                  variant="outline"
+                                >
+                                  <MoreHorizontalIcon className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Action</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    navigate(`members/${wm.userId}/remove`)
+                                  }
+                                  className="text-red-600"
+                                >
+                                  <Trash2Icon className="w-4 h-4 mr-2" />
+                                  Remove member
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -398,7 +426,7 @@ export default function WorkspaceDetail() {
               <Input placeholder="Search role..." className="max-w-[250px]" />
               {workspace.status === "ACTIVE" && (
                 <Link
-                  to="new-role"
+                  to="roles/new"
                   className={buttonVariants({ size: "sm", variant: "outline" })}
                 >
                   <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Role
@@ -435,10 +463,31 @@ export default function WorkspaceDetail() {
                           ))}
                         </TableCell>
                         <TableCell className="pr-4">
-                          <div className="flex justify-end">
-                            <Button variant="outline" size="icon">
-                              <MoreHorizontalIcon className="w-4 h-4" />
-                            </Button>
+                          <div className="flex justify-end items-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  className="ml-auto"
+                                  variant="outline"
+                                >
+                                  <MoreHorizontalIcon className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Action</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    navigate(`roles/${role.id}/remove`)
+                                  }
+                                  className="text-red-600"
+                                >
+                                  <Trash2Icon className="w-4 h-4 mr-2" />
+                                  Remove role
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>
