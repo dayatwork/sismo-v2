@@ -1,6 +1,8 @@
 import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import {
+  ArchiveIcon,
+  ArchiveRestoreIcon,
   Building2,
   FolderKanbanIcon,
   KeyRoundIcon,
@@ -8,6 +10,7 @@ import {
   MoreHorizontalIcon,
   PenSquareIcon,
   PlusIcon,
+  Trash2Icon,
   UsersRoundIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -39,6 +42,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { cn } from "~/lib/utils";
 import { getUsers } from "~/services/user.server";
 import {
   getWorkspaceById,
@@ -75,6 +79,26 @@ export default function WorkspaceDetail() {
   return (
     <div>
       <Outlet />
+      {workspace.status === "ARCHIVED" && (
+        <div className="max-w-7xl mx-auto mt-2 px-4">
+          <p
+            role="alert"
+            className="text-sm font-semibold text-center px-4 py-1 border border-orange-600 text-orange-600 rounded-md bg-orange-600/5"
+          >
+            This workspace is archived
+          </p>
+        </div>
+      )}
+      {workspace.status === "DELETED" && (
+        <div className="max-w-7xl mx-auto mt-2 px-4">
+          <p
+            role="alert"
+            className="text-sm font-semibold text-center px-4 py-1 border border-red-600 text-red-600 rounded-md bg-red-600/5"
+          >
+            This workspace is in trash
+          </p>
+        </div>
+      )}
       <div className="relative max-w-7xl mx-auto px-4 mt-5">
         <div className="flex gap-5">
           {workspace.coverImage ? (
@@ -111,6 +135,16 @@ export default function WorkspaceDetail() {
                     Workspaces
                   </BreadcrumbLink>
                 </BreadcrumbItem>
+                {workspace.status === "ARCHIVED" && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbLink href="/app/workspaces/archived">
+                        Archived
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                  </>
+                )}
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbPage>{workspace.name}</BreadcrumbPage>
@@ -159,21 +193,76 @@ export default function WorkspaceDetail() {
             <p className="text-muted-foreground">{workspace.description}</p>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" className="ml-auto mt-4" variant="outline">
-                <MoreHorizontalIcon className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Action</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("edit")}>
-                <PenSquareIcon className="w-4 h-4 mr-2" />
-                Edit workspace
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {workspace.status === "ACTIVE" && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" className="ml-auto mt-4" variant="outline">
+                  <MoreHorizontalIcon className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Action</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("edit")}>
+                  <PenSquareIcon className="w-4 h-4 mr-2" />
+                  Edit workspace
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigate("archive")}
+                  className="text-orange-600"
+                >
+                  <ArchiveIcon className="w-4 h-4 mr-2" />
+                  Move to archive
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigate("trash")}
+                  className="text-red-600"
+                >
+                  <Trash2Icon className="w-4 h-4 mr-2" />
+                  Move to trash
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {workspace.status === "ARCHIVED" && (
+            <div className="flex gap-2 ml-auto mt-2">
+              <Link
+                to="restore"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                <ArchiveRestoreIcon className="w-4 h-4 mr-2" />
+                Restore workspace
+              </Link>
+              <Link
+                to="restore"
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "text-red-600 border-red-600/50 hover:bg-red-600/10 hover:text-red-600"
+                )}
+              >
+                <Trash2Icon className="w-4 h-4 mr-2" />
+                Move to trash
+              </Link>
+            </div>
+          )}
+          {workspace.status === "DELETED" && (
+            <div className="flex gap-2 ml-auto mt-2">
+              <Link
+                to="restore"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                <ArchiveRestoreIcon className="w-4 h-4 mr-2" />
+                Restore workspace
+              </Link>
+              <Link
+                to="delete"
+                className={cn(buttonVariants({ variant: "destructive" }))}
+              >
+                <Trash2Icon className="w-4 h-4 mr-2" />
+                Delete Workspace
+              </Link>
+            </div>
+          )}
         </div>
         <Tabs defaultValue="boards" className="mt-6">
           <TabsList className="gap-1">
@@ -202,12 +291,7 @@ export default function WorkspaceDetail() {
           <TabsContent value="boards">
             <div className="flex items-center justify-between mt-4 mb-2">
               <Input placeholder="Search board..." className="max-w-[250px]" />
-              <Link
-                to="new-board"
-                className={buttonVariants({ size: "sm", variant: "outline" })}
-              >
-                <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Board
-              </Link>
+              {workspace.status === "ACTIVE"}
             </div>
             {workspace.boards.length === 0 ? (
               <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl">
@@ -251,12 +335,14 @@ export default function WorkspaceDetail() {
           <TabsContent value="members">
             <div className="flex items-center justify-between mt-4 mb-2">
               <Input placeholder="Search member..." className="max-w-[250px]" />
-              <Link
-                to="new-member"
-                className={buttonVariants({ size: "sm", variant: "outline" })}
-              >
-                <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Member
-              </Link>
+              {workspace.status === "ACTIVE" && (
+                <Link
+                  to="new-member"
+                  className={buttonVariants({ size: "sm", variant: "outline" })}
+                >
+                  <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Member
+                </Link>
+              )}
             </div>
             {workspace.workspaceMembers.length === 0 ? (
               <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl">
@@ -309,12 +395,14 @@ export default function WorkspaceDetail() {
           <TabsContent value="permissions">
             <div className="flex items-center justify-between mt-4 mb-2">
               <Input placeholder="Search role..." className="max-w-[250px]" />
-              <Link
-                to="new-role"
-                className={buttonVariants({ size: "sm", variant: "outline" })}
-              >
-                <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Role
-              </Link>
+              {workspace.status === "ACTIVE" && (
+                <Link
+                  to="new-role"
+                  className={buttonVariants({ size: "sm", variant: "outline" })}
+                >
+                  <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Role
+                </Link>
+              )}
             </div>
             {workspace.workspaceRoles.length === 0 ? (
               <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl">

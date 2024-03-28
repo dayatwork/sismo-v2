@@ -1,4 +1,4 @@
-import { type WorkspacePrivacy } from "@prisma/client";
+import { type WorkspaceStatus, type WorkspacePrivacy } from "@prisma/client";
 import prisma from "~/lib/prisma";
 import { type LoggedInUserPayload } from "~/utils/auth.server";
 import { authenticator } from "./auth.server";
@@ -67,10 +67,10 @@ export async function restoreWorkspace({ id }: { id: string }) {
 
 export async function softDeleteWorkspace({ id }: { id: string }) {
   return await prisma.$transaction(async (tx) => {
-    const workspace = await tx.workspace.findUnique({ where: { id } });
-    if (workspace?.status !== "ARCHIVED") {
-      throw new Error("Can't delete active workspace");
-    }
+    // const workspace = await tx.workspace.findUnique({ where: { id } });
+    // if (workspace?.status !== "ARCHIVED") {
+    //   throw new Error("Can't delete active workspace");
+    // }
     return await tx.workspace.update({
       where: { id },
       data: { status: "DELETED" },
@@ -102,8 +102,12 @@ export async function getWorkspaceRoles({
   return workspaceRoles;
 }
 
-export async function getWorkspaces() {
+type GetWorkspaceProps = {
+  status?: WorkspaceStatus;
+};
+export async function getWorkspaces(props?: GetWorkspaceProps) {
   const workspaces = await prisma.workspace.findMany({
+    where: { status: props?.status },
     include: {
       owner: { select: { id: true, name: true, photo: true } },
       workspaceMembers: {
