@@ -28,8 +28,8 @@ export const permissions = [
   },
   {
     group: "workspace",
-    name: "manage:workspace",
-    description: "Akses untuk manage data workspace",
+    name: "create:workspace",
+    description: "Akses untuk create workspace",
   },
   {
     group: "iam",

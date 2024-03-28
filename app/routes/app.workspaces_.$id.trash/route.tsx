@@ -4,8 +4,10 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 
 import { Button } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
-import { requirePermission } from "~/utils/auth.server";
-import { softDeleteWorkspace } from "../../services/workspace.server";
+import {
+  requireWorkspacePermission,
+  softDeleteWorkspace,
+} from "../../services/workspace.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const workspaceId = params.id;
@@ -13,7 +15,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return redirect(`/app/workspaces`);
   }
 
-  await requirePermission(request, "manage:workspace");
+  await requireWorkspacePermission(request, workspaceId, "manage:workspace");
 
   await softDeleteWorkspace({ id: workspaceId });
 

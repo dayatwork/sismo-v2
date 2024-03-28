@@ -8,8 +8,10 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 
 import { Button } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
-import { requirePermission } from "~/utils/auth.server";
-import { archiveWorkspace } from "~/services/workspace.server";
+import {
+  archiveWorkspace,
+  requireWorkspacePermission,
+} from "~/services/workspace.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const workspaceId = params.id;
@@ -17,7 +19,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return redirect(`/app/workspaces`);
   }
 
-  await requirePermission(request, "manage:workspace");
+  await requireWorkspacePermission(request, workspaceId, "manage:workspace");
 
   await archiveWorkspace({ id: workspaceId });
 
@@ -27,8 +29,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermission(request, "manage:workspace");
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const workspaceId = params.id;
+  if (!workspaceId) {
+    return redirect(`/app/workspaces`);
+  }
+  await requireWorkspacePermission(request, workspaceId, "manage:workspace");
 
   return null;
 }

@@ -207,6 +207,7 @@ export default function WorkspaceDetail() {
                   <PenSquareIcon className="w-4 h-4 mr-2" />
                   Edit workspace
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => navigate("archive")}
                   className="text-orange-600"
