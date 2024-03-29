@@ -24,7 +24,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
 
-  await requireWorkspacePermission(request, workspaceId, "manage:member");
+  const { allowed } = await requireWorkspacePermission(
+    request,
+    workspaceId,
+    "manage:member"
+  );
+  if (!allowed) {
+    return redirect(`/app/workspace/${workspaceId}`);
+  }
 
   await removeWorkspaceMembers({
     workspaceId,
@@ -43,7 +50,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect(`/app/workspaces`);
   }
 
-  await requireWorkspacePermission(request, workspaceId, "manage:member");
+  const { allowed } = await requireWorkspacePermission(
+    request,
+    workspaceId,
+    "manage:member"
+  );
+  if (!allowed) {
+    return redirect(`/app/workspace/${workspaceId}`);
+  }
 
   return null;
 }

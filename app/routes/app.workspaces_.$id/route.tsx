@@ -403,12 +403,20 @@ export default function WorkspaceDetail() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   onClick={() =>
+                                    navigate(`members/${wm.userId}/change-role`)
+                                  }
+                                >
+                                  <KeyRoundIcon className="w-4 h-4 mr-2" />
+                                  Change role
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
                                     navigate(`members/${wm.userId}/remove`)
                                   }
                                   className="text-red-600"
                                 >
                                   <Trash2Icon className="w-4 h-4 mr-2" />
-                                  Remove member
+                                  Remove
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -445,6 +453,7 @@ export default function WorkspaceDetail() {
                       <TableHead className="pl-4">Name</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Permissions</TableHead>
+                      <TableHead>Members</TableHead>
                       <TableHead className="pr-4">
                         <span className="sr-only">Action</span>
                       </TableHead>
@@ -461,6 +470,14 @@ export default function WorkspaceDetail() {
                               {permission}
                             </Badge>
                           ))}
+                        </TableCell>
+                        <TableCell>
+                          {
+                            workspace.workspaceMembers.filter(
+                              (wm) => wm.roleId === role.id
+                            ).length
+                          }{" "}
+                          members
                         </TableCell>
                         <TableCell className="pr-4">
                           <div className="flex justify-end items-center">
@@ -479,12 +496,20 @@ export default function WorkspaceDetail() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   onClick={() =>
+                                    navigate(`roles/${role.id}/edit`)
+                                  }
+                                >
+                                  <PenSquareIcon className="w-4 h-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
                                     navigate(`roles/${role.id}/remove`)
                                   }
                                   className="text-red-600"
                                 >
                                   <Trash2Icon className="w-4 h-4 mr-2" />
-                                  Remove role
+                                  Remove
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>

@@ -6,6 +6,40 @@ import { getUserById } from "./user.server";
 import { redirect } from "@remix-run/node";
 import { type WorkspacePermissionName } from "~/utils/workspace.permission";
 
+type GetWorkspaceProps = {
+  status?: WorkspaceStatus;
+};
+export async function getWorkspaces(props?: GetWorkspaceProps) {
+  const workspaces = await prisma.workspace.findMany({
+    where: { status: props?.status },
+    include: {
+      owner: { select: { id: true, name: true, photo: true } },
+      workspaceMembers: {
+        include: { user: { select: { id: true, name: true, photo: true } } },
+      },
+    },
+  });
+  return workspaces;
+}
+
+export async function getWorkspaceById({ id }: { id: string }) {
+  const workspace = await prisma.workspace.findUnique({
+    where: { id },
+    include: {
+      boards: true,
+      owner: { select: { id: true, name: true, photo: true } },
+      workspaceMembers: {
+        include: {
+          user: { select: { id: true, name: true, photo: true } },
+          role: true,
+        },
+      },
+      workspaceRoles: true,
+    },
+  });
+  return workspace;
+}
+
 export async function createWorkspace({
   name,
   description,
@@ -102,38 +136,55 @@ export async function getWorkspaceRoles({
   return workspaceRoles;
 }
 
-type GetWorkspaceProps = {
-  status?: WorkspaceStatus;
-};
-export async function getWorkspaces(props?: GetWorkspaceProps) {
-  const workspaces = await prisma.workspace.findMany({
-    where: { status: props?.status },
-    include: {
-      owner: { select: { id: true, name: true, photo: true } },
-      workspaceMembers: {
-        include: { user: { select: { id: true, name: true, photo: true } } },
-      },
-    },
+export async function createWorkspaceRole({
+  name,
+  permissions,
+  workspaceId,
+  description,
+}: {
+  workspaceId: string;
+  name: string;
+  description?: string;
+  permissions: string[];
+}) {
+  const workspaceRole = await prisma.workspaceRole.create({
+    data: { name, description, workspaceId, permissions },
   });
-  return workspaces;
+  return workspaceRole;
 }
 
-export async function getWorkspaceById({ id }: { id: string }) {
-  const workspace = await prisma.workspace.findUnique({
+export async function editWorkspaceRole({
+  id,
+  name,
+  permissions,
+  description,
+}: {
+  id: string;
+  name: string;
+  description?: string;
+  permissions: string[];
+}) {
+  const workspaceRole = await prisma.workspaceRole.update({
     where: { id },
-    include: {
-      boards: true,
-      owner: { select: { id: true, name: true, photo: true } },
-      workspaceMembers: {
-        include: {
-          user: { select: { id: true, name: true, photo: true } },
-          role: true,
-        },
-      },
-      workspaceRoles: true,
+    data: { name, description, permissions },
+  });
+  return workspaceRole;
+}
+
+export async function removeWorkspaceRoles({
+  workspaceId,
+  roleIds,
+}: {
+  workspaceId: string;
+  roleIds: string[];
+}) {
+  const result = await prisma.workspaceRole.deleteMany({
+    where: {
+      workspaceId,
+      id: { in: roleIds },
     },
   });
-  return workspace;
+  return result;
 }
 
 export async function addWorkspaceMembers({
@@ -183,39 +234,6 @@ export async function updateWorkspaceMemberRole({
     data: { roleId },
   });
   return workspaceMember;
-}
-
-export async function createWorkspaceRole({
-  name,
-  permissions,
-  workspaceId,
-  description,
-}: {
-  workspaceId: string;
-  name: string;
-  description?: string;
-  permissions: string[];
-}) {
-  const workspaceRole = await prisma.workspaceRole.create({
-    data: { name, description, workspaceId, permissions },
-  });
-  return workspaceRole;
-}
-
-export async function removeWorkspaceRoles({
-  workspaceId,
-  roleIds,
-}: {
-  workspaceId: string;
-  roleIds: string[];
-}) {
-  const result = await prisma.workspaceRole.deleteMany({
-    where: {
-      workspaceId,
-      id: { in: roleIds },
-    },
-  });
-  return result;
 }
 
 // ===============================================
