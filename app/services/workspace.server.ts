@@ -161,7 +161,7 @@ export async function editWorkspaceRole({
 }: {
   id: string;
   name: string;
-  description?: string;
+  description: string;
   permissions: string[];
 }) {
   const workspaceRole = await prisma.workspaceRole.update({
