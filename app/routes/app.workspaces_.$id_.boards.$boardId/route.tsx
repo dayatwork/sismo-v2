@@ -318,7 +318,7 @@ export default function Board() {
                       <h3 className="font-semibold text-sm">{group.name}</h3>
                     </div>
                     <Link
-                      to={`tasks/${group.id}/new-task`}
+                      to={`tasks/${group.id}/tasks/new`}
                       className={buttonVariants({
                         size: "sm",
                         variant: "ghost",
@@ -453,7 +453,13 @@ export default function Board() {
                                       See progress
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        navigate(
+                                          `tasks/${group.id}/tasks/${task.id}/edit`
+                                        )
+                                      }
+                                    >
                                       <PenSquareIcon className="w-4 h-4 mr-2" />
                                       Edit
                                     </DropdownMenuItem>

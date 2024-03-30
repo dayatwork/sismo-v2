@@ -202,13 +202,12 @@ export async function createTaskGroup({
   return taskGroup;
 }
 
-type BoardTaskProps = {
+type CreateBoardTaskProps = {
   name: string;
   ownerId: string;
   boardId: string;
   groupId?: string;
   priority?: BoardTaskPriority;
-  effortSpentInMinutes?: number;
   plannedEffortInMinutes?: number;
   parentTaskId?: string;
   timelineStart?: Date | string;
@@ -220,12 +219,11 @@ export async function createBoardTask({
   ownerId,
   groupId,
   priority,
-  effortSpentInMinutes,
   plannedEffortInMinutes,
   parentTaskId,
   timelineStart,
   timelineEnd,
-}: BoardTaskProps) {
+}: CreateBoardTaskProps) {
   const task = await prisma.boardTask.create({
     data: {
       name,
@@ -233,7 +231,47 @@ export async function createBoardTask({
       ownerId,
       groupId,
       priority,
-      effortSpentInMinutes,
+      plannedEffortInMinutes,
+      parentTaskId,
+      timelineStart,
+      timelineEnd,
+    },
+  });
+  return task;
+}
+
+type EditBoardTaskProps = {
+  id: string;
+  name?: string;
+  ownerId?: string;
+  boardId?: string;
+  groupId?: string;
+  priority?: BoardTaskPriority;
+  plannedEffortInMinutes?: number;
+  parentTaskId?: string;
+  timelineStart?: Date | string;
+  timelineEnd?: Date | string;
+};
+export async function editBoardTask({
+  id,
+  boardId,
+  name,
+  ownerId,
+  groupId,
+  priority,
+  plannedEffortInMinutes,
+  parentTaskId,
+  timelineStart,
+  timelineEnd,
+}: EditBoardTaskProps) {
+  const task = await prisma.boardTask.update({
+    where: { id },
+    data: {
+      name,
+      boardId,
+      ownerId,
+      groupId,
+      priority,
       plannedEffortInMinutes,
       parentTaskId,
       timelineStart,
