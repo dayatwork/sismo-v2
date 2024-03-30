@@ -358,57 +358,57 @@ export default function Board() {
                               </div>
                             </TableCell>
                             <TableCell className="w-32">
-                              <div className="border py-1 px-2 rounded bg-accent">
+                              <div className="py-1 px-2">
                                 {task.status === "BACKLOG" ? (
                                   <p className="flex gap-2 items-center">
                                     <BacklogIcon />
-                                    <span className="whitespace-nowrap font-semibold">
+                                    <span className="whitespace-nowrap text-muted-foreground">
                                       Backlog
                                     </span>
                                   </p>
                                 ) : task.status === "TODO" ? (
                                   <p className="flex gap-2 items-center">
                                     <TodoIcon />
-                                    <span className="whitespace-nowrap font-semibold">
+                                    <span className="whitespace-nowrap text-muted-foreground">
                                       Todo
                                     </span>
                                   </p>
                                 ) : task.status === "IN_PROGRESS" ? (
                                   <p className="flex gap-2 items-center">
                                     <InProgressIcon />
-                                    <span className="whitespace-nowrap font-semibold">
+                                    <span className="whitespace-nowrap text-muted-foreground">
                                       In Progress
                                     </span>
                                   </p>
                                 ) : task.status === "DONE" ? (
                                   <p className="flex gap-2 items-center">
                                     <DoneIcon />
-                                    <span className="whitespace-nowrap font-semibold">
+                                    <span className="whitespace-nowrap text-muted-foreground">
                                       Done
                                     </span>
                                   </p>
                                 ) : task.status === "STUCK" ? (
                                   <p className="flex gap-2 items-center">
                                     <CanceledIcon />
-                                    <span className="whitespace-nowrap font-semibold">
+                                    <span className="whitespace-nowrap text-muted-foreground">
                                       Stuck
                                     </span>
                                   </p>
                                 ) : task.status === "ON_HOLD" ? (
                                   <p className="flex gap-2 items-center">
                                     <OnHoldIcon />
-                                    <span className="whitespace-nowrap font-semibold">
+                                    <span className="whitespace-nowrap text-muted-foreground">
                                       On Hold
                                     </span>
                                   </p>
                                 ) : null}
                               </div>
                             </TableCell>
-                            <TableCell className="font-semibold px-4">
+                            <TableCell className="font-semibold px-2">
                               {task.name}
                             </TableCell>
-                            <TableCell className="font-semibold px-4 w-[135px]">
-                              <div className="flex gap-2 items-center justify-between border py-1 pl-2 pr-2.5 rounded">
+                            <TableCell className="text-muted-foreground px-4 w-[135px]">
+                              <div className="flex gap-2 items-center py-1 pl-2 pr-2.5 rounded">
                                 <TargetIcon className="w-4 h-4" />
                                 <span>{task.plannedEffortInMinutes} mins</span>
                               </div>
