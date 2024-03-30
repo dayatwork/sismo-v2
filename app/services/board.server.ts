@@ -1,4 +1,4 @@
-import { type BoardPrivacy } from "@prisma/client";
+import { type BoardTaskPriority, type BoardPrivacy } from "@prisma/client";
 import prisma from "~/lib/prisma";
 
 export async function createBoard({
@@ -118,7 +118,16 @@ export async function getBoardById({ id }: { id: string }) {
           user: { select: { id: true, name: true, photo: true } },
         },
       },
-      taskGroups: { include: { tasks: true } },
+
+      taskGroups: {
+        include: {
+          tasks: {
+            include: {
+              owner: { select: { id: true, name: true, photo: true } },
+            },
+          },
+        },
+      },
       workspace: true,
     },
   });
@@ -172,4 +181,64 @@ export async function updateBoardMemberRole({
     data: { isOwner },
   });
   return boardMember;
+}
+
+// ===================================
+// ============== TASK ===============
+// ===================================
+
+export async function createTaskGroup({
+  boardId,
+  color,
+  name,
+}: {
+  boardId: string;
+  name: string;
+  color: string;
+}) {
+  const taskGroup = await prisma.boardTaskGroup.create({
+    data: { boardId, name, color },
+  });
+  return taskGroup;
+}
+
+type BoardTaskProps = {
+  name: string;
+  ownerId: string;
+  boardId: string;
+  groupId?: string;
+  priority?: BoardTaskPriority;
+  effortSpentInMinutes?: number;
+  plannedEffortInMinutes?: number;
+  parentTaskId?: string;
+  timelineStart?: Date | string;
+  timelineEnd?: Date | string;
+};
+export async function createBoardTask({
+  boardId,
+  name,
+  ownerId,
+  groupId,
+  priority,
+  effortSpentInMinutes,
+  plannedEffortInMinutes,
+  parentTaskId,
+  timelineStart,
+  timelineEnd,
+}: BoardTaskProps) {
+  const task = await prisma.boardTask.create({
+    data: {
+      name,
+      boardId,
+      ownerId,
+      groupId,
+      priority,
+      effortSpentInMinutes,
+      plannedEffortInMinutes,
+      parentTaskId,
+      timelineStart,
+      timelineEnd,
+    },
+  });
+  return task;
 }

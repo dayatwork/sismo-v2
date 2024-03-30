@@ -3,6 +3,7 @@ import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import {
   ArchiveIcon,
   ArchiveRestoreIcon,
+  ArrowRight,
   Building2,
   FolderKanbanIcon,
   KeyRoundIcon,
@@ -321,16 +322,26 @@ export default function WorkspaceDetail() {
                   </TableHeader>
                   <TableBody>
                     {workspace.boards.map((board) => (
-                      <TableRow key={board.id}>
+                      <TableRow key={board.id} className="group">
                         <TableCell className="pl-4">{board.name}</TableCell>
                         <TableCell>{board.description}</TableCell>
                         <TableCell>{board.privacy}</TableCell>
                         <TableCell>{board.status}</TableCell>
                         <TableCell className="pr-4">
                           <div className="flex justify-end">
-                            <Button variant="outline" size="icon">
-                              <MoreHorizontalIcon className="w-4 h-4" />
-                            </Button>
+                            <Link
+                              to={`boards/${board.id}`}
+                              className={cn(
+                                buttonVariants({
+                                  variant: "outline",
+                                  size: "sm",
+                                }),
+                                "opacity-0 group-hover:opacity-100"
+                              )}
+                            >
+                              Go to board
+                              <ArrowRight className="ml-2 w-3.5 h-3.5" />
+                            </Link>
                           </div>
                         </TableCell>
                       </TableRow>

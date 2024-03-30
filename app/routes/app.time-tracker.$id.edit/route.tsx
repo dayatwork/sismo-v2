@@ -163,7 +163,7 @@ export default function EditTimeTracker() {
             <Button
               type="button"
               className={cn(buttonVariants({ variant: "ghost" }))}
-              onPress={() => navigate(`/apptime-tracker`)}
+              onPress={() => navigate(`/app/time-tracker`)}
             >
               Cancel
             </Button>
