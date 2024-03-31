@@ -1,4 +1,8 @@
-import { type BoardTaskPriority, type BoardPrivacy } from "@prisma/client";
+import {
+  type BoardTaskPriority,
+  type BoardPrivacy,
+  type BoardTaskStatus,
+} from "@prisma/client";
 import prisma from "~/lib/prisma";
 
 export async function createBoard({
@@ -125,6 +129,7 @@ export async function getBoardById({ id }: { id: string }) {
             include: {
               owner: { select: { id: true, name: true, photo: true } },
             },
+            orderBy: { createdAt: "asc" },
           },
         },
       },
@@ -251,6 +256,7 @@ type EditBoardTaskProps = {
   parentTaskId?: string;
   timelineStart?: Date | string;
   timelineEnd?: Date | string;
+  status?: BoardTaskStatus;
 };
 export async function editBoardTask({
   id,
@@ -261,6 +267,7 @@ export async function editBoardTask({
   priority,
   plannedEffortInMinutes,
   parentTaskId,
+  status,
   timelineStart,
   timelineEnd,
 }: EditBoardTaskProps) {
@@ -276,6 +283,7 @@ export async function editBoardTask({
       parentTaskId,
       timelineStart,
       timelineEnd,
+      status,
     },
   });
   return task;

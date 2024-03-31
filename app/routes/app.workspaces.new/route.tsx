@@ -31,7 +31,7 @@ const schema = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const loggedInUser = await requirePermission(request, "manage:workspace");
+  const loggedInUser = await requirePermission(request, "create:workspace");
   const formData = await request.formData();
 
   const submission = parseWithZod(formData, { schema });
@@ -59,7 +59,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermission(request, "manage:workspace");
+  await requirePermission(request, "create:workspace");
 
   return null;
 }

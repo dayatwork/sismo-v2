@@ -11,9 +11,15 @@ interface Props {
     photo: string | null;
   }[];
   errorMessage?: string;
+  defaultValue?: string;
 }
 
-export function UserComboBox({ users, name, errorMessage }: Props) {
+export function UserComboBox({
+  users,
+  name,
+  errorMessage,
+  defaultValue,
+}: Props) {
   const [userId, setUserId] = useState<Key | null>();
 
   return (
@@ -26,7 +32,7 @@ export function UserComboBox({ users, name, errorMessage }: Props) {
         errorMessage={errorMessage}
         emptyText="No user"
         defaultInputValue={undefined}
-        defaultSelectedKey={undefined}
+        defaultSelectedKey={defaultValue}
         placeholder="Select a user"
       >
         {(user) => (

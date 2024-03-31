@@ -1,20 +1,29 @@
 export function OnHoldIcon() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
       fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-5 h-5"
+      aria-label="On Hold"
+      className="color-override rotate-90"
     >
-      <path
+      <rect
+        x="1"
+        y="1"
+        width="12"
+        height="12"
+        rx="6"
         stroke="#ea580c"
         strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-      />
+        fill="none"
+      ></rect>
+      <path
+        fill="#ea580c"
+        stroke="none"
+        d="M 3.5,3.5 L3.5,0 A3.5,3.5 0 0,1 3.5, 7 z"
+        transform="translate(3.5,3.5)"
+      ></path>
     </svg>
   );
 }

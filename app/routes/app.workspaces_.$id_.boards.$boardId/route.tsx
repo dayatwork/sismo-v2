@@ -3,6 +3,7 @@ import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import {
   ArchiveIcon,
   ArchiveRestoreIcon,
+  BarChart,
   FolderKanbanIcon,
   KeyRoundIcon,
   LayoutDashboard,
@@ -298,7 +299,7 @@ export default function Board() {
               <Input placeholder="Search task..." className="max-w-[250px]" />
               {board.status === "ACTIVE" && (
                 <Link
-                  to="new-group"
+                  to="groups/new"
                   className={buttonVariants({ size: "sm", variant: "outline" })}
                 >
                   <PlusIcon className="w-3.5 h-3.5 mr-2" /> New Group
@@ -318,7 +319,7 @@ export default function Board() {
                       <h3 className="font-semibold text-sm">{group.name}</h3>
                     </div>
                     <Link
-                      to={`tasks/${group.id}/tasks/new`}
+                      to={`groups/${group.id}/tasks/new`}
                       className={buttonVariants({
                         size: "sm",
                         variant: "ghost",
@@ -358,7 +359,7 @@ export default function Board() {
                               </div>
                             </TableCell>
                             <TableCell className="w-32">
-                              <div className="py-1 px-2">
+                              <div className="py-1">
                                 {task.status === "BACKLOG" ? (
                                   <p className="flex gap-2 items-center">
                                     <BacklogIcon />
@@ -456,20 +457,42 @@ export default function Board() {
                                     <DropdownMenuItem
                                       onClick={() =>
                                         navigate(
-                                          `tasks/${group.id}/tasks/${task.id}/edit`
+                                          `groups/${group.id}/tasks/${task.id}/edit`
                                         )
                                       }
                                     >
                                       <PenSquareIcon className="w-4 h-4 mr-2" />
                                       Edit
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <UserRoundIcon className="w-4 h-4 mr-2" />
-                                      Change owner
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        navigate(
+                                          `groups/${group.id}/tasks/${task.id}/change-priority`
+                                        )
+                                      }
+                                    >
+                                      <BarChart className="w-4 h-4 mr-2" />
+                                      Change priority
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        navigate(
+                                          `groups/${group.id}/tasks/${task.id}/change-status`
+                                        )
+                                      }
+                                    >
                                       <RefreshCcwDotIcon className="w-4 h-4 mr-2" />
                                       Change status
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        navigate(
+                                          `groups/${group.id}/tasks/${task.id}/change-owner`
+                                        )
+                                      }
+                                    >
+                                      <UserRoundIcon className="w-4 h-4 mr-2" />
+                                      Change owner
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem className="text-red-600">
