@@ -4,10 +4,10 @@ import {
   TimerIcon,
   type LucideIcon,
   CalendarClockIcon,
-  FolderKanbanIcon,
-  LayoutGridIcon,
-  BoxesIcon,
-  UserSquare2Icon,
+  // FolderKanbanIcon,
+  // LayoutGridIcon,
+  // BoxesIcon,
+  // UserSquare2Icon,
   // UserCog2Icon,
   UsersIcon,
   ClipboardListIcon,
@@ -17,13 +17,13 @@ import {
   SettingsIcon,
   CircleDotIcon,
   BarChart3,
-  Files,
-  PencilRuler,
+  // Files,
+  // PencilRuler,
   // MessageCircle,
-  Video,
-  Banknote,
-  Landmark,
-  Mail,
+  // Video,
+  // Banknote,
+  // Landmark,
+  // Mail,
   MessageCircle,
   SquareUserRound,
 } from "lucide-react";
@@ -85,79 +85,80 @@ const navigation: NavigationItem[] = [
   // },
 ];
 
-const toolNavigation: NavigationItem[] = [
-  {
-    name: "Documents",
-    href: "documents",
-    icon: Files,
-    current: false,
-  },
-  {
-    name: "Drawings",
-    href: "drawings",
-    icon: PencilRuler,
-    current: false,
-  },
-];
-const communicationNavigation: NavigationItem[] = [
-  {
-    name: "Chat",
-    href: "chat",
-    icon: MessageCircle,
-    current: false,
-  },
-  {
-    name: "Mail",
-    href: "mail",
-    icon: Mail,
-    current: false,
-  },
-  {
-    name: "Meetings",
-    href: "meetings",
-    icon: Video,
-    current: false,
-  },
-];
+// const toolNavigation: NavigationItem[] = [
+//   {
+//     name: "Documents",
+//     href: "documents",
+//     icon: Files,
+//     current: false,
+//   },
+//   {
+//     name: "Drawings",
+//     href: "drawings",
+//     icon: PencilRuler,
+//     current: false,
+//   },
+// ];
 
-const projectNavigation: NavigationItem[] = [
-  {
-    name: "Projects",
-    href: "projects",
-    icon: FolderKanbanIcon,
-    current: false,
-    permissions: ["manage:project"],
-  },
-  {
-    name: "Clients",
-    href: "clients",
-    icon: UserSquare2Icon,
-    current: false,
-    permissions: ["manage:client"],
-  },
-  {
-    name: "Services",
-    href: "services",
-    icon: LayoutGridIcon,
-    current: false,
-    permissions: ["manage:service"],
-  },
-  {
-    name: "Products",
-    href: "products",
-    icon: BoxesIcon,
-    current: false,
-    permissions: ["manage:product"],
-  },
+// const communicationNavigation: NavigationItem[] = [
+//   {
+//     name: "Chat",
+//     href: "chat",
+//     icon: MessageCircle,
+//     current: false,
+//   },
+//   {
+//     name: "Mail",
+//     href: "mail",
+//     icon: Mail,
+//     current: false,
+//   },
+//   {
+//     name: "Meetings",
+//     href: "meetings",
+//     icon: Video,
+//     current: false,
+//   },
+// ];
 
-  // {
-  //   name: "Client Types",
-  //   href: "client-types",
-  //   icon: UserCog2Icon,
-  //   current: false,
-  //   permissions: ["manage:client"],
-  // },
-];
+// const projectNavigation: NavigationItem[] = [
+//   {
+//     name: "Projects",
+//     href: "projects",
+//     icon: FolderKanbanIcon,
+//     current: false,
+//     permissions: ["manage:project"],
+//   },
+//   {
+//     name: "Clients",
+//     href: "clients",
+//     icon: UserSquare2Icon,
+//     current: false,
+//     permissions: ["manage:client"],
+//   },
+//   {
+//     name: "Services",
+//     href: "services",
+//     icon: LayoutGridIcon,
+//     current: false,
+//     permissions: ["manage:service"],
+//   },
+//   {
+//     name: "Products",
+//     href: "products",
+//     icon: BoxesIcon,
+//     current: false,
+//     permissions: ["manage:product"],
+//   },
+
+//   // {
+//   //   name: "Client Types",
+//   //   href: "client-types",
+//   //   icon: UserCog2Icon,
+//   //   current: false,
+//   //   permissions: ["manage:client"],
+//   // },
+// ];
 
 const employeeNavigation: NavigationItem[] = [
   {
@@ -191,29 +192,29 @@ const employeeNavigation: NavigationItem[] = [
   // },
 ];
 
-const financeNavigation: NavigationItem[] = [
-  {
-    name: "Chart of Account",
-    href: "chart-of-accounts",
-    icon: Landmark,
-    current: false,
-    permissions: ["manage:finance"],
-  },
-  // {
-  //   name: "Expenses",
-  //   href: "expenses",
-  //   icon: Banknote,
-  //   current: false,
-  //   permissions: ["manage:finance"],
-  // },
-  {
-    name: "Journal",
-    href: "journals",
-    icon: Banknote,
-    current: false,
-    permissions: ["manage:finance"],
-  },
-];
+// const financeNavigation: NavigationItem[] = [
+//   {
+//     name: "Chart of Account",
+//     href: "chart-of-accounts",
+//     icon: Landmark,
+//     current: false,
+//     permissions: ["manage:finance"],
+//   },
+//   // {
+//   //   name: "Expenses",
+//   //   href: "expenses",
+//   //   icon: Banknote,
+//   //   current: false,
+//   //   permissions: ["manage:finance"],
+//   // },
+//   {
+//     name: "Journal",
+//     href: "journals",
+//     icon: Banknote,
+//     current: false,
+//     permissions: ["manage:finance"],
+//   },
+// ];
 
 const organizationNavigation: NavigationItem[] = [
   {
@@ -326,11 +327,10 @@ export default function AppNavigation() {
             ))}
           </ul>
         </li>
-        <Separator className="my-4" />
+        {/* <Separator className="my-4" />
         <li>
           <h3 className="text-sm font-semibold text-muted-foreground mb-3">
             Tools
-            {/* Tools & Communications */}
           </h3>
           <ul className="-mx-2 space-y-1">
             {toolNavigation.map((item) => (
@@ -363,7 +363,6 @@ export default function AppNavigation() {
         <li>
           <h3 className="text-sm font-semibold text-muted-foreground mb-3">
             Communications
-            {/* Tools & Communications */}
           </h3>
           <ul className="-mx-2 space-y-1">
             {communicationNavigation.map((item) => (
@@ -391,7 +390,7 @@ export default function AppNavigation() {
               </li>
             ))}
           </ul>
-        </li>
+        </li> */}
 
         {hasAccessToNavigation({
           isSuperAdmin,
@@ -485,7 +484,7 @@ export default function AppNavigation() {
           </>
         )}
 
-        {hasAccessToNavigation({
+        {/* {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
           navigationItems: projectNavigation,
@@ -529,9 +528,9 @@ export default function AppNavigation() {
               </ul>
             </li>
           </>
-        )}
+        )} */}
 
-        {hasAccessToNavigation({
+        {/* {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
           navigationItems: financeNavigation,
@@ -575,7 +574,8 @@ export default function AppNavigation() {
               </ul>
             </li>
           </>
-        )}
+        )} */}
+
         {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,

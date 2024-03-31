@@ -288,3 +288,8 @@ export async function editBoardTask({
   });
   return task;
 }
+
+export async function deleteBoardTask({ id }: { id: string }) {
+  const task = await prisma.boardTask.delete({ where: { id } });
+  return task;
+}

@@ -495,7 +495,14 @@ export default function Board() {
                                       Change owner
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-red-600">
+                                    <DropdownMenuItem
+                                      className="text-red-600"
+                                      onClick={() =>
+                                        navigate(
+                                          `groups/${group.id}/tasks/${task.id}/delete`
+                                        )
+                                      }
+                                    >
                                       <Trash2Icon className="w-4 h-4 mr-2" />
                                       Delete
                                     </DropdownMenuItem>
