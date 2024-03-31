@@ -65,6 +65,7 @@ import { cn } from "~/lib/utils";
 import { getBoardById } from "~/services/board.server";
 
 import { requireUser } from "~/utils/auth.server";
+import { getUsers } from "~/services/user.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const workspaceId = params.id;
@@ -79,12 +80,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   await requireUser(request);
 
-  const board = await getBoardById({ id: boardId });
+  const [board, users] = await Promise.all([
+    getBoardById({ id: boardId }),
+    getUsers(),
+  ]);
   if (!board) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
 
-  return json({ board });
+  return json({ board, users });
 }
 
 export default function Board() {
@@ -574,8 +578,10 @@ export default function Board() {
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>{bm.isOwner ? "Owner" : "Member"}</TableCell>
-                        <TableCell className="pr-4">
+                        <TableCell className="w-32">
+                          {bm.isOwner ? "Owner" : "Member"}
+                        </TableCell>
+                        <TableCell className="pr-4 w-20">
                           <div className="flex justify-end items-center">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>

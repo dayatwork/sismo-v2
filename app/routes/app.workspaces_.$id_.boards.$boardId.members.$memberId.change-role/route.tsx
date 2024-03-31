@@ -20,13 +20,14 @@ import { useForm } from "@conform-to/react";
 import { redirectWithToast } from "~/utils/toast.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import { editBoardTask } from "~/services/board.server";
-import { requireUser } from "~/utils/auth.server";
+import { updateBoardMemberRole } from "~/services/board.server";
 import { type loader as boardLoader } from "../app.workspaces_.$id_.boards.$boardId/route";
-import { UserComboBox } from "~/components/comboboxes/user-combobox";
+import { Switch } from "~/components/ui/switch";
+import { Label } from "~/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 const schema = z.object({
-  ownerId: z.string(),
+  isOwner: z.boolean().optional(),
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -40,57 +41,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
 
-  const groupId = params.groupId;
-  if (!groupId) {
-    return redirect(`/app/workspaces/${workspaceId}`);
+  const memberId = params.memberId;
+  if (!memberId) {
+    return redirect(`/app/workspaces/${workspaceId}/boards/${boardId}`);
   }
-
-  const taskId = params.taskId;
-  if (!taskId) {
-    return redirect(`/app/workspaces/${workspaceId}`);
-  }
-
-  await requireUser(request);
-
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirectWithToast(`/app/workspaces/${workspaceId}`, {
-  //     description: `Unauthorized`,
-  //     type: "error",
-  //   });
-  // }
 
   const formData = await request.formData();
 
   const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
-    return json({
-      submission: submission.reply(),
-      error: null,
-    });
+    return json({ submission: submission.reply(), error: null });
   }
 
-  const { ownerId } = submission.value;
+  const { isOwner } = submission.value;
 
   try {
-    await editBoardTask({
-      id: taskId,
-      ownerId,
+    await updateBoardMemberRole({
+      boardId,
+      isOwner: isOwner || false,
+      userId: memberId,
     });
     return redirectWithToast(
       `/app/workspaces/${workspaceId}/boards/${boardId}`,
       {
-        description: `Owner changed`,
+        description: `Member role changed`,
         type: "success",
       }
     );
   } catch (error: any) {
-    return json({ submission, error: error.message, errorTime: null });
+    return json({ submission, error: error.message });
   }
 }
 
@@ -105,36 +85,26 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
 
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirect(`/app/workspace/${workspaceId}`);
-  // }
-
   return null;
 }
 
-export default function ChangeBoardTaskOwner() {
+export default function ChangeBoardMemberRole() {
   const actionData = useActionData<typeof action>();
   const routeLoaderData = useRouteLoaderData<typeof boardLoader>(
     "routes/app.workspaces_.$id_.boards.$boardId"
   );
   const navigate = useNavigate();
-  const { id, boardId, taskId, groupId } = useParams<{
+  const { id, boardId, memberId } = useParams<{
     id: string;
     boardId: string;
-    groupId: string;
-    taskId: string;
+    memberId: string;
   }>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
 
-  const selectedTask = routeLoaderData?.board.taskGroups
-    .find((tg) => tg.id === groupId)
-    ?.tasks.find((task) => task.id === taskId);
+  const selectedMember = routeLoaderData?.board.boardMembers.find(
+    (bm) => bm.userId === memberId
+  );
 
   const [form, fields] = useForm({
     lastResult: actionData?.submission,
@@ -143,40 +113,48 @@ export default function ChangeBoardTaskOwner() {
       return parseWithZod(formData, { schema });
     },
     defaultValue: {
-      ownerId: selectedTask?.ownerId,
+      isOwner: selectedMember?.isOwner,
     },
   });
 
-  console.log({ defaultValue: fields.ownerId.initialValue });
+  console.log({ defaultValue: fields.isOwner.initialValue });
 
   return (
     <Modal
       isDismissable
       isOpen={true}
       onOpenChange={() => navigate(`/app/workspaces/${id}/boards/${boardId}`)}
-      className="overflow-hidden w-full max-w-md"
+      className="overflow-hidden w-full max-w-lg"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
         <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold">
-            Change Owner
+            Change Role
           </Heading>
           {actionData?.error ? (
             <p className="mt-4 text-sm font-semibold px-2 py-1 rounded text-red-600 border border-red-600">
               {actionData.error.toString()}
             </p>
           ) : null}
-          <div className="grid gap-2 mt-4">
-            <UserComboBox
-              name="ownerId"
-              errorMessage={
-                fields.ownerId.errors?.length
-                  ? fields.ownerId.errors.toString()
-                  : undefined
-              }
-              users={routeLoaderData?.users || []}
-              defaultValue={fields.ownerId.initialValue}
+          <div className="grid gap-2 mt-6">
+            <div className="flex items-center gap-2 -ml-0.5">
+              <Avatar>
+                <AvatarImage
+                  src={selectedMember?.user.photo || ""}
+                  className="object-cover"
+                />
+                <AvatarFallback>{selectedMember?.user.name[0]}</AvatarFallback>
+              </Avatar>
+              <span className="font-semibold">{selectedMember?.user.name}</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 mt-6">
+            <Switch
+              id="owner"
+              name="isOwner"
+              defaultChecked={fields.isOwner.initialValue === "on"}
             />
+            <Label htmlFor="owner">Owner</Label>
           </div>
           <div className="mt-4 flex justify-end gap-2 w-full">
             <Button
@@ -192,8 +170,9 @@ export default function ChangeBoardTaskOwner() {
               type="submit"
               className={cn(buttonVariants())}
               isDisabled={submitting}
+              onPress={() => console.log("press")}
             >
-              {submitting ? "Changing" : "Change"}
+              {submitting ? "Saving" : "Save"}
             </Button>
           </div>
         </Form>

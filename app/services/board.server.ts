@@ -139,6 +139,9 @@ export async function getBoardById({ id }: { id: string }) {
   return board;
 }
 
+// ===================================
+// ============= MEMBER ==============
+// ===================================
 export async function addBoardMembers({
   boardId,
   members,
@@ -191,7 +194,6 @@ export async function updateBoardMemberRole({
 // ===================================
 // ============== TASK ===============
 // ===================================
-
 export async function createTaskGroup({
   boardId,
   color,

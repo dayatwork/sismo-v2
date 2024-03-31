@@ -95,7 +95,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return null;
 }
 
-export default function AddBoard() {
+export default function AddWorkspaceMember() {
   const actionData = useActionData<typeof action>();
   const loaderData = useRouteLoaderData<typeof workspaceIdLoader>(
     "routes/app.workspaces_.$id"

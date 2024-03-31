@@ -12,6 +12,7 @@ interface Props {
   }[];
   errorMessage?: string;
   defaultValue?: string;
+  disabledKeys?: string[];
 }
 
 export function UserComboBox({
@@ -19,6 +20,7 @@ export function UserComboBox({
   name,
   errorMessage,
   defaultValue,
+  disabledKeys,
 }: Props) {
   const [userId, setUserId] = useState<Key | null>();
 
@@ -34,10 +36,11 @@ export function UserComboBox({
         defaultInputValue={undefined}
         defaultSelectedKey={defaultValue}
         placeholder="Select a user"
+        disabledKeys={disabledKeys}
       >
         {(user) => (
           <ListBoxItem
-            className="py-1.5 px-2 text-sm focus:bg-accent focus:text-accent-foreground selected:bg-accent selected:text-accent-foreground rounded flex items-center gap-2"
+            className="py-1.5 px-2 text-sm focus:bg-accent focus:text-accent-foreground selected:bg-accent selected:text-accent-foreground rounded flex items-center gap-2 disabled:text-muted-foreground/50 disabled:cursor-not-allowed"
             textValue={user.name}
           >
             {/* <img
@@ -50,6 +53,11 @@ export function UserComboBox({
               <AvatarFallback>{user.name[0]}</AvatarFallback>
             </Avatar>
             <span className="truncate">{user.name}</span>
+            {disabledKeys?.includes(user.id) && (
+              <span className="ml-auto text-muted-foreground/50 text-sm">
+                Already a member
+              </span>
+            )}
           </ListBoxItem>
         )}
       </RAComboBox>
