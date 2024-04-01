@@ -845,8 +845,8 @@ model TaskTrackerItem {
   id                    String         @id @default(uuid())
   tracker               TaskTracker    @relation(fields: [trackerId], references: [id])
   trackerId             String
-  task                  BoardTask?     @relation(fields: [taskId], references: [id])
-  taskId                String?
+  task                  BoardTask      @relation(fields: [taskId], references: [id])
+  taskId                String
   note                  String         @default("")
   taskCompletion        Int            @db.SmallInt
   workDurationInMinutes Int            @db.SmallInt
@@ -862,6 +862,7 @@ model AttachmentV2 {
   id            String           @id @default(uuid())
   displayName   String           @default("")
   url           String
+  type          AttachmentType
   owner         User             @relation(fields: [ownerId], references: [id])
   ownerId       String
   trackerItem   TaskTrackerItem? @relation(fields: [trackerItemId], references: [id])

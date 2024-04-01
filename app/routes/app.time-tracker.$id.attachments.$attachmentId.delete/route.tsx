@@ -5,7 +5,7 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 import { Button } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
 import { requireUser } from "~/utils/auth.server";
-import { deleteAttachmentById } from "~/services/attachment.server";
+import { deleteAttachmentByIdV2 } from "~/services/attachment.server";
 import { emitter } from "~/utils/sse/emitter.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -20,9 +20,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const loggedInUser = await requireUser(request);
 
-  await deleteAttachmentById({
+  await deleteAttachmentByIdV2({
     attachmentId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   emitter.emit(`tracker-${loggedInUser.id}-changed`);

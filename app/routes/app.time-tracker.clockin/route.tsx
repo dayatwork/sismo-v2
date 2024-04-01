@@ -11,14 +11,14 @@ import { redirectWithToast } from "~/utils/toast.server";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { getWeekNumber } from "~/utils/datetime";
-import {
-  clockin,
-  getTotalInCompleteTrackers,
-} from "~/services/time-tracker.server";
-import { getUnfinishedTasks } from "~/services/task.server";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
 import { getSettings } from "~/services/setting.server";
+import {
+  getNumberOfInCompleteTrackers,
+  startTracker,
+} from "~/services/task-tracker.server";
+import { getUnfinishedBoardTasks } from "~/services/board.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);
@@ -31,8 +31,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const year = new Date().getFullYear();
 
   try {
-    await clockin({
-      userId: loggedInUser.id,
+    await startTracker({
+      ownerId: loggedInUser.id,
       week,
       year,
     });
@@ -41,7 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     emitter.emit(`employee-work-status-change`);
 
     return redirectWithToast(`/app/time-tracker`, {
-      description: `You are clocked in`,
+      description: `Tracker started!`,
       type: "success",
     });
   } catch (error: any) {
@@ -55,16 +55,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const loggedInUser = await requireUser(request);
 
-  const totalInCompleteTrackers = await getTotalInCompleteTrackers({
-    userId: loggedInUser.id,
+  const totalInCompleteTrackers = await getNumberOfInCompleteTrackers({
+    ownerId: loggedInUser.id,
   });
 
   if (totalInCompleteTrackers) {
     return redirect(`/app/time-tracker`);
   }
 
-  const tasks = await getUnfinishedTasks({
-    assigneeId: loggedInUser.id,
+  const tasks = await getUnfinishedBoardTasks({
+    ownerId: loggedInUser.id,
   });
 
   const settings = await getSettings();

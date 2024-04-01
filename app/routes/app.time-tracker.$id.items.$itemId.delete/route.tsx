@@ -4,9 +4,9 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 
 import { Button } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
-import { deleteTrackerItem } from "~/services/time-tracker.server";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
+import { deleteTrackerItem } from "~/services/task-tracker.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const trackerId = params.id;
@@ -23,7 +23,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   await deleteTrackerItem({
     id: trackerItemId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   emitter.emit(`tracker-${loggedInUser.id}-changed`);

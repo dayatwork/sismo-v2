@@ -295,3 +295,22 @@ export async function deleteBoardTask({ id }: { id: string }) {
   const task = await prisma.boardTask.delete({ where: { id } });
   return task;
 }
+
+export async function getUnfinishedBoardTasks({
+  ownerId,
+  excludeIds,
+}: {
+  ownerId: string;
+  excludeIds?: string[];
+}) {
+  const tasks = await prisma.boardTask.findMany({
+    where: {
+      ownerId,
+      status: { in: ["BACKLOG", "TODO", "IN_PROGRESS"] },
+      id: { notIn: excludeIds },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return tasks;
+}

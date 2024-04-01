@@ -21,11 +21,6 @@ import { zfd } from "zod-form-data";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import {
-  addTrackerItems,
-  getUserTimeTrackerById,
-} from "~/services/time-tracker.server";
-import { getUnfinishedTasks } from "~/services/task.server";
-import {
   RAComboBox,
   RAComboBoxItem,
 } from "~/components/ui/react-aria/combobox";
@@ -33,6 +28,11 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
+import {
+  addTaskTrackerItems,
+  getTaskTrackerByOwnerId,
+} from "~/services/task-tracker.server";
+import { getUnfinishedBoardTasks } from "~/services/board.server";
 
 const schema = z.object({
   taskId: z.string().min(1, "Required"),
@@ -45,8 +45,8 @@ const schema = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const timeTrackerId = params.id;
-  if (!timeTrackerId) {
+  const trackerId = params.id;
+  if (!trackerId) {
     return redirect(`/app/time-tracker`);
   }
 
@@ -62,9 +62,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { taskCompletion, taskId, workDurationInMinutes } = submission.value;
 
-  const tracker = await getUserTimeTrackerById({
-    trackerId: timeTrackerId,
-    userId: loggedInUser.id,
+  const tracker = await getTaskTrackerByOwnerId({
+    trackerId,
+    ownerId: loggedInUser.id,
   });
 
   if (!tracker) {
@@ -85,16 +85,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  await addTrackerItems({
+  await addTaskTrackerItems({
     trackerItems: [
-      { taskCompletion, taskId, timeTrackerId, workDurationInMinutes },
+      { taskCompletion, taskId, trackerId, workDurationInMinutes },
     ],
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   emitter.emit(`tracker-${loggedInUser.id}-changed`);
 
-  return redirect(`/app/time-tracker/${timeTrackerId}/items`);
+  return redirect(`/app/time-tracker/${trackerId}/items`);
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -105,19 +105,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const loggedInUser = await requireUser(request);
 
-  const tracker = await getUserTimeTrackerById({
+  const tracker = await getTaskTrackerByOwnerId({
     trackerId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   if (!tracker) {
     return redirect(`/app/time-tracker`);
   }
 
-  const excludeIds = tracker.trackerItems.map((item) => item.taskId);
+  const excludeIds = tracker.trackerItems
+    .filter((item) => typeof item.taskId === "string")
+    .map((item) => item.taskId as string);
 
-  const tasks = await getUnfinishedTasks({
-    assigneeId: loggedInUser.id,
+  const tasks = await getUnfinishedBoardTasks({
+    ownerId: loggedInUser.id,
     excludeIds,
   });
 
@@ -175,9 +177,6 @@ export default function AddTaskToTracker() {
                 {(task) => (
                   <RAComboBoxItem id={task.id} textValue={task.name}>
                     <p className="font-semibold">{task.name}</p>
-                    <p className="text-muted-foreground">
-                      {task.project?.name || "-"}
-                    </p>
                   </RAComboBoxItem>
                 )}
               </RAComboBox>

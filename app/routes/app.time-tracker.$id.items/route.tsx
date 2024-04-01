@@ -2,12 +2,11 @@ import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Modal, Dialog, Button, Heading } from "react-aria-components";
 import dayjs from "dayjs";
+import { PenSquare, Plus, Trash2 } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { requireUser } from "~/utils/auth.server";
-import { getUserTimeTrackerById } from "~/services/time-tracker.server";
-import { PenSquare, Plus, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -16,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { getTaskTrackerByOwnerId } from "~/services/task-tracker.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const trackerId = params.id;
@@ -25,9 +25,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const loggedInUser = await requireUser(request);
 
-  const tracker = await getUserTimeTrackerById({
+  const tracker = await getTaskTrackerByOwnerId({
     trackerId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   if (!tracker) {

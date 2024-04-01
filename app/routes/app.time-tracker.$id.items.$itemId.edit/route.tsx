@@ -23,17 +23,17 @@ import { Progress } from "~/components/ui/progress";
 import { useState } from "react";
 import { Label, labelVariants } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import {
-  editTrackerItem,
-  getPreviousTaskTracker,
-  getTrackerItemById,
-  getUserTimeTrackerById,
-} from "~/services/time-tracker.server";
 import { emitter } from "~/utils/sse/emitter.server";
 import { Input } from "~/components/ui/input";
 import { zfd } from "zod-form-data";
 import dayjs from "dayjs";
 import { requireUser } from "~/utils/auth.server";
+import {
+  editTaskTrackerItem,
+  getPreviousTaskTrackerItem,
+  getTaskTrackerByOwnerId,
+  getTaskTrackerItemById,
+} from "~/services/task-tracker.server";
 
 const schema = z.object({
   taskCompletion: zfd.numeric(z.number().min(0).max(100)),
@@ -60,9 +60,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { taskCompletion, note, workDurationInMinutes } = submission.value;
 
-  const tracker = await getUserTimeTrackerById({
+  const tracker = await getTaskTrackerByOwnerId({
     trackerId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   if (!tracker) {
@@ -82,11 +82,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  await editTrackerItem({
+  await editTaskTrackerItem({
     id: trackerItemId,
     taskCompletion,
     note: note || "",
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
     workDurationInMinutes,
   });
 
@@ -96,11 +96,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const organizationId = params.orgId;
-  if (!organizationId) {
-    return redirect("/app");
-  }
-
   const trackerId = params.id;
   const trackerItemId = params.itemId;
   if (!trackerId || !trackerItemId) {
@@ -113,17 +108,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect("/app");
   }
 
-  // const tracker = await getUserTimeTrackerById({
-  //   trackerId,
-  //   userId: loggedInUser.id,
-  // });
-  const trackerItem = await getTrackerItemById({ id: trackerItemId });
+  const trackerItem = await getTaskTrackerItemById({ id: trackerItemId });
 
   if (!trackerItem) {
     return redirect(`/app/time-tracker/${trackerId}/items`);
   }
 
-  const previousTaskTracker = await getPreviousTaskTracker({
+  const previousTaskTracker = await getPreviousTaskTrackerItem({
     currentTrackerItemCompletion: trackerItem.taskCompletion,
     currentTrackerItemId: trackerItem.id,
     taskId: trackerItem.taskId,
@@ -136,7 +127,7 @@ export default function EditTrackerItem() {
   const actionData = useActionData<typeof action>();
   const { trackerItem, previousTaskTracker } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const { orgId, id } = useParams<{ orgId: string; id: string }>();
+  const { id } = useParams<{ id: string }>();
   const [progress, setProgress] = useState(trackerItem.taskCompletion || 0);
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
@@ -157,7 +148,7 @@ export default function EditTrackerItem() {
     <Modal
       isDismissable
       isOpen={true}
-      onOpenChange={() => navigate(`/app/${orgId}/time-tracker/${id}/items`)}
+      onOpenChange={() => navigate(`/app/time-tracker/${id}/items`)}
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
@@ -263,7 +254,7 @@ export default function EditTrackerItem() {
             <Button
               type="button"
               className={cn(buttonVariants({ variant: "ghost" }))}
-              onPress={() => navigate(`/app/${orgId}/time-tracker/${id}/items`)}
+              onPress={() => navigate(`/app/time-tracker/${id}/items`)}
             >
               Cancel
             </Button>

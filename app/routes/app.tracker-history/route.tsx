@@ -8,10 +8,6 @@ import dayjs from "dayjs";
 
 import MainContainer from "~/components/main-container";
 import { requireUser } from "~/utils/auth.server";
-import {
-  deleteTimeTracker,
-  getTimeTrackers,
-} from "~/services/time-tracker.server";
 import { cn } from "~/lib/utils";
 import { Clockify } from "./clockify";
 import { useRevalidateWhenFocus } from "~/hooks/useRevalidateWhenFocus";
@@ -23,6 +19,10 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { AttachmentsCard } from "../app.time-tracker/attachments-card";
+import {
+  deleteTaskTracker,
+  getTaskTrackers,
+} from "~/services/task-tracker.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);
@@ -32,9 +32,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const trackerId = formData.get("trackerId");
 
   if (_action === "DELETE" && typeof trackerId === "string" && trackerId) {
-    await deleteTimeTracker({
+    await deleteTaskTracker({
       trackerId,
-      userId: loggedInUser.id,
+      ownerId: loggedInUser.id,
     });
   }
 
@@ -52,7 +52,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   try {
-    const timeTrackers = await getTimeTrackers({
+    const timeTrackers = await getTaskTrackers({
       from,
       to,
     });

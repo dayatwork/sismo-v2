@@ -50,6 +50,7 @@ export function AttachmentsCard({ attachments, timeTrackerId }: Props) {
                 ) : (
                   <LinkIcon className="mr-2 w-4 h-4" />
                 )}
+
                 <a
                   href={attachment.url}
                   target="_blank"

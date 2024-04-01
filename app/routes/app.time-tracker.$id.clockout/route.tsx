@@ -10,11 +10,11 @@ import { Modal, Dialog, Button, Heading } from "react-aria-components";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { requireUser } from "~/utils/auth.server";
-import {
-  clockout,
-  getUserTimeTrackerById,
-} from "~/services/time-tracker.server";
 import { emitter } from "~/utils/sse/emitter.server";
+import {
+  getTaskTrackerByOwnerId,
+  stopTracker,
+} from "~/services/task-tracker.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const trackerId = params.id;
@@ -24,9 +24,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const loggedInUser = await requireUser(request);
 
-  await clockout({
+  await stopTracker({
     trackerId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   emitter.emit(`tracker-${loggedInUser.id}-changed`);
@@ -43,9 +43,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const loggedInUser = await requireUser(request);
 
-  const tracker = await getUserTimeTrackerById({
+  const tracker = await getTaskTrackerByOwnerId({
     trackerId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   if (!tracker || tracker.endAt) {
@@ -69,9 +69,9 @@ export default function StopTimeTracker() {
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
         <Heading slot="title" className="text-lg font-semibold mb-4">
-          Clock out
+          Stop Tracker
         </Heading>
-        <p className="mb-6">Are you sure to clock out?</p>
+        <p className="mb-6">Are you sure to stop the tracker?</p>
         <Form method="POST" className="flex justify-end gap-2">
           <Button className={cn(buttonVariants({ variant: "ghost" }))}>
             Cancel

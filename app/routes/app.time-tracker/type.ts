@@ -1,13 +1,8 @@
-import {
-  type Task as PrismaTask,
-  type Project as PrismaProject,
-} from "@prisma/client";
-
-type Task = PrismaTask & { project: PrismaProject };
+import { type BoardTask } from "@prisma/client";
 
 export interface CompletedTracker {
   id: string;
-  userId: string;
+  ownerId: string;
   startAt: Date;
   endAt: Date;
   week: number;
@@ -16,7 +11,7 @@ export interface CompletedTracker {
     id: string;
     taskId: string;
     taskCompletion: number;
-    task: Task;
+    task: BoardTask;
     note: string;
     attachments: {
       id: string;
@@ -29,7 +24,7 @@ export interface CompletedTracker {
 
 export type IncompletedTracker = {
   id: string;
-  userId: string;
+  ownerId: string;
   startAt: Date;
   endAt: null;
   week: number;
@@ -38,7 +33,7 @@ export type IncompletedTracker = {
     id: string;
     taskId: string;
     taskCompletion: number;
-    task: Task;
+    task: BoardTask;
     note: string;
     attachments: {
       id: string;

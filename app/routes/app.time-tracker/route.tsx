@@ -18,10 +18,6 @@ import {
 import MainContainer from "~/components/main-container";
 import { requireUser } from "~/utils/auth.server";
 import { type CompletedTracker, type IncompletedTracker } from "./type";
-import {
-  checkAllowClockIn,
-  getUserTimeTrackers,
-} from "~/services/time-tracker.server";
 import { groupSerializeTimeTrackerByDays } from "./utils";
 import { millisecondsToHHMMSS } from "~/utils/datetime";
 import Timer from "./timer";
@@ -49,6 +45,10 @@ import {
 import { cn } from "~/lib/utils";
 import { AttachmentsCard } from "./attachments-card";
 import { getSettings } from "~/services/setting.server";
+import {
+  getTaskTrackersByOwnerId,
+  isUserAllowedClockedIn,
+} from "~/services/task-tracker.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const loggedInUser = await requireUser(request);
@@ -56,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   let completedTrackers: CompletedTracker[] = [];
   let incompletedTrackers: IncompletedTracker[] = [];
 
-  const timeTrackers = await getUserTimeTrackers(loggedInUser.id);
+  const timeTrackers = await getTaskTrackersByOwnerId(loggedInUser.id);
 
   timeTrackers.forEach((tracker) => {
     if (tracker.endAt) {
@@ -78,7 +78,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const settings = await getSettings();
-  const allowClockIn = await checkAllowClockIn({
+  const allowClockIn = await isUserAllowedClockedIn({
     userId: loggedInUser.id,
   });
 
@@ -132,18 +132,18 @@ export default function AppTimeTracker() {
             <div className="flex gap-4 items-center">
               <button
                 onClick={() => navigate("clockin")}
-                className="p-2 md:p-3 xl:p-4  bg-primary hover:bg-primary/90 font-bold text-primary-foreground flex flex-col gap-1 lg:gap-2 items-center rounded-lg transition cursor-pointer disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+                className="w-[120px] h-[120px] bg-primary hover:bg-primary/90 font-bold text-primary-foreground flex flex-col items-center justify-center gap-1 lg:gap-2 rounded-lg transition cursor-pointer disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
                 disabled={!allowClockIn}
               >
                 <TimerIcon className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
                 <span className="text-base md:text-lg lg:text-2xl font-bold">
-                  Clock in
+                  Start
                 </span>
               </button>
               {!allowClockIn && (
                 <p className="text-destructive flex items-center font-semibold gap-2 text-sm first-letter:md:text-base">
                   <InfoIcon className="w-4 h-4 md:w-5 md:h-5" />
-                  <span>Upload attachment before clock in!</span>
+                  <span>Upload attachment before starting the tracker!</span>
                 </p>
               )}
             </div>
@@ -174,11 +174,11 @@ export default function AppTimeTracker() {
                 /> */}
             <Link
               to={`${incompletedTracker.id}/clockout`}
-              className="p-2 md:p-3 xl:p-4 bg-destructive hover:bg-destructive/90 font-bold text-destructive-foreground flex flex-col gap-1 lg:gap-2 items-center rounded-lg transition cursor-pointer disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+              className="w-[120px] h-[120px] bg-destructive hover:bg-destructive/90 font-bold text-destructive-foreground flex flex-col items-center justify-center gap-1 lg:gap-2 rounded-lg transition cursor-pointer disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
             >
               <TimerOffIcon className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
               <span className="text-base md:text-lg lg:text-2xl font-bold">
-                Clock out
+                Stop
               </span>
             </Link>
             {/* </Form> */}

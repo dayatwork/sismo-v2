@@ -23,12 +23,12 @@ import {
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { requireUser } from "~/utils/auth.server";
-import {
-  editTimeTracker,
-  getUserTimeTrackerById,
-} from "~/services/time-tracker.server";
 import { RADatePicker } from "~/components/ui/react-aria/datepicker";
 import { emitter } from "~/utils/sse/emitter.server";
+import {
+  editTaskTracker,
+  getTaskTrackerByOwnerId,
+} from "~/services/task-tracker.server";
 
 const schema = z.object({
   startAt: z
@@ -66,11 +66,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  await editTimeTracker({
+  await editTaskTracker({
     trackerId,
     startAt,
     endAt,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   emitter.emit(`tracker-${loggedInUser.id}-changed`);
@@ -86,9 +86,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const loggedInUser = await requireUser(request);
 
-  const tracker = await getUserTimeTrackerById({
+  const tracker = await getTaskTrackerByOwnerId({
     trackerId,
-    userId: loggedInUser.id,
+    ownerId: loggedInUser.id,
   });
 
   if (!tracker) {
