@@ -70,7 +70,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       memberStatus,
       name,
     });
-    return redirectWithToast(`/app/iam/users`, {
+    return redirectWithToast(`/app/iam/users/${userId}`, {
       description: `User edited`,
       type: "success",
     });

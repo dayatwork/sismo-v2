@@ -1,23 +1,9 @@
 import { type LoaderFunctionArgs, json } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
-import {
-  CheckCircle,
-  MoreHorizontal,
-  PenSquareIcon,
-  Trash2Icon,
-  UserCheck2,
-  UserX2,
-} from "lucide-react";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { CheckCircle, FileText } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 import { Button, buttonVariants } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -39,7 +25,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function OrganizationUsers() {
   const { users } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
 
   return (
     <>
@@ -80,7 +65,19 @@ export default function OrganizationUsers() {
             )}
             {users.map((user) => (
               <TableRow key={user.id} className="group">
-                <TableCell className="pl-6">{user.name}</TableCell>
+                <TableCell className="pl-5">
+                  <div className="flex items-center gap-4">
+                    <Avatar>
+                      <AvatarImage
+                        src={user.photo || ""}
+                        alt={user.name}
+                        className="object-cover"
+                      />
+                      <AvatarFallback>{user.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-semibold">{user.name}</span>
+                  </div>
+                </TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.memberId}</TableCell>
                 <TableCell>{user.memberStatus}</TableCell>
@@ -98,55 +95,16 @@ export default function OrganizationUsers() {
                     )}
                   </span>
                 </TableCell>
-                <TableCell className="pr-6 flex justify-end gap-2 opacity-0 group-hover:opacity-100">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="outline">
-                        <span className="sr-only">Action</span>
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuLabel>Action</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        disabled={user.isSuperAdmin}
-                        onClick={() => navigate(`${user.id}/edit`)}
-                      >
-                        <PenSquareIcon className="mr-2 w-4 h-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      {user.isActive ? (
-                        <DropdownMenuItem
-                          className="text-orange-600"
-                          disabled={user.isSuperAdmin}
-                          onClick={() => navigate(`${user.id}/deactivate`)}
-                        >
-                          <UserX2 className="mr-2 w-4 h-4" />
-                          Deactivate account
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem
-                          className="text-green-600"
-                          disabled={user.isSuperAdmin}
-                          onClick={() => navigate(`${user.id}/activate`)}
-                        >
-                          <UserCheck2 className="mr-2 w-4 h-4" />
-                          Activate account
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        disabled={user.isSuperAdmin}
-                        onClick={() => navigate(`${user.id}/delete`)}
-                      >
-                        <Trash2Icon className="mr-2 w-4 h-4" />
-                        Delete user
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  {/* </ProtectComponent> */}
+                <TableCell className="opacity-0 group-hover:opacity-100 pr-4">
+                  {/* <ProtectComponent permission="manage:organization"> */}
+                  <div className="flex justify-end items-center gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to={`${user.id}`} className="cursor-pointer">
+                        <FileText className="w-4 h-4 mr-2" />
+                        <span>Details</span>
+                      </Link>
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
