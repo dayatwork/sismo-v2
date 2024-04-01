@@ -90,14 +90,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     allowClockIn: settings?.requireUploadAttachmentBeforeClockIn
       ? allowClockIn
       : true,
+    appUrl: process.env.APP_URL || "http://localhost:5173",
   });
 }
 
 export default function AppTimeTracker() {
   // const { incompletedTracker, completedTrackers, settings, allowClockIn } =
   //   useLoaderData<typeof loader>();
-  const { incompletedTracker, completedTrackers, settings, allowClockIn } =
-    useLiveLoader<typeof loader>();
+  const {
+    incompletedTracker,
+    completedTrackers,
+    settings,
+    allowClockIn,
+    appUrl,
+  } = useLiveLoader<typeof loader>();
   const navigate = useNavigate();
 
   const groupedTimeTrackers =
@@ -403,6 +409,7 @@ export default function AppTimeTracker() {
                             <AttachmentsCard
                               timeTrackerId={timeTracker.id}
                               attachments={trackerItem.attachments}
+                              appUrl={appUrl}
                             />
                             <DropdownMenu>
                               <DropdownMenuTrigger className="h-9 w-9 flex items-center justify-center border border-transparent hover:border-border rounded">

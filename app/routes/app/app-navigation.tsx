@@ -15,7 +15,6 @@ import {
   NetworkIcon,
   KeyRoundIcon,
   SettingsIcon,
-  CircleDotIcon,
   BarChart3,
   // Files,
   // PencilRuler,
@@ -25,6 +24,8 @@ import {
   // Landmark,
   // Mail,
   MessageCircle,
+  Files,
+  PencilRuler,
   // SquareUserRound,
 } from "lucide-react";
 
@@ -47,19 +48,19 @@ type NavigationItem = {
 const navigation: NavigationItem[] = [
   {
     name: "Dashboard",
-    href: "dashboard",
+    href: "/app/dashboard",
     icon: LayoutDashboardIcon,
     current: true,
   },
   {
     name: "Time Tracker",
-    href: "time-tracker",
+    href: "/app/time-tracker",
     icon: TimerIcon,
     current: false,
   },
   {
     name: "Tracker History",
-    href: "tracker-history",
+    href: "/app/tracker-history",
     icon: CalendarClockIcon,
     current: false,
   },
@@ -71,12 +72,12 @@ const navigation: NavigationItem[] = [
   //   icon: CalendarDaysIcon,
   //   current: false,
   // },
-  {
-    name: "Your Tasks",
-    href: "your-tasks?status=backlog&status=todo&status=in_progress",
-    icon: CircleDotIcon,
-    current: false,
-  },
+  // {
+  //   name: "Your Tasks",
+  //   href: "/app/your-tasks",
+  //   icon: CircleDotIcon,
+  //   current: false,
+  // },
   // {
   //   name: "Achivements",
   //   href: "achivements",
@@ -85,20 +86,20 @@ const navigation: NavigationItem[] = [
   // },
 ];
 
-// const toolNavigation: NavigationItem[] = [
-//   {
-//     name: "Documents",
-//     href: "documents",
-//     icon: Files,
-//     current: false,
-//   },
-//   {
-//     name: "Drawings",
-//     href: "drawings",
-//     icon: PencilRuler,
-//     current: false,
-//   },
-// ];
+const toolNavigation: NavigationItem[] = [
+  {
+    name: "Documents",
+    href: "documents",
+    icon: Files,
+    current: false,
+  },
+  {
+    name: "Drawings",
+    href: "drawings",
+    icon: PencilRuler,
+    current: false,
+  },
+];
 
 // const communicationNavigation: NavigationItem[] = [
 //   {
@@ -163,21 +164,21 @@ const navigation: NavigationItem[] = [
 const employeeNavigation: NavigationItem[] = [
   {
     name: "IAM",
-    href: "iam",
+    href: "/app/iam",
     icon: KeyRoundIcon,
     current: false,
     permissions: ["manage:iam"],
   },
   {
     name: "Departments",
-    href: "departments",
+    href: "/app/departments",
     icon: NetworkIcon,
     current: false,
     permissions: ["manage:department"],
   },
   {
     name: "Teams",
-    href: "teams",
+    href: "/app/teams",
     icon: UsersIcon,
     current: false,
     permissions: ["manage:team"],
@@ -227,7 +228,7 @@ const othersNavigation: NavigationItem[] = [
 
   {
     name: "Settings",
-    href: "settings",
+    href: "/app/settings",
     icon: SettingsIcon,
     current: false,
     permissions: ["manage:organization"],
@@ -237,20 +238,20 @@ const othersNavigation: NavigationItem[] = [
 const workManagementNavigation: NavigationItem[] = [
   {
     name: "Workspaces",
-    href: "workspaces",
+    href: "/app/workspaces",
     icon: MessageCircle,
     current: false,
   },
   {
-    name: "Employee Work",
-    href: "employee-work",
+    name: "User Trackers",
+    href: "/app/user-trackers",
     icon: ClipboardListIcon,
     current: false,
     permissions: ["manage:employee"],
   },
   {
     name: "Reports",
-    href: "reports",
+    href: "/app/reports",
     icon: BarChart3,
     current: false,
     permissions: ["manage:employee"],
@@ -298,10 +299,10 @@ export default function AppNavigation() {
             {navigation.map((item) => (
               <li key={item.name}>
                 <Link
-                  to={`/app/${item.href}`}
+                  to={item.href}
                   className={cn(
                     "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                    pathname === item.href
+                    pathname.startsWith(item.href)
                       ? "bg-primary/20 hover:bg-primary/10"
                       : "hover:bg-muted"
                   )}
@@ -309,39 +310,7 @@ export default function AppNavigation() {
                   <item.icon
                     className={cn(
                       "w- h-5 mr-3",
-                      pathname === item.href
-                        ? "bg-transparent"
-                        : "hover:bg-transparent hover:underline"
-                    )}
-                    aria-hidden="true"
-                  />
-                  {item.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </li>
-        {/* <Separator className="my-4" />
-        <li>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-            Tools
-          </h3>
-          <ul className="-mx-2 space-y-1">
-            {toolNavigation.map((item) => (
-              <li key={item.name}>
-                <Link
-                  to={`/app/${item.href}`}
-                  className={cn(
-                    "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                    pathname === item.href
-                      ? "bg-primary/20 hover:bg-primary/10"
-                      : "hover:bg-muted"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "w- h-5 mr-3",
-                      pathname === item.href
+                      pathname.startsWith(item.href)
                         ? "bg-transparent"
                         : "hover:bg-transparent hover:underline"
                     )}
@@ -356,16 +325,16 @@ export default function AppNavigation() {
         <Separator className="my-4" />
         <li>
           <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-            Communications
+            Tools
           </h3>
           <ul className="-mx-2 space-y-1">
-            {communicationNavigation.map((item) => (
+            {toolNavigation.map((item) => (
               <li key={item.name}>
                 <Link
-                  to={`/app/${item.href}`}
+                  to={item.href}
                   className={cn(
                     "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                    pathname === item.href
+                    pathname.startsWith(item.href)
                       ? "bg-primary/20 hover:bg-primary/10"
                       : "hover:bg-muted"
                   )}
@@ -373,7 +342,39 @@ export default function AppNavigation() {
                   <item.icon
                     className={cn(
                       "w- h-5 mr-3",
-                      pathname === item.href
+                      pathname.startsWith(item.href)
+                        ? "bg-transparent"
+                        : "hover:bg-transparent hover:underline"
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </li>
+        {/* <Separator className="my-4" />
+        <li>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+            Communications
+          </h3>
+          <ul className="-mx-2 space-y-1">
+            {communicationNavigation.map((item) => (
+              <li key={item.name}>
+                <Link
+                  to={item.href}
+                  className={cn(
+                    "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
+                    pathname.startsWith(item.href)
+                      ? "bg-primary/20 hover:bg-primary/10"
+                      : "hover:bg-muted"
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "w- h-5 mr-3",
+                      pathname.startsWith(item.href)
                         ? "bg-transparent"
                         : "hover:bg-transparent hover:underline"
                     )}
@@ -405,10 +406,10 @@ export default function AppNavigation() {
                   >
                     <li key={item.name}>
                       <Link
-                        to={`/app/${item.href}`}
+                        to={item.href}
                         className={cn(
                           "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname === item.href
+                          pathname.startsWith(item.href)
                             ? "bg-primary/20 hover:bg-primary/10"
                             : "hover:bg-muted"
                         )}
@@ -416,7 +417,7 @@ export default function AppNavigation() {
                         <item.icon
                           className={cn(
                             "w- h-5 mr-3",
-                            pathname === item.href
+                            pathname.startsWith(item.href)
                               ? "bg-transparent"
                               : "hover:bg-transparent hover:underline"
                           )}
@@ -451,10 +452,10 @@ export default function AppNavigation() {
                   >
                     <li key={item.name}>
                       <Link
-                        to={`/app/${item.href}`}
+                        to={item.href}
                         className={cn(
                           "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname === item.href
+                          pathname.startsWith(item.href)
                             ? "bg-primary/20 hover:bg-primary/10"
                             : "hover:bg-muted"
                         )}
@@ -462,7 +463,7 @@ export default function AppNavigation() {
                         <item.icon
                           className={cn(
                             "w- h-5 mr-3",
-                            pathname === item.href
+                            pathname.startsWith(item.href)
                               ? "bg-transparent"
                               : "hover:bg-transparent hover:underline"
                           )}
@@ -497,10 +498,10 @@ export default function AppNavigation() {
                   >
                     <li key={item.name}>
                       <Link
-                        to={`/app/${item.href}`}
+                        to={item.href}
                         className={cn(
                           "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname === item.href
+                          pathname.startsWith(item.href)
                             ? "bg-primary/20 hover:bg-primary/10"
                             : "hover:bg-muted"
                         )}
@@ -508,7 +509,7 @@ export default function AppNavigation() {
                         <item.icon
                           className={cn(
                             "w- h-5 mr-3",
-                            pathname === item.href
+                            pathname.startsWith(item.href)
                               ? "bg-transparent"
                               : "hover:bg-transparent hover:underline"
                           )}
@@ -543,10 +544,10 @@ export default function AppNavigation() {
                   >
                     <li key={item.name}>
                       <Link
-                        to={`/app/${item.href}`}
+                        to={item.href}
                         className={cn(
                           "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname === item.href
+                          pathname.startsWith(item.href)
                             ? "bg-primary/20 hover:bg-primary/10"
                             : "hover:bg-muted"
                         )}
@@ -554,7 +555,7 @@ export default function AppNavigation() {
                         <item.icon
                           className={cn(
                             "w- h-5 mr-3",
-                            pathname === item.href
+                            pathname.startsWith(item.href)
                               ? "bg-transparent"
                               : "hover:bg-transparent hover:underline"
                           )}
@@ -589,10 +590,10 @@ export default function AppNavigation() {
                   >
                     <li key={item.name}>
                       <Link
-                        to={`/app/${item.href}`}
+                        to={item.href}
                         className={cn(
                           "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname === item.href
+                          pathname.startsWith(item.href)
                             ? "bg-primary/20 hover:bg-primary/10"
                             : "hover:bg-muted"
                         )}
@@ -600,7 +601,7 @@ export default function AppNavigation() {
                         <item.icon
                           className={cn(
                             "w- h-5 mr-3",
-                            pathname === item.href
+                            pathname.startsWith(item.href)
                               ? "bg-transparent"
                               : "hover:bg-transparent hover:underline"
                           )}

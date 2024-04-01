@@ -16,9 +16,10 @@ interface Props {
     displayName: string;
     type: "FILE" | "DOCUMENT" | "LINK";
   }[];
+  appUrl: string;
 }
 
-export function AttachmentsCard({ attachments, timeTrackerId }: Props) {
+export function AttachmentsCard({ attachments, timeTrackerId, appUrl }: Props) {
   const navigate = useNavigate();
   return (
     <HoverCard>
@@ -52,7 +53,11 @@ export function AttachmentsCard({ attachments, timeTrackerId }: Props) {
                 )}
 
                 <a
-                  href={attachment.url}
+                  href={
+                    attachment.type === "DOCUMENT"
+                      ? `${appUrl}/${attachment.url}`
+                      : attachment.url
+                  }
                   target="_blank"
                   rel="noreferrer"
                   className="flex-1"

@@ -13,6 +13,8 @@ interface Props {
   errorMessage?: string;
   defaultValue?: string;
   disabledKeys?: string[];
+  hideLabel?: boolean;
+  handleSearchParam?: (key: Key) => void;
 }
 
 export function UserComboBox({
@@ -21,6 +23,8 @@ export function UserComboBox({
   errorMessage,
   defaultValue,
   disabledKeys,
+  hideLabel,
+  handleSearchParam,
 }: Props) {
   const [userId, setUserId] = useState<Key | null>();
 
@@ -28,9 +32,12 @@ export function UserComboBox({
     <>
       <input type="hidden" name={name} value={userId || ""} />
       <RAComboBox
-        label="User"
+        label={hideLabel ? undefined : "User"}
         defaultItems={users}
-        onSelectionChange={setUserId}
+        onSelectionChange={(key) => {
+          setUserId(key);
+          handleSearchParam?.(key);
+        }}
         errorMessage={errorMessage}
         emptyText="No user"
         defaultInputValue={undefined}

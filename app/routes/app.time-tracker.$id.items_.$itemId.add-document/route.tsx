@@ -78,7 +78,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   await createTrackerAttachmentTypeLinkV2({
     displayName: document?.title,
     trackerItemId,
-    url: `${process.env.APP_URL}/documents/${document.id}`,
+    url: `documents/${document.id}`,
     ownerId: loggedInUser.id,
     type: "DOCUMENT",
   });

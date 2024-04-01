@@ -25,10 +25,10 @@ const NAVS = [
     label: "Monthly Report",
     href: "monthly",
   },
-  {
-    label: "Annual Report",
-    href: "annual",
-  },
+  // {
+  //   label: "Annual Report",
+  //   href: "annual",
+  // },
 ];
 
 export async function loader({ params, request }: LoaderFunctionArgs) {

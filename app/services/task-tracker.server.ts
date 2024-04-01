@@ -8,9 +8,11 @@ import redisClient from "~/lib/redis.server";
 export async function getTaskTrackers({
   from,
   to,
+  ownerId,
 }: {
   from: string | null;
   to: string | null;
+  ownerId?: string;
 }) {
   const take = !from || !to ? 20 : undefined;
 
@@ -18,6 +20,7 @@ export async function getTaskTrackers({
     where: {
       endAt: { not: null },
       startAt: { gte: from || undefined, lte: to || undefined },
+      ownerId,
     },
     include: {
       owner: {

@@ -124,8 +124,8 @@ export default function UserDetails() {
           </div>
           <div className="flex-1 px-6">
             <div className="rounded-md">
-              <div className="flex justify-between items-center">
-                <h3 className="font-bold mb-2">Personal Information</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold">Personal Information</h3>
                 <div className="flex gap-4 items-center">
                   <div className="flex items-center gap-2">
                     {user.isSuperAdmin && (
@@ -192,7 +192,7 @@ export default function UserDetails() {
                   </DropdownMenu>
                 </div>
               </div>
-              <dl className="space-y-4">
+              <dl className="space-y-3">
                 <div className="flex flex-col md:flex-row">
                   <dt className="w-36 font-medium text-muted-foreground text-sm md:text-base">
                     Name
@@ -225,7 +225,7 @@ export default function UserDetails() {
                 </div>
               </dl>
             </div>
-            <div className="mt-6 rounded-md max-w-2xl">
+            <div className="mt-8 rounded-md max-w-2xl">
               <h3 className="font-bold ">Roles</h3>
               {user.roles.length > 0 ? (
                 <ul className="mt-2 flex gap-2 flex-wrap">
@@ -244,7 +244,7 @@ export default function UserDetails() {
                 </p>
               )}
             </div>
-            <div className="mt-6 rounded-md max-w-2xl">
+            <div className="mt-8 rounded-md max-w-2xl">
               <h3 className="font-bold ">Departments</h3>
               {user.departmentMembers.length > 0 ? (
                 <div className="mt-2 flex gap-2 flex-wrap">
@@ -276,7 +276,7 @@ export default function UserDetails() {
                 </p>
               )}
             </div>
-            <div className="mt-6 rounded-md max-w-2xl">
+            <div className="mt-8 rounded-md max-w-2xl">
               <h3 className="font-bold ">Teams</h3>
               {user.teamMembers.length > 0 ? (
                 <div className="mt-2 flex gap-2 flex-wrap">

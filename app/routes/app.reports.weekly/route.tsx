@@ -6,7 +6,7 @@ import {
   groupSerializeTimeTrackerByWeeks,
 } from "./utils";
 import WeeklyChart from "./weekly-chart";
-import { getUserTrackersInAYear } from "~/services/time-tracker.server";
+import { getUserTrackersInAYear } from "~/services/task-tracker.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -16,7 +16,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (userId) {
     const userTrackers = await getUserTrackersInAYear({
-      userId,
+      ownerId: userId,
       year,
     });
     return json({ userTrackers, year });
