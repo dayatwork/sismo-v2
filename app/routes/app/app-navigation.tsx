@@ -25,7 +25,7 @@ import {
   // Landmark,
   // Mail,
   MessageCircle,
-  SquareUserRound,
+  // SquareUserRound,
 } from "lucide-react";
 
 import { Separator } from "~/components/ui/separator";
@@ -162,11 +162,11 @@ const navigation: NavigationItem[] = [
 
 const employeeNavigation: NavigationItem[] = [
   {
-    name: "Employees",
-    href: "employees",
-    icon: SquareUserRound,
+    name: "IAM",
+    href: "iam",
+    icon: KeyRoundIcon,
     current: false,
-    permissions: ["manage:employee"],
+    permissions: ["manage:iam"],
   },
   {
     name: "Departments",
@@ -216,21 +216,15 @@ const employeeNavigation: NavigationItem[] = [
 //   },
 // ];
 
-const organizationNavigation: NavigationItem[] = [
-  {
-    name: "Organization",
-    href: "organization",
-    icon: NetworkIcon,
-    current: false,
-    permissions: ["manage:organization"],
-  },
-  {
-    name: "IAM",
-    href: "iam",
-    icon: KeyRoundIcon,
-    current: false,
-    permissions: ["manage:iam"],
-  },
+const othersNavigation: NavigationItem[] = [
+  // {
+  //   name: "Organization",
+  //   href: "organization",
+  //   icon: NetworkIcon,
+  //   current: false,
+  //   permissions: ["manage:organization"],
+  // },
+
   {
     name: "Settings",
     href: "settings",
@@ -447,7 +441,7 @@ export default function AppNavigation() {
             <Separator className="my-4" />
             <li>
               <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Employee & Group
+                User & Group
               </h3>
               <ul className="-mx-2 space-y-1">
                 {employeeNavigation.map((item) => (
@@ -579,16 +573,16 @@ export default function AppNavigation() {
         {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
-          navigationItems: organizationNavigation,
+          navigationItems: othersNavigation,
         }) && (
           <>
             <Separator className="my-4" />
             <li>
               <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Organization
+                Others
               </h3>
               <ul className="-mx-2 space-y-1">
-                {organizationNavigation.map((item) => (
+                {othersNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
                     permission={item.permissions}

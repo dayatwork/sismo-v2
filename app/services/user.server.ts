@@ -25,6 +25,14 @@ export async function getUserById(id: string) {
           jobLevel: true,
         },
       },
+      departmentMembers: {
+        include: {
+          department: { select: { id: true, name: true, logo: true } },
+        },
+      },
+      teamMembers: {
+        include: { team: { select: { id: true, name: true, logo: true } } },
+      },
     },
   });
   if (!user) {

@@ -3,24 +3,18 @@ import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 
 import {
   BadgeCheckIcon,
+  Building2Icon,
+  CircleDashedIcon,
   LayoutDashboard,
   MoreHorizontal,
   PenSquareIcon,
   Trash2Icon,
   UserCheck2,
   UserX2,
+  Users2Icon,
 } from "lucide-react";
 import MainContainer from "~/components/main-container";
-import { cn } from "~/lib/utils";
-import { Button, buttonVariants } from "~/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
+import { Button } from "~/components/ui/button";
 import { requirePermission } from "~/utils/auth.server";
 import { getUserById } from "~/services/user.server";
 import {
@@ -110,9 +104,7 @@ export default function UserDetails() {
                   {user.hasPassword ? (
                     <BadgeCheckIcon className="text-green-600" />
                   ) : (
-                    <span className="text-muted-foreground text-sm">
-                      not set
-                    </span>
+                    <CircleDashedIcon className="text-muted-foreground" />
                   )}
                 </dd>
               </div>
@@ -124,9 +116,7 @@ export default function UserDetails() {
                   ) ? (
                     <BadgeCheckIcon className="text-green-600" />
                   ) : (
-                    <span className="text-muted-foreground text-sm">
-                      not set
-                    </span>
+                    <CircleDashedIcon className="text-muted-foreground" />
                   )}
                 </dd>
               </div>
@@ -202,7 +192,7 @@ export default function UserDetails() {
                   </DropdownMenu>
                 </div>
               </div>
-              <dl className="space-y-2">
+              <dl className="space-y-4">
                 <div className="flex flex-col md:flex-row">
                   <dt className="w-36 font-medium text-muted-foreground text-sm md:text-base">
                     Name
@@ -225,121 +215,97 @@ export default function UserDetails() {
                   <dt className="w-36 font-medium text-muted-foreground text-sm md:text-base">
                     Member ID
                   </dt>
-                  <dd className="font-semibold">{user.memberId}</dd>
+                  <dd className="font-semibold">{user.memberId || "-"}</dd>
                 </div>
                 <div className="flex flex-col md:flex-row">
                   <dt className="w-36 font-medium text-muted-foreground text-sm md:text-base">
                     Member Status
                   </dt>
-                  <dd className="font-semibold">{user.memberStatus}</dd>
+                  <dd className="font-semibold">{user.memberStatus || "-"}</dd>
                 </div>
               </dl>
             </div>
-            <div className="mt-10 rounded-md max-w-2xl">
-              <div className="mb-2 flex justify-between items-center">
-                <h3 className="font-bold ">Positions</h3>
-                {user.positions.length ? (
-                  // <ProtectComponent permission="manage:employee">
-                  <Link
-                    to="new-position"
-                    className={cn(
-                      buttonVariants({ size: "sm", variant: "outline" })
-                    )}
-                  >
-                    + New Position
-                  </Link>
-                ) : // </ProtectComponent>
-                null}
-              </div>
-              {user.positions.length ? (
-                <div className="border rounded bg-neutral-50 dark:bg-neutral-900">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Organization</TableHead>
-                        <TableHead>Division</TableHead>
-                        <TableHead>Job Level</TableHead>
-                        <TableHead className="sr-only">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {user.positions.map((position) => (
-                        <TableRow key={position.id}>
-                          <TableCell>
-                            {position.division.directorate.name}
-                          </TableCell>
-                          <TableCell>{position.division.name}</TableCell>
-                          <TableCell>{position.jobLevel.name}</TableCell>
-                          <TableCell className="flex justify-end">
-                            {/* <ProtectComponent permission="manage:employee"> */}
-                            <Link
-                              to={`position/${position.id}/delete`}
-                              className="flex w-8 h-8 items-center justify-center rounded border hover:bg-destructive/10 border-destructive/40"
-                            >
-                              <Trash2Icon className="w-4 h-4 text-destructive" />
-                              <span className="sr-only">Delete</span>
-                            </Link>
-                            {/* </ProtectComponent> */}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+            <div className="mt-6 rounded-md max-w-2xl">
+              <h3 className="font-bold ">Roles</h3>
+              {user.roles.length > 0 ? (
+                <ul className="mt-2 flex gap-2 flex-wrap">
+                  {user.roles.map((role) => (
+                    <li
+                      key={role.id}
+                      className="px-4 py-1 border rounded-lg text-sm font-semibold bg-accent border-foreground/20"
+                    >
+                      {role.name}
+                    </li>
+                  ))}
+                </ul>
               ) : (
-                <div className="pt-6 pb-6 flex items-center flex-col rounded border border-dashed space-y-4">
-                  <p className="text-muted-foreground text-center">
-                    The employee does not have a position yet
-                  </p>
-
-                  {/* <ProtectComponent permission="manage:employee"> */}
-                  <Link
-                    to="new-position"
-                    className={cn(buttonVariants({ size: "sm" }))}
-                  >
-                    + New Position
-                  </Link>
-                  {/* </ProtectComponent> */}
-                </div>
+                <p className="mt-2 text-muted-foreground">
+                  This user does not have any role
+                </p>
               )}
             </div>
-            {/* <div className="mt-10 rounded-md max-w-2xl">
-            <div className="mb-2 flex justify-between items-center">
-              <h3 className="font-bold ">Roles</h3>
-            </div>
-            {employee.user?.roles.length ? (
-              <div className="border rounded">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Permissions</TableHead>
-                      <TableHead className="sr-only">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {employee.user.roles.map((role) => (
-                      <TableRow key={role.id}>
-                        <TableCell>{role.name}</TableCell>
-                        <TableCell>{role.description}</TableCell>
-                        <TableCell>
-                          {role.permissions.length} permissions
-                        </TableCell>
-                        <TableCell className="flex justify-end"></TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="pt-6 pb-6 flex items-center flex-col rounded border border-dashed space-y-4">
-                <p className="text-muted-foreground text-center">
-                  The employee does not have a role yet
+            <div className="mt-6 rounded-md max-w-2xl">
+              <h3 className="font-bold ">Departments</h3>
+              {user.departmentMembers.length > 0 ? (
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  {user.departmentMembers.map((dm) => (
+                    <Link
+                      to={`/app/departments/${dm.departmentId}`}
+                      key={dm.departmentId}
+                      className="border rounded-lg flex gap-2 flex-col w-28 pt-3.5 pb-3 items-center justify-center hover:bg-accent"
+                    >
+                      {dm.department.logo ? (
+                        <img
+                          src={dm.department.logo}
+                          className="w-8 h-8 object-cover"
+                          alt={dm.department.name}
+                        />
+                      ) : (
+                        <Building2Icon className="w-8 h-8" />
+                      )}
+                      <p className="text-sm font-semibold">
+                        {dm.department.name}
+                      </p>
+                      <p className="text-xs font-semibold">({dm.role})</p>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-muted-foreground">
+                  This user is not registered in any department
                 </p>
-              </div>
-            )}
-          </div> */}
+              )}
+            </div>
+            <div className="mt-6 rounded-md max-w-2xl">
+              <h3 className="font-bold ">Teams</h3>
+              {user.teamMembers.length > 0 ? (
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  {user.teamMembers.map((tm) => (
+                    <Link
+                      to={`/app/teams/${tm.teamId}`}
+                      key={tm.teamId}
+                      className="border rounded-lg flex gap-2 flex-col w-28 pt-3.5 pb-3 items-center justify-center hover:bg-accent"
+                    >
+                      {tm.team.logo ? (
+                        <img
+                          src={tm.team.logo}
+                          className="w-8 h-8 object-cover"
+                          alt={tm.team.name}
+                        />
+                      ) : (
+                        <Users2Icon className="w-8 h-8" />
+                      )}
+                      <p className="text-sm font-semibold">{tm.team.name}</p>
+                      <p className="text-xs font-semibold">({tm.role})</p>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-muted-foreground">
+                  This user is not registered in any department
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </MainContainer>

@@ -21,16 +21,16 @@ export default function IamLayout() {
       <h1 className="sr-only">Identity & Access Management</h1>
       <Tabs
         className="mb-4"
-        defaultValue={location.pathname.split("/")[4]}
+        defaultValue={location.pathname.split("/")[3]}
         onValueChange={(v) => navigate(`/app/iam/${v}`)}
       >
-        <TabsList className="h-12">
-          <TabsTrigger className="h-10 px-6" value="users">
-            <Users className="h-5 w-5 mr-2" />
+        <TabsList className="gap-1">
+          <TabsTrigger className="pl-6 pr-8 hover:bg-background" value="users">
+            <Users className="h-4 w-4 mr-2" />
             <span>Users</span>
           </TabsTrigger>
-          <TabsTrigger className="h-10 px-6" value="roles">
-            <UserCheck2 className="h-5 w-5 mr-2" />
+          <TabsTrigger className="pl-6 pr-8 hover:bg-background" value="roles">
+            <UserCheck2 className="h-4 w-4 mr-2" />
             <span>Roles</span>
           </TabsTrigger>
         </TabsList>
