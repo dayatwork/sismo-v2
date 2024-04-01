@@ -21,7 +21,7 @@ export default function Dashboard() {
   const { users } = useLiveLoader<typeof loader>();
 
   const totalWorkingUsers = users.filter(
-    (user) => user.timeTrackers.length > 0
+    (user) => user.taskTrackers.length > 0
   ).length;
   const totalUsers = users.length;
 
@@ -41,7 +41,7 @@ export default function Dashboard() {
         </div>
         <ul className="flex flex-wrap gap-6">
           {users
-            .sort((user) => (user.timeTrackers.length > 0 ? -1 : 1))
+            .sort((user) => (user.taskTrackers.length > 0 ? -1 : 1))
             .map((user) => (
               <li key={user.id}>
                 <Link to={`/app/iam/users/${user.id}`}>
@@ -56,16 +56,16 @@ export default function Dashboard() {
                           />
                           <span
                             className={cn(
-                              user.timeTrackers.length > 0
+                              user.taskTrackers.length > 0
                                 ? "bg-green-600 animate-bounce"
                                 : "bg-slate-600 dark:bg-slate-400",
                               `absolute w-5 h-5 rounded-full -top-2 -right-2 border-4 border-background`
                             )}
                           ></span>
-                          {user.timeTrackers.length > 0 && (
+                          {user.taskTrackers.length > 0 && (
                             <div className="absolute bottom-0 inset-x-0">
                               <Timer
-                                startTime={user.timeTrackers[0].startAt}
+                                startTime={user.taskTrackers[0].startAt}
                                 size="small"
                                 color="green"
                                 align="center"
@@ -84,9 +84,9 @@ export default function Dashboard() {
                     <HoverCardContent className="w-72">
                       <h2 className="font-semibold text-sm">Tracker Info</h2>
                       <Separator className="my-2" />
-                      {user.timeTrackers.length > 0 ? (
+                      {user.taskTrackers.length > 0 ? (
                         <div>
-                          {user.timeTrackers.map((tracker) => (
+                          {user.taskTrackers.map((tracker) => (
                             <dl key={tracker.id} className="space-y-4">
                               <div>
                                 <dt className="text-primary font-semibold">

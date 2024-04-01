@@ -48,7 +48,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const to = url.searchParams.get("to");
 
   if (!dayjs(from).isValid() || !dayjs(to).isValid()) {
-    return json({ timeTrackers: null });
+    return json({
+      appUrl: process.env.APP_URL || "http://localhost:5173",
+      timeTrackers: null,
+    });
   }
 
   try {
@@ -58,15 +61,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      appUrl: process.env.APP_URL || "http://localhost:5173",
       timeTrackers,
     });
   } catch (error) {
-    return json({ timeTrackers: null });
+    return json({
+      appUrl: process.env.APP_URL || "http://localhost:5173",
+      timeTrackers: null,
+    });
   }
 }
 
 export default function TrackerHistory() {
-  const { timeTrackers } = useLoaderData<typeof loader>();
+  const { timeTrackers, appUrl } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useRevalidateWhenFocus();
@@ -260,6 +267,7 @@ export default function TrackerHistory() {
                             <AttachmentsCard
                               timeTrackerId={timeTracker.id}
                               attachments={trackerItem.attachments}
+                              appUrl={appUrl}
                             />
                             {/* <DropdownMenu>
                               <DropdownMenuTrigger className="h-9 w-9 flex items-center justify-center border border-transparent hover:border-border rounded">

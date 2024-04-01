@@ -27,6 +27,7 @@ import {
   Files,
   PencilRuler,
   UserSquare2Icon,
+  FolderKanbanIcon,
   // SquareUserRound,
 } from "lucide-react";
 
@@ -124,13 +125,13 @@ const toolNavigation: NavigationItem[] = [
 // ];
 
 const projectNavigation: NavigationItem[] = [
-  // {
-  //   name: "Projects",
-  //   href: "projects",
-  //   icon: FolderKanbanIcon,
-  //   current: false,
-  //   permissions: ["manage:project"],
-  // },
+  {
+    name: "Projects",
+    href: "projects",
+    icon: FolderKanbanIcon,
+    current: false,
+    permissions: ["manage:project"],
+  },
   {
     name: "Clients",
     href: "clients",

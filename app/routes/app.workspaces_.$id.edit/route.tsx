@@ -23,8 +23,10 @@ import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import { Textarea } from "~/components/ui/textarea";
-import { requirePermission } from "~/utils/auth.server";
-import { updateWorkspace } from "~/services/workspace.server";
+import {
+  requireWorkspacePermission,
+  updateWorkspace,
+} from "~/services/workspace.server";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { type loader as workspaceIdLoader } from "../app.workspaces_.$id/route";
 
@@ -40,7 +42,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return redirect("/app/workspaces");
   }
 
-  await requirePermission(request, "manage:workspace");
+  await requireWorkspacePermission(request, workspaceId, "manage:workspace");
 
   const formData = await request.formData();
 
@@ -68,8 +70,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermission(request, "manage:workspace");
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const workspaceId = params.id;
+  if (!workspaceId) {
+    return redirect("/app/workspaces");
+  }
+  await requireWorkspacePermission(request, workspaceId, "manage:workspace");
 
   return null;
 }

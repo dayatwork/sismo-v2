@@ -37,7 +37,7 @@ import {
   getUserDocumentById,
   getUserDocuments,
 } from "~/services/document.server";
-import { createTrackerAttachmentTypeLinkV2 } from "~/services/attachment.server";
+import { createTrackerAttachmentTypeLink } from "~/services/attachment.server";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
 
@@ -75,7 +75,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  await createTrackerAttachmentTypeLinkV2({
+  await createTrackerAttachmentTypeLink({
     displayName: document?.title,
     trackerItemId,
     url: `documents/${document.id}`,

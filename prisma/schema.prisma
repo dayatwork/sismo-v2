@@ -58,7 +58,7 @@ model User {
   boardMembers         BoardMember[]
   boardTasks           BoardTask[]
   taskTrackers         TaskTracker[]
-  attachmentsV2        AttachmentV2[]
+  attachments          Attachment[]
 
   @@index([name])
 }
@@ -92,206 +92,13 @@ model Role {
   updatedAt   DateTime @updatedAt
 }
 
-// enum ProjectStatus {
-//   PROPOSED
-//   UNSTARTED
-//   ONGOING
-//   ONHOLD
-//   CLOSING
-//   CANCELED
-//   COMPLETED
-// }
-
-// enum ProjectClosingReason {
-//   COMPLETE
-//   CANCEL
-// }
-
-model Project {
-  id          String   @id @default(uuid())
-  name        String
-  code        String   @unique
-  description String   @default("")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([name])
-}
-
-// model Project {
-//   id             String                @id @default(uuid())
-//   name           String
-//   code           String
-//   description    String                @default("")
-//   status         ProjectStatus         @default(UNSTARTED)
-//   closingReason  ProjectClosingReason?
-//   champion       User?                 @relation(fields: [championId], references: [id])
-//   championId     String?
-//   service        Service?              @relation(fields: [serviceId], references: [id])
-//   serviceId      String?
-//   product        Product?              @relation(fields: [productId], references: [id])
-//   productId      String?
-//   createdAt      DateTime              @default(now())
-//   updatedAt      DateTime              @updatedAt
-//   stages         Stage[]
-//   tasks          Task[]
-//   attachments    Attachment[]
-//   projectClients ProjectClient[]
-//   expenses       Expense[]
-
-//   @@unique([name])
-//   @@unique([code])
-// }
-
-// enum StageStatus {
-//   UNSTARTED
-//   ONGOING
-//   ONHOLD
-//   COMPLETED
-// }
-
-// model Stage {
-//   id          String        @id @default(uuid())
-//   project     Project       @relation(fields: [projectId], references: [id])
-//   projectId   String
-//   stageOrder  Int           @db.SmallInt
-//   name        String
-//   description String        @default("")
-//   status      StageStatus   @default(UNSTARTED)
-//   createdAt   DateTime      @default(now())
-//   updatedAt   DateTime      @updatedAt
-//   milestones  Milestone[]
-//   tasks       Task[]
-//   attachments Attachment[]
-//   members     StageMember[]
-//   expenses    Expense[]
-
-//   @@unique([projectId, stageOrder])
-//   @@unique([projectId, name])
-//   @@index([projectId])
-// }
-
-// enum Priority {
-//   NO_PRIORITY
-//   URGENT
-//   HIGH
-//   MEDIUM
-//   LOW
-// }
-
-// model Milestone {
-//   id          String   @id @default(uuid())
-//   stage       Stage    @relation(fields: [stageId], references: [id])
-//   stageId     String
-//   name        String
-//   description String?  @db.Text
-//   weight      Int?     @default(0) @db.SmallInt
-//   priority    Priority @default(NO_PRIORITY)
-//   tasks       Task[]
-
-//   @@index([stageId])
-// }
-
-// enum TaskStatus {
-//   BACKLOG
-//   TODO
-//   IN_PROGRESS
-//   DONE
-//   CANCELED
-// }
-
-// enum TaskType {
-//   PERSONAL
-//   PROJECT
-// }
-
-// model Task {
-//   id           String        @id @default(uuid())
-//   code         String        @unique
-//   name         String
-//   description  String        @default("")
-//   type         TaskType
-//   priority     Priority      @default(NO_PRIORITY)
-//   status       TaskStatus    @default(BACKLOG)
-//   project      Project?      @relation(fields: [projectId], references: [id])
-//   projectId    String?
-//   stage        Stage?        @relation(fields: [stageId], references: [id])
-//   stageId      String?
-//   milestone    Milestone?    @relation(fields: [milestoneId], references: [id])
-//   milestoneId  String?
-//   dueDate      DateTime?
-//   assignee     User?         @relation(fields: [assigneeId], references: [id])
-//   assigneeId   String?
-//   createdAt    DateTime      @default(now())
-//   updatedAt    DateTime      @updatedAt
-//   attachments  Attachment[]
-//   trackerItems TrackerItem[]
-
-//   @@index([assigneeId])
-//   @@index([projectId])
-// }
-
-// model TimeTracker {
-//   id           String        @id @default(uuid())
-//   user         User          @relation(fields: [userId], references: [id])
-//   userId       String
-//   startAt      DateTime      @default(now())
-//   endAt        DateTime?
-//   week         Int           @db.SmallInt
-//   year         Int           @db.SmallInt
-//   trackerItems TrackerItem[]
-
-//   @@index([userId])
-//   @@index([year])
-//   @@index([userId, year])
-// }
-
-// model TrackerItem {
-//   id                    String       @id @default(uuid())
-//   tracker               TimeTracker  @relation(fields: [timeTrackerId], references: [id], onDelete: Cascade)
-//   timeTrackerId         String
-//   task                  Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
-//   taskId                String
-//   taskCompletion        Int          @db.SmallInt
-//   workDurationInMinutes Int          @db.SmallInt
-//   note                  String?      @default("")
-//   attachments           Attachment[]
-//   createdAt             DateTime     @default(now())
-//   updatedAt             DateTime     @updatedAt
-
-//   @@unique([timeTrackerId, taskId])
-//   @@index([taskId])
-//   @@index([timeTrackerId])
-// }
-
 enum AttachmentType {
   DOCUMENT
   LINK
   FILE
 }
 
-// model Attachment {
-//   id            String         @id @default(uuid())
-//   displayName   String         @default("")
-//   url           String         @default("")
-//   type          AttachmentType
-//   user          User           @relation(fields: [userId], references: [id])
-//   userId        String
-//   project       Project?       @relation(fields: [projectId], references: [id])
-//   projectId     String?
-//   stage         Stage?         @relation(fields: [stageId], references: [id])
-//   stageId       String?
-//   task          Task?          @relation(fields: [taskId], references: [id])
-//   taskId        String?
-//   trackerItem   TrackerItem?   @relation(fields: [trackerItemId], references: [id])
-//   trackerItemId String?
-//   createdAt     DateTime       @default(now())
-
-//   @@index([userId])
-//   @@index([taskId])
-// }
-
-model AttachmentV2 {
+model Attachment {
   id            String           @id @default(uuid())
   displayName   String           @default("")
   url           String
@@ -310,46 +117,6 @@ model AttachmentV2 {
   @@index([displayName])
 }
 
-// model Directorate {
-//   id        String     @id @default(uuid())
-//   name      String     @unique
-//   createdAt DateTime   @default(now())
-//   updatedAt DateTime   @updatedAt
-//   divisions Division[]
-// }
-
-// model Division {
-//   id                String             @id @default(uuid())
-//   name              String             @unique
-//   directorate       Directorate        @relation(fields: [directorateId], references: [id])
-//   directorateId     String
-//   createdAt         DateTime           @default(now())
-//   updatedAt         DateTime           @updatedAt
-//   employeePositions EmployeePosition[]
-// }
-
-// model JobLevel {
-//   id                String             @id @default(uuid())
-//   name              String             @unique
-//   createdAt         DateTime           @default(now())
-//   updatedAt         DateTime           @updatedAt
-//   employeePositions EmployeePosition[]
-// }
-
-// model EmployeePosition {
-//   id         String    @id @default(uuid())
-//   user       User      @relation(fields: [userId], references: [id])
-//   userId     String
-//   division   Division  @relation(fields: [divisionId], references: [id])
-//   divisionId String
-//   jobLevel   JobLevel  @relation(fields: [jobLevelId], references: [id])
-//   jobLevelId String
-//   startAt    DateTime  @default(now())
-//   endAt      DateTime?
-
-//   @@index([userId])
-// }
-
 model Settings {
   id                                   String   @id
   allowEditTimeTracker                 Boolean  @default(false)
@@ -362,48 +129,6 @@ model Settings {
   createdAt                            DateTime @default(now())
   updatedAt                            DateTime @updatedAt
 }
-
-// enum StageMemberRole {
-//   PIC
-//   MEMBER
-// }
-
-// model StageMember {
-//   id       String          @id @default(uuid())
-//   stage    Stage           @relation(fields: [stageId], references: [id])
-//   stageId  String
-//   user     User            @relation(fields: [userId], references: [id])
-//   userId   String
-//   joinDate DateTime        @default(now())
-//   role     StageMemberRole @default(MEMBER)
-
-//   @@unique([stageId, userId])
-// }
-
-model Client {
-  id         String   @id @default(uuid())
-  name       String   @unique
-  code       String?  @unique
-  country    String?
-  state      String?
-  city       String?
-  street     String?
-  postalCode String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  // projectClients ProjectClient[]
-}
-
-// model ProjectClient {
-//   id        String   @id @default(uuid())
-//   project   Project  @relation(fields: [projectId], references: [id])
-//   projectId String
-//   client    Client   @relation(fields: [clientId], references: [id])
-//   clientId  String
-//   isMain    Boolean  @default(false)
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
 
 model Document {
   id          String     @id @default(uuid())
@@ -423,29 +148,6 @@ model Document {
 
   @@index([title])
   @@index([userId])
-}
-
-model Service {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  code        String   @unique
-  description String   @default("")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Product {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  code        String    @unique
-  description String?   @default("")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  parentId    String?
-  parent      Product?  @relation("parentSubProduct", fields: [parentId], references: [id])
-  subProducts Product[] @relation("parentSubProduct")
-
-  @@index([parentId])
 }
 
 enum NormalBalance {
@@ -497,10 +199,6 @@ enum ExpenseStatus {
 model Expense {
   id               String          @id @default(uuid())
   code             String          @unique
-  // project          Project?        @relation(fields: [projectId], references: [id])
-  // projectId        String?
-  // stage            Stage?          @relation(fields: [stageId], references: [id])
-  // stageId          String?
   chartOfAccount   ChartOfAccount? @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountId String?
   quantity         Int?            @default(1)
@@ -521,8 +219,6 @@ model Expense {
   rejectedBy       User?           @relation("rejectedBy", fields: [rejectedById], references: [id])
   rejectedById     String?
 
-  // @@index([projectId])
-  // @@index([stageId])
   @@index([status])
   @@index([chartOfAccountId])
 }
@@ -573,42 +269,6 @@ model MeetingParticipant {
 
   @@index([meetingId])
 }
-
-// enum MailStatus {
-//   DRAFT
-//   SENT
-//   READ
-// }
-
-// model Mail {
-//   id          String           @id @default(uuid())
-//   subject     String?
-//   code        String
-//   body        String           @db.Text
-//   createdAt   DateTime         @default(now())
-//   sentAt      DateTime
-//   parentId    String?
-//   parent      Mail?            @relation("ParentChildren", fields: [parentId], references: [id])
-//   children    Mail[]           @relation("ParentChildren")
-//   sender      User             @relation("sender", fields: [senderId], references: [id])
-//   senderId    String
-//   receiver    User?            @relation("receiver", fields: [receiverId], references: [id])
-//   receiverId  String?
-//   status      MailStatus
-//   attachments MailAttachment[]
-
-//   @@index([senderId])
-//   @@index([senderId, status])
-//   @@index([receiverId])
-// }
-
-// model MailAttachment {
-//   id          String  @id @default(uuid())
-//   mail        Mail    @relation(fields: [mailId], references: [id], onDelete: Cascade)
-//   mailId      String
-//   url         String
-//   displayName String? @default("attachment")
-// }
 
 model Conversation {
   id            String    @id @default(uuid())
@@ -848,7 +508,7 @@ model BoardTask {
   dependencies           BoardTask[]       @relation("Dependency")
   dependents             BoardTask[]       @relation("Dependency")
   trackerItems           TaskTrackerItem[]
-  attachments            AttachmentV2[]
+  attachments            Attachment[]
 
   @@index([boardId])
   @@index([ownerId])
@@ -870,18 +530,352 @@ model TaskTracker {
 }
 
 model TaskTrackerItem {
-  id                    String         @id @default(uuid())
-  tracker               TaskTracker    @relation(fields: [trackerId], references: [id])
+  id                    String       @id @default(uuid())
+  tracker               TaskTracker  @relation(fields: [trackerId], references: [id])
   trackerId             String
-  task                  BoardTask      @relation(fields: [taskId], references: [id])
+  task                  BoardTask    @relation(fields: [taskId], references: [id])
   taskId                String
-  note                  String         @default("")
-  taskCompletion        Int            @db.SmallInt
-  workDurationInMinutes Int            @db.SmallInt
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-  attachments           AttachmentV2[]
+  note                  String       @default("")
+  taskCompletion        Int          @db.SmallInt
+  workDurationInMinutes Int          @db.SmallInt
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  attachments           Attachment[]
 
   @@index([taskId])
   @@index([trackerId])
 }
+
+// enum ProjectStatus {
+//   PROPOSED
+//   UNSTARTED
+//   ONGOING
+//   ONHOLD
+//   CLOSING
+//   CANCELED
+//   COMPLETED
+// }
+
+// enum ProjectClosingReason {
+//   COMPLETE
+//   CANCEL
+// }
+
+// model Project {
+//   id          String   @id @default(uuid())
+//   name        String
+//   code        String   @unique
+//   description String   @default("")
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+
+//   @@unique([name])
+// }
+
+// model Project {
+//   id             String                @id @default(uuid())
+//   name           String
+//   code           String
+//   description    String                @default("")
+//   status         ProjectStatus         @default(UNSTARTED)
+//   closingReason  ProjectClosingReason?
+//   champion       User?                 @relation(fields: [championId], references: [id])
+//   championId     String?
+//   service        Service?              @relation(fields: [serviceId], references: [id])
+//   serviceId      String?
+//   product        Product?              @relation(fields: [productId], references: [id])
+//   productId      String?
+//   createdAt      DateTime              @default(now())
+//   updatedAt      DateTime              @updatedAt
+//   stages         Stage[]
+//   tasks          Task[]
+//   attachments    Attachment[]
+//   projectClients ProjectClient[]
+//   expenses       Expense[]
+
+//   @@unique([name])
+//   @@unique([code])
+// }
+
+// enum StageStatus {
+//   UNSTARTED
+//   ONGOING
+//   ONHOLD
+//   COMPLETED
+// }
+
+// model Stage {
+//   id          String        @id @default(uuid())
+//   project     Project       @relation(fields: [projectId], references: [id])
+//   projectId   String
+//   stageOrder  Int           @db.SmallInt
+//   name        String
+//   description String        @default("")
+//   status      StageStatus   @default(UNSTARTED)
+//   createdAt   DateTime      @default(now())
+//   updatedAt   DateTime      @updatedAt
+//   milestones  Milestone[]
+//   tasks       Task[]
+//   attachments Attachment[]
+//   members     StageMember[]
+//   expenses    Expense[]
+
+//   @@unique([projectId, stageOrder])
+//   @@unique([projectId, name])
+//   @@index([projectId])
+// }
+
+// enum Priority {
+//   NO_PRIORITY
+//   URGENT
+//   HIGH
+//   MEDIUM
+//   LOW
+// }
+
+// model Milestone {
+//   id          String   @id @default(uuid())
+//   stage       Stage    @relation(fields: [stageId], references: [id])
+//   stageId     String
+//   name        String
+//   description String?  @db.Text
+//   weight      Int?     @default(0) @db.SmallInt
+//   priority    Priority @default(NO_PRIORITY)
+//   tasks       Task[]
+
+//   @@index([stageId])
+// }
+
+// enum TaskStatus {
+//   BACKLOG
+//   TODO
+//   IN_PROGRESS
+//   DONE
+//   CANCELED
+// }
+
+// enum TaskType {
+//   PERSONAL
+//   PROJECT
+// }
+
+// model Task {
+//   id           String        @id @default(uuid())
+//   code         String        @unique
+//   name         String
+//   description  String        @default("")
+//   type         TaskType
+//   priority     Priority      @default(NO_PRIORITY)
+//   status       TaskStatus    @default(BACKLOG)
+//   project      Project?      @relation(fields: [projectId], references: [id])
+//   projectId    String?
+//   stage        Stage?        @relation(fields: [stageId], references: [id])
+//   stageId      String?
+//   milestone    Milestone?    @relation(fields: [milestoneId], references: [id])
+//   milestoneId  String?
+//   dueDate      DateTime?
+//   assignee     User?         @relation(fields: [assigneeId], references: [id])
+//   assigneeId   String?
+//   createdAt    DateTime      @default(now())
+//   updatedAt    DateTime      @updatedAt
+//   attachments  Attachment[]
+//   trackerItems TrackerItem[]
+
+//   @@index([assigneeId])
+//   @@index([projectId])
+// }
+
+// model TimeTracker {
+//   id           String        @id @default(uuid())
+//   user         User          @relation(fields: [userId], references: [id])
+//   userId       String
+//   startAt      DateTime      @default(now())
+//   endAt        DateTime?
+//   week         Int           @db.SmallInt
+//   year         Int           @db.SmallInt
+//   trackerItems TrackerItem[]
+
+//   @@index([userId])
+//   @@index([year])
+//   @@index([userId, year])
+// }
+
+// model TrackerItem {
+//   id                    String       @id @default(uuid())
+//   tracker               TimeTracker  @relation(fields: [timeTrackerId], references: [id], onDelete: Cascade)
+//   timeTrackerId         String
+//   task                  Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+//   taskId                String
+//   taskCompletion        Int          @db.SmallInt
+//   workDurationInMinutes Int          @db.SmallInt
+//   note                  String?      @default("")
+//   attachments           Attachment[]
+//   createdAt             DateTime     @default(now())
+//   updatedAt             DateTime     @updatedAt
+
+//   @@unique([timeTrackerId, taskId])
+//   @@index([taskId])
+//   @@index([timeTrackerId])
+// }
+
+// model Attachment {
+//   id            String         @id @default(uuid())
+//   displayName   String         @default("")
+//   url           String         @default("")
+//   type          AttachmentType
+//   user          User           @relation(fields: [userId], references: [id])
+//   userId        String
+//   project       Project?       @relation(fields: [projectId], references: [id])
+//   projectId     String?
+//   stage         Stage?         @relation(fields: [stageId], references: [id])
+//   stageId       String?
+//   task          Task?          @relation(fields: [taskId], references: [id])
+//   taskId        String?
+//   trackerItem   TrackerItem?   @relation(fields: [trackerItemId], references: [id])
+//   trackerItemId String?
+//   createdAt     DateTime       @default(now())
+
+//   @@index([userId])
+//   @@index([taskId])
+// }
+
+// model Directorate {
+//   id        String     @id @default(uuid())
+//   name      String     @unique
+//   createdAt DateTime   @default(now())
+//   updatedAt DateTime   @updatedAt
+//   divisions Division[]
+// }
+
+// model Division {
+//   id                String             @id @default(uuid())
+//   name              String             @unique
+//   directorate       Directorate        @relation(fields: [directorateId], references: [id])
+//   directorateId     String
+//   createdAt         DateTime           @default(now())
+//   updatedAt         DateTime           @updatedAt
+//   employeePositions EmployeePosition[]
+// }
+
+// model JobLevel {
+//   id                String             @id @default(uuid())
+//   name              String             @unique
+//   createdAt         DateTime           @default(now())
+//   updatedAt         DateTime           @updatedAt
+//   employeePositions EmployeePosition[]
+// }
+
+// model EmployeePosition {
+//   id         String    @id @default(uuid())
+//   user       User      @relation(fields: [userId], references: [id])
+//   userId     String
+//   division   Division  @relation(fields: [divisionId], references: [id])
+//   divisionId String
+//   jobLevel   JobLevel  @relation(fields: [jobLevelId], references: [id])
+//   jobLevelId String
+//   startAt    DateTime  @default(now())
+//   endAt      DateTime?
+
+//   @@index([userId])
+// }
+
+// enum StageMemberRole {
+//   PIC
+//   MEMBER
+// }
+
+// model StageMember {
+//   id       String          @id @default(uuid())
+//   stage    Stage           @relation(fields: [stageId], references: [id])
+//   stageId  String
+//   user     User            @relation(fields: [userId], references: [id])
+//   userId   String
+//   joinDate DateTime        @default(now())
+//   role     StageMemberRole @default(MEMBER)
+
+//   @@unique([stageId, userId])
+// }
+
+// model Client {
+//   id         String   @id @default(uuid())
+//   name       String   @unique
+//   code       String?  @unique
+//   country    String?
+//   state      String?
+//   city       String?
+//   street     String?
+//   postalCode String?
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+//   // projectClients ProjectClient[]
+// }
+
+// model ProjectClient {
+//   id        String   @id @default(uuid())
+//   project   Project  @relation(fields: [projectId], references: [id])
+//   projectId String
+//   client    Client   @relation(fields: [clientId], references: [id])
+//   clientId  String
+//   isMain    Boolean  @default(false)
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
+
+// model Service {
+//   id          String   @id @default(uuid())
+//   name        String   @unique
+//   code        String   @unique
+//   description String   @default("")
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+// }
+
+// model Product {
+//   id          String    @id @default(uuid())
+//   name        String    @unique
+//   code        String    @unique
+//   description String?   @default("")
+//   createdAt   DateTime  @default(now())
+//   updatedAt   DateTime  @updatedAt
+//   parentId    String?
+//   parent      Product?  @relation("parentSubProduct", fields: [parentId], references: [id])
+//   subProducts Product[] @relation("parentSubProduct")
+
+//   @@index([parentId])
+// }
+
+// enum MailStatus {
+//   DRAFT
+//   SENT
+//   READ
+// }
+
+// model Mail {
+//   id          String           @id @default(uuid())
+//   subject     String?
+//   code        String
+//   body        String           @db.Text
+//   createdAt   DateTime         @default(now())
+//   sentAt      DateTime
+//   parentId    String?
+//   parent      Mail?            @relation("ParentChildren", fields: [parentId], references: [id])
+//   children    Mail[]           @relation("ParentChildren")
+//   sender      User             @relation("sender", fields: [senderId], references: [id])
+//   senderId    String
+//   receiver    User?            @relation("receiver", fields: [receiverId], references: [id])
+//   receiverId  String?
+//   status      MailStatus
+//   attachments MailAttachment[]
+
+//   @@index([senderId])
+//   @@index([senderId, status])
+//   @@index([receiverId])
+// }
+
+// model MailAttachment {
+//   id          String  @id @default(uuid())
+//   mail        Mail    @relation(fields: [mailId], references: [id], onDelete: Cascade)
+//   mailId      String
+//   url         String
+//   displayName String? @default("attachment")
+// }

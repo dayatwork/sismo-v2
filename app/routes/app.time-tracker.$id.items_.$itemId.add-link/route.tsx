@@ -14,7 +14,7 @@ import { redirectWithToast } from "~/utils/toast.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
-import { createTrackerAttachmentTypeLinkV2 } from "~/services/attachment.server";
+import { createTrackerAttachmentTypeLink } from "~/services/attachment.server";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
 
@@ -42,7 +42,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { displayName, url } = submission.value;
 
-  await createTrackerAttachmentTypeLinkV2({
+  await createTrackerAttachmentTypeLink({
     displayName,
     trackerItemId,
     url,
