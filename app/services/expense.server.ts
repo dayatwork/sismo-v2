@@ -6,8 +6,8 @@ export async function getExpenses() {
     orderBy: { submittedAt: "desc" },
     include: {
       chartOfAccount: { include: { type: true } },
-      project: { select: { id: true, name: true } },
-      stage: { select: { id: true, name: true } },
+      // project: { select: { id: true, name: true } },
+      // stage: { select: { id: true, name: true } },
       approvedBy: { select: { id: true, name: true, photo: true } },
       submittedBy: { select: { id: true, name: true, photo: true } },
       rejectedBy: { select: { id: true, name: true, photo: true } },
@@ -21,8 +21,8 @@ export async function getExpenseById({ expenseId }: { expenseId: string }) {
     where: { id: expenseId },
     include: {
       chartOfAccount: true,
-      project: { select: { id: true, name: true } },
-      stage: { select: { id: true, name: true } },
+      // project: { select: { id: true, name: true } },
+      // stage: { select: { id: true, name: true } },
       approvedBy: { select: { id: true, name: true, photo: true } },
       submittedBy: { select: { id: true, name: true, photo: true } },
       rejectedBy: { select: { id: true, name: true, photo: true } },
@@ -39,13 +39,13 @@ export async function submitExpense({
   description,
   quantity,
   note,
-  projectId,
-  stageId,
+  // projectId,
+  // stageId,
   submittedById,
   unitPrice,
 }: {
-  projectId?: string;
-  stageId?: string;
+  // projectId?: string;
+  // stageId?: string;
   quantity: number;
   amount: Prisma.Decimal;
   unitPrice: Prisma.Decimal;
@@ -58,8 +58,8 @@ export async function submitExpense({
 }) {
   const expense = await prisma.expense.create({
     data: {
-      projectId,
-      stageId,
+      // projectId,
+      // stageId,
       amount,
       currency,
       unitPrice,
@@ -128,13 +128,13 @@ export async function editExpense({
   expenseId,
   quantity,
   note,
-  projectId,
-  stageId,
+  // projectId,
+  // stageId,
   submittedById,
 }: {
   expenseId: string;
-  projectId?: string;
-  stageId?: string;
+  // projectId?: string;
+  // stageId?: string;
   quantity: number;
   amount: Prisma.Decimal;
   currency: "IDR" | "USD";
@@ -144,8 +144,8 @@ export async function editExpense({
   const expense = await prisma.expense.update({
     where: { id: expenseId },
     data: {
-      projectId,
-      stageId,
+      // projectId,
+      // stageId,
       amount,
       currency,
       status: "SUBMITTED",

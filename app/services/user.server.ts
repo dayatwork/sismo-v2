@@ -19,12 +19,12 @@ export async function getUserById(id: string) {
       password: true,
       roles: true,
       connections: true,
-      positions: {
-        include: {
-          division: { include: { directorate: true } },
-          jobLevel: true,
-        },
-      },
+      // positions: {
+      //   include: {
+      //     division: { include: { directorate: true } },
+      //     jobLevel: true,
+      //   },
+      // },
       departmentMembers: {
         include: {
           department: { select: { id: true, name: true, logo: true } },
@@ -116,7 +116,7 @@ export async function getUsersAndExcludeSomeIds({
 }
 
 export async function getUsersForDashboard() {
-  const users = await prisma.user.findMany({ include: { timeTrackers: true } });
+  const users = await prisma.user.findMany({ include: { taskTrackers: true } });
   return users;
 }
 

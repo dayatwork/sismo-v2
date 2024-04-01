@@ -26,6 +26,7 @@ import {
   MessageCircle,
   Files,
   PencilRuler,
+  UserSquare2Icon,
   // SquareUserRound,
 } from "lucide-react";
 
@@ -122,44 +123,44 @@ const toolNavigation: NavigationItem[] = [
 //   },
 // ];
 
-// const projectNavigation: NavigationItem[] = [
-//   {
-//     name: "Projects",
-//     href: "projects",
-//     icon: FolderKanbanIcon,
-//     current: false,
-//     permissions: ["manage:project"],
-//   },
-//   {
-//     name: "Clients",
-//     href: "clients",
-//     icon: UserSquare2Icon,
-//     current: false,
-//     permissions: ["manage:client"],
-//   },
-//   {
-//     name: "Services",
-//     href: "services",
-//     icon: LayoutGridIcon,
-//     current: false,
-//     permissions: ["manage:service"],
-//   },
-//   {
-//     name: "Products",
-//     href: "products",
-//     icon: BoxesIcon,
-//     current: false,
-//     permissions: ["manage:product"],
-//   },
+const projectNavigation: NavigationItem[] = [
+  // {
+  //   name: "Projects",
+  //   href: "projects",
+  //   icon: FolderKanbanIcon,
+  //   current: false,
+  //   permissions: ["manage:project"],
+  // },
+  {
+    name: "Clients",
+    href: "clients",
+    icon: UserSquare2Icon,
+    current: false,
+    permissions: ["manage:client"],
+  },
+  // {
+  //   name: "Services",
+  //   href: "services",
+  //   icon: LayoutGridIcon,
+  //   current: false,
+  //   permissions: ["manage:service"],
+  // },
+  // {
+  //   name: "Products",
+  //   href: "products",
+  //   icon: BoxesIcon,
+  //   current: false,
+  //   permissions: ["manage:product"],
+  // },
 
-//   // {
-//   //   name: "Client Types",
-//   //   href: "client-types",
-//   //   icon: UserCog2Icon,
-//   //   current: false,
-//   //   permissions: ["manage:client"],
-//   // },
-// ];
+  // {
+  //   name: "Client Types",
+  //   href: "client-types",
+  //   icon: UserCog2Icon,
+  //   current: false,
+  //   permissions: ["manage:client"],
+  // },
+];
 
 const employeeNavigation: NavigationItem[] = [
   {
@@ -479,7 +480,7 @@ export default function AppNavigation() {
           </>
         )}
 
-        {/* {hasAccessToNavigation({
+        {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
           navigationItems: projectNavigation,
@@ -523,7 +524,7 @@ export default function AppNavigation() {
               </ul>
             </li>
           </>
-        )} */}
+        )}
 
         {/* {hasAccessToNavigation({
           isSuperAdmin,
