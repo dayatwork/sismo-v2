@@ -25,20 +25,20 @@ import {
   ListBox,
   ListBoxItem,
 } from "react-aria-components";
+import { ChevronDownIcon } from "lucide-react";
 
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { selectClassName } from "~/components/ui/select";
+import { buttonVariants } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
+import { cn } from "~/lib/utils";
 import {
   editCoaType,
   getCoaClasses,
   getCoaTypeById,
 } from "~/services/chart-of-account.server";
-import { buttonVariants } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
-import { selectClassName } from "~/components/ui/select";
-import { ChevronDownIcon } from "lucide-react";
 
 const schema = z.object({
   name: z.string(),

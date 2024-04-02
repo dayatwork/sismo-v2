@@ -1,9 +1,9 @@
 import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { FileText } from "lucide-react";
+
 import MainContainer from "~/components/main-container";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
   Table,
@@ -13,9 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { requirePermission } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
 import { getTeams } from "~/services/team.server";
-import { requirePermission } from "~/utils/auth.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:team");

@@ -54,10 +54,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
+  const loggedInUser = await requireUser(request);
+
   try {
     const timeTrackers = await getTaskTrackers({
       from,
       to,
+      ownerId: loggedInUser.id,
     });
 
     return json({

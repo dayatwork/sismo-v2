@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   type LoaderFunctionArgs,
   json,
@@ -12,7 +13,7 @@ import {
   useParams,
 } from "@remix-run/react";
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";

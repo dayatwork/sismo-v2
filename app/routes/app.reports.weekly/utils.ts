@@ -1,5 +1,6 @@
 import { type SerializeFrom } from "@remix-run/node";
 import dayjs from "dayjs";
+
 import { getTotalWeeksInYear } from "~/utils/datetime";
 
 type Tracker = {

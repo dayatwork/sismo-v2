@@ -24,9 +24,9 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { requirePermission } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
 import { getTeamById } from "~/services/team.server";
-import { requirePermission } from "~/utils/auth.server";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:team");
@@ -59,7 +59,6 @@ export default function TeamDetails() {
       } else {
         prev.delete("search");
       }
-      // prev.set("page", "1");
       return prev;
     });
   };

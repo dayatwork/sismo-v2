@@ -5,8 +5,8 @@ import {
   generateMonthlyReportData,
   groupSerializeTimeTrackerByMonths,
 } from "./utils";
-import MonthlyChart from "./weekly-chart";
 import { getUserTrackersInAYear } from "~/services/task-tracker.server";
+import MonthlyChart from "./weekly-chart";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);

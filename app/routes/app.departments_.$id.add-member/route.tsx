@@ -37,9 +37,9 @@ import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { addDepartmentMembers } from "~/services/department.server";
 import { requirePermission } from "~/utils/auth.server";
-import { UserComboBox } from "./user-combobox";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { getUsers } from "~/services/user.server";
+import { UserComboBox } from "~/components/comboboxes/user-combobox";
 
 const schema = z.object({
   userId: z.string(),

@@ -14,12 +14,8 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
-import { redirectWithToast } from "~/utils/toast.server";
 import { Input } from "~/components/ui/input";
-// import {
-//   activateOrganizationUser,
-//   getOrganizationUser,
-// } from "~/services/user.server";
+import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
 import { activateUser, getUserById } from "~/services/user.server";
 

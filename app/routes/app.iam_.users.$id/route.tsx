@@ -15,8 +15,6 @@ import {
 } from "lucide-react";
 import MainContainer from "~/components/main-container";
 import { Button } from "~/components/ui/button";
-import { requirePermission } from "~/utils/auth.server";
-import { getUserById } from "~/services/user.server";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,6 +31,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { requirePermission } from "~/utils/auth.server";
+import { getUserById } from "~/services/user.server";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const userId = params.id;

@@ -27,27 +27,19 @@ import {
 import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
-
-import { redirectWithToast } from "~/utils/toast.server";
 import { ChevronDownIcon } from "lucide-react";
+
 import { labelVariants } from "~/components/ui/label";
 import { selectClassName } from "~/components/ui/select";
 import { buttonVariants } from "~/components/ui/button";
+import { redirectWithToast } from "~/utils/toast.server";
+import { requirePermission } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
 import {
   assignRoleToUser,
   getRoleById,
   getUsersForAssignRole,
 } from "~/services/role.server";
-import { requirePermission } from "~/utils/auth.server";
-// import { Label } from "~/components/ui/label";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "~/components/ui/select";
 
 const schema = z.object({
   userId: z.string(),
@@ -151,19 +143,6 @@ export default function AddUserRole() {
                   </ListBox>
                 </Popover>
               </Select>
-              {/* <Label htmlFor="name">User</Label>
-              <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select user" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.employee.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select> */}
               {fields.userId.errors ? (
                 <p role="alert" className="text-sm font-semibold text-red-600">
                   {fields.userId.errors}

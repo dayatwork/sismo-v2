@@ -1,6 +1,6 @@
 import { lazy } from "react";
-import "@tldraw/tldraw/tldraw.css";
 import { ClientOnly } from "remix-utils/client-only";
+import "@tldraw/tldraw/tldraw.css";
 
 let LazyImported = lazy(() =>
   import("@tldraw/tldraw").then((module) => ({ default: module.Tldraw }))

@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLocation, useNavigate } from "@remix-run/react";
-import { FileText } from "lucide-react";
+import { FileText, type LucideIcon } from "lucide-react";
 
 import MainContainer from "~/components/main-container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -11,6 +11,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return null;
 }
+
+const tabItems: { label: string; value: string; icon: LucideIcon }[] = [
+  {
+    label: "Chart of Accounts",
+    value: "coa",
+    icon: FileText,
+  },
+  {
+    label: "Class",
+    value: "class",
+    icon: FileText,
+  },
+  {
+    label: "Type",
+    value: "type",
+    icon: FileText,
+  },
+];
 
 export default function ChartOfAccountsLayout() {
   const location = useLocation();
@@ -24,19 +42,17 @@ export default function ChartOfAccountsLayout() {
         defaultValue={location.pathname.split("/")[4]}
         onValueChange={(v) => navigate(`/app/chart-of-accounts/${v}`)}
       >
-        <TabsList className="h-12">
-          <TabsTrigger className="h-10 px-6" value="coa">
-            <FileText className="h-5 w-5 mr-2" />
-            <span>Chart of Accounts</span>
-          </TabsTrigger>
-          <TabsTrigger className="h-10 px-6" value="class">
-            <FileText className="h-5 w-5 mr-2" />
-            <span>Class</span>
-          </TabsTrigger>
-          <TabsTrigger className="h-10 px-6" value="type">
-            <FileText className="h-5 w-5 mr-2" />
-            <span>Type</span>
-          </TabsTrigger>
+        <TabsList className="gap-1">
+          {tabItems.map((tabItem) => (
+            <TabsTrigger
+              key={tabItem.value}
+              className="pl-6 pr-8 hover:bg-background"
+              value={tabItem.value}
+            >
+              <tabItem.icon className="h-4 w-4 mr-2" />
+              <span>{tabItem.label}</span>
+            </TabsTrigger>
+          ))}
         </TabsList>
       </Tabs>
       <Outlet />

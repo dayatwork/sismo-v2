@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import {
@@ -11,7 +12,6 @@ import {
   useLoaderData,
   useNavigation,
 } from "@remix-run/react";
-import { useState } from "react";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
@@ -21,9 +21,9 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
-import { getSettings, updateSettings } from "~/services/setting.server";
 import { requirePermission } from "~/utils/auth.server";
 import { redirectWithToast } from "~/utils/toast.server";
+import { getSettings, updateSettings } from "~/services/setting.server";
 
 const schema = z.object({
   allowEditTimeTracker: zfd.checkbox(),

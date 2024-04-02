@@ -9,7 +9,7 @@ import {
 import DailyChart from "./daily-chart";
 import { getUserTrackersInAYear } from "~/services/task-tracker.server";
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
   const userId = url.searchParams.get("userId");

@@ -24,6 +24,7 @@ import {
   ListBox,
   ListBoxItem,
 } from "react-aria-components";
+import { ChevronDownIcon } from "lucide-react";
 
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -36,7 +37,6 @@ import {
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { selectClassName } from "~/components/ui/select";
-import { ChevronDownIcon } from "lucide-react";
 
 const schema = z.object({
   classId: z.string(),

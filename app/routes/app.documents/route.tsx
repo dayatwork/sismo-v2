@@ -12,14 +12,15 @@ import {
   useNavigate,
 } from "@remix-run/react";
 import { File, Globe, Plus, Trash2 } from "lucide-react";
+
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { cn } from "~/lib/utils";
 import { createDocument, getUserDocuments } from "~/services/document.server";
 import { requireUser } from "~/utils/auth.server";
 import { redirectWithToast } from "~/utils/toast.server";
+import { cn } from "~/lib/utils";
 
-export async function action({ params, request }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);
 
   const document = await createDocument({
@@ -32,7 +33,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
   });
 }
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const loggedInUser = await requireUser(request);
 
   const documents = await getUserDocuments({
@@ -69,9 +70,6 @@ export default function Documents() {
         <ul className="px-4 space-y-1">
           {documents.map((document) => (
             <li key={document.id} className="flex items-center">
-              {/* <button className="hover:bg-accent p-1 rounded-sm">
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button> */}
               <div
                 className={cn(
                   "flex-1 flex justify-between items-center group hover:bg-accent pl-2 pr-1 py-1 rounded",

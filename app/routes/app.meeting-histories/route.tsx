@@ -27,8 +27,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { getClosedMeetings } from "~/services/meeting.server";
 import { requireUser } from "~/utils/auth.server";
+import { getClosedMeetings } from "~/services/meeting.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);

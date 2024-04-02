@@ -1,42 +1,26 @@
 import { Link, useLocation } from "@remix-run/react";
 import {
+  type LucideIcon,
   LayoutDashboardIcon,
   TimerIcon,
-  type LucideIcon,
   CalendarClockIcon,
-  // FolderKanbanIcon,
-  // LayoutGridIcon,
-  // BoxesIcon,
-  // UserSquare2Icon,
-  // UserCog2Icon,
   UsersIcon,
   ClipboardListIcon,
-  // CalendarDaysIcon,
   NetworkIcon,
   KeyRoundIcon,
   SettingsIcon,
   BarChart3,
-  // Files,
-  // PencilRuler,
-  // MessageCircle,
-  // Video,
-  // Banknote,
-  // Landmark,
-  // Mail,
   MessageCircle,
   Files,
   PencilRuler,
-  UserSquare2Icon,
-  FolderKanbanIcon,
-  // SquareUserRound,
+  Video,
+  Landmark,
+  Banknote,
 } from "lucide-react";
 
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { ProtectComponent, useUserPermissions } from "~/utils/auth";
-// import { ProtectComponent } from "~/utils/auth";
-
-// import { getWeekNumber } from "~/utils/datetime";
 import { type PermissionName } from "~/utils/permission";
 
 type NavigationItem = {
@@ -66,174 +50,32 @@ const navigation: NavigationItem[] = [
     icon: CalendarClockIcon,
     current: false,
   },
-  // {
-  //   name: "Your Work Plan",
-  //   href: `weekly-work-plan/${new Date().getFullYear()}/${getWeekNumber(
-  //     new Date()
-  //   )}`,
-  //   icon: CalendarDaysIcon,
-  //   current: false,
-  // },
-  // {
-  //   name: "Your Tasks",
-  //   href: "/app/your-tasks",
-  //   icon: CircleDotIcon,
-  //   current: false,
-  // },
-  // {
-  //   name: "Achivements",
-  //   href: "achivements",
-  //   icon: FileBadge2Icon,
-  //   current: false,
-  // },
 ];
 
 const toolNavigation: NavigationItem[] = [
   {
     name: "Documents",
-    href: "documents",
+    href: "/app/documents",
     icon: Files,
     current: false,
   },
   {
     name: "Drawings",
-    href: "drawings",
+    href: "/app/drawings",
     icon: PencilRuler,
     current: false,
   },
-];
-
-// const communicationNavigation: NavigationItem[] = [
-//   {
-//     name: "Chat",
-//     href: "chat",
-//     icon: MessageCircle,
-//     current: false,
-//   },
-//   {
-//     name: "Mail",
-//     href: "mail",
-//     icon: Mail,
-//     current: false,
-//   },
-//   {
-//     name: "Meetings",
-//     href: "meetings",
-//     icon: Video,
-//     current: false,
-//   },
-// ];
-
-const projectNavigation: NavigationItem[] = [
   {
-    name: "Projects",
-    href: "projects",
-    icon: FolderKanbanIcon,
+    name: "Chat",
+    href: "/app/chat",
+    icon: MessageCircle,
     current: false,
-    permissions: ["manage:project"],
   },
   {
-    name: "Clients",
-    href: "clients",
-    icon: UserSquare2Icon,
+    name: "Meetings",
+    href: "/app/meetings",
+    icon: Video,
     current: false,
-    permissions: ["manage:client"],
-  },
-  // {
-  //   name: "Services",
-  //   href: "services",
-  //   icon: LayoutGridIcon,
-  //   current: false,
-  //   permissions: ["manage:service"],
-  // },
-  // {
-  //   name: "Products",
-  //   href: "products",
-  //   icon: BoxesIcon,
-  //   current: false,
-  //   permissions: ["manage:product"],
-  // },
-
-  // {
-  //   name: "Client Types",
-  //   href: "client-types",
-  //   icon: UserCog2Icon,
-  //   current: false,
-  //   permissions: ["manage:client"],
-  // },
-];
-
-const employeeNavigation: NavigationItem[] = [
-  {
-    name: "IAM",
-    href: "/app/iam",
-    icon: KeyRoundIcon,
-    current: false,
-    permissions: ["manage:iam"],
-  },
-  {
-    name: "Departments",
-    href: "/app/departments",
-    icon: NetworkIcon,
-    current: false,
-    permissions: ["manage:department"],
-  },
-  {
-    name: "Teams",
-    href: "/app/teams",
-    icon: UsersIcon,
-    current: false,
-    permissions: ["manage:team"],
-  },
-  // {
-  //   name: "Work Plan",
-  //   href: `employee-work-plan/${new Date().getFullYear()}/${getWeekNumber(
-  //     new Date()
-  //   )}`,
-  //   icon: CalendarDaysIcon,
-  //   current: false,
-  // },
-];
-
-// const financeNavigation: NavigationItem[] = [
-//   {
-//     name: "Chart of Account",
-//     href: "chart-of-accounts",
-//     icon: Landmark,
-//     current: false,
-//     permissions: ["manage:finance"],
-//   },
-//   // {
-//   //   name: "Expenses",
-//   //   href: "expenses",
-//   //   icon: Banknote,
-//   //   current: false,
-//   //   permissions: ["manage:finance"],
-//   // },
-//   {
-//     name: "Journal",
-//     href: "journals",
-//     icon: Banknote,
-//     current: false,
-//     permissions: ["manage:finance"],
-//   },
-// ];
-
-const othersNavigation: NavigationItem[] = [
-  // {
-  //   name: "Organization",
-  //   href: "organization",
-  //   icon: NetworkIcon,
-  //   current: false,
-  //   permissions: ["manage:organization"],
-  // },
-
-  {
-    name: "Settings",
-    href: "/app/settings",
-    icon: SettingsIcon,
-    current: false,
-    permissions: ["manage:organization"],
   },
 ];
 
@@ -257,6 +99,57 @@ const workManagementNavigation: NavigationItem[] = [
     icon: BarChart3,
     current: false,
     permissions: ["manage:employee"],
+  },
+];
+
+const userManagementNavigation: NavigationItem[] = [
+  {
+    name: "IAM",
+    href: "/app/iam",
+    icon: KeyRoundIcon,
+    current: false,
+    permissions: ["manage:iam"],
+  },
+  {
+    name: "Departments",
+    href: "/app/departments",
+    icon: NetworkIcon,
+    current: false,
+    permissions: ["manage:department"],
+  },
+  {
+    name: "Teams",
+    href: "/app/teams",
+    icon: UsersIcon,
+    current: false,
+    permissions: ["manage:team"],
+  },
+];
+
+const financeNavigation: NavigationItem[] = [
+  {
+    name: "Chart of Account",
+    href: "chart-of-accounts",
+    icon: Landmark,
+    current: false,
+    permissions: ["manage:finance"],
+  },
+  {
+    name: "Journal",
+    href: "journals",
+    icon: Banknote,
+    current: false,
+    permissions: ["manage:finance"],
+  },
+];
+
+const othersNavigation: NavigationItem[] = [
+  {
+    name: "Settings",
+    href: "/app/settings",
+    icon: SettingsIcon,
+    current: false,
+    permissions: ["manage:organization"],
   },
 ];
 
@@ -290,7 +183,6 @@ const hasAccessToNavigation = ({
 };
 
 export default function AppNavigation() {
-  const { pathname } = useLocation();
   const { isSuperAdmin, userPermissions } = useUserPermissions();
 
   return (
@@ -300,94 +192,22 @@ export default function AppNavigation() {
           <ul className="-mx-2 space-y-1">
             {navigation.map((item) => (
               <li key={item.name}>
-                <Link
-                  to={item.href}
-                  className={cn(
-                    "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                    pathname.startsWith(item.href)
-                      ? "bg-primary/20 hover:bg-primary/10"
-                      : "hover:bg-muted"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "w- h-5 mr-3",
-                      pathname.startsWith(item.href)
-                        ? "bg-transparent"
-                        : "hover:bg-transparent hover:underline"
-                    )}
-                    aria-hidden="true"
-                  />
-                  {item.name}
-                </Link>
+                <NavLinkItem item={item} />
               </li>
             ))}
           </ul>
         </li>
         <Separator className="my-4" />
         <li>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-            Tools
-          </h3>
+          <NavGroupHeader label="Tools" />
           <ul className="-mx-2 space-y-1">
             {toolNavigation.map((item) => (
               <li key={item.name}>
-                <Link
-                  to={item.href}
-                  className={cn(
-                    "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                    pathname.startsWith(item.href)
-                      ? "bg-primary/20 hover:bg-primary/10"
-                      : "hover:bg-muted"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "w- h-5 mr-3",
-                      pathname.startsWith(item.href)
-                        ? "bg-transparent"
-                        : "hover:bg-transparent hover:underline"
-                    )}
-                    aria-hidden="true"
-                  />
-                  {item.name}
-                </Link>
+                <NavLinkItem item={item} />
               </li>
             ))}
           </ul>
         </li>
-        {/* <Separator className="my-4" />
-        <li>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-            Communications
-          </h3>
-          <ul className="-mx-2 space-y-1">
-            {communicationNavigation.map((item) => (
-              <li key={item.name}>
-                <Link
-                  to={item.href}
-                  className={cn(
-                    "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                    pathname.startsWith(item.href)
-                      ? "bg-primary/20 hover:bg-primary/10"
-                      : "hover:bg-muted"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "w- h-5 mr-3",
-                      pathname.startsWith(item.href)
-                        ? "bg-transparent"
-                        : "hover:bg-transparent hover:underline"
-                    )}
-                    aria-hidden="true"
-                  />
-                  {item.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </li> */}
 
         {hasAccessToNavigation({
           isSuperAdmin,
@@ -397,9 +217,7 @@ export default function AppNavigation() {
           <>
             <Separator className="my-4" />
             <li>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Work & Report
-              </h3>
+              <NavGroupHeader label="Work & Report" />
               <ul className="-mx-2 space-y-1">
                 {workManagementNavigation.map((item) => (
                   <ProtectComponent
@@ -407,26 +225,7 @@ export default function AppNavigation() {
                     permission={item.permissions}
                   >
                     <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname.startsWith(item.href)
-                            ? "bg-primary/20 hover:bg-primary/10"
-                            : "hover:bg-muted"
-                        )}
-                      >
-                        <item.icon
-                          className={cn(
-                            "w- h-5 mr-3",
-                            pathname.startsWith(item.href)
-                              ? "bg-transparent"
-                              : "hover:bg-transparent hover:underline"
-                          )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
+                      <NavLinkItem item={item} />
                     </li>
                   </ProtectComponent>
                 ))}
@@ -438,41 +237,20 @@ export default function AppNavigation() {
         {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
-          navigationItems: employeeNavigation,
+          navigationItems: userManagementNavigation,
         }) && (
           <>
             <Separator className="my-4" />
             <li>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                User & Group
-              </h3>
+              <NavGroupHeader label="User & Group" />
               <ul className="-mx-2 space-y-1">
-                {employeeNavigation.map((item) => (
+                {userManagementNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
                     permission={item.permissions}
                   >
                     <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname.startsWith(item.href)
-                            ? "bg-primary/20 hover:bg-primary/10"
-                            : "hover:bg-muted"
-                        )}
-                      >
-                        <item.icon
-                          className={cn(
-                            "w- h-5 mr-3",
-                            pathname.startsWith(item.href)
-                              ? "bg-transparent"
-                              : "hover:bg-transparent hover:underline"
-                          )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
+                      <NavLinkItem item={item} />
                     </li>
                   </ProtectComponent>
                 ))}
@@ -482,52 +260,6 @@ export default function AppNavigation() {
         )}
 
         {hasAccessToNavigation({
-          isSuperAdmin,
-          userPermissions,
-          navigationItems: projectNavigation,
-        }) && (
-          <>
-            <Separator className="my-4" />
-            <li>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Project
-              </h3>
-              <ul className="-mx-2 space-y-1">
-                {projectNavigation.map((item) => (
-                  <ProtectComponent
-                    key={item.name}
-                    permission={item.permissions}
-                  >
-                    <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname.startsWith(item.href)
-                            ? "bg-primary/20 hover:bg-primary/10"
-                            : "hover:bg-muted"
-                        )}
-                      >
-                        <item.icon
-                          className={cn(
-                            "w- h-5 mr-3",
-                            pathname.startsWith(item.href)
-                              ? "bg-transparent"
-                              : "hover:bg-transparent hover:underline"
-                          )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
-                    </li>
-                  </ProtectComponent>
-                ))}
-              </ul>
-            </li>
-          </>
-        )}
-
-        {/* {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
           navigationItems: financeNavigation,
@@ -535,9 +267,7 @@ export default function AppNavigation() {
           <>
             <Separator className="my-4" />
             <li>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Finance
-              </h3>
+              <NavGroupHeader label="Finance" />
               <ul className="-mx-2 space-y-1">
                 {financeNavigation.map((item) => (
                   <ProtectComponent
@@ -545,33 +275,14 @@ export default function AppNavigation() {
                     permission={item.permissions}
                   >
                     <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname.startsWith(item.href)
-                            ? "bg-primary/20 hover:bg-primary/10"
-                            : "hover:bg-muted"
-                        )}
-                      >
-                        <item.icon
-                          className={cn(
-                            "w- h-5 mr-3",
-                            pathname.startsWith(item.href)
-                              ? "bg-transparent"
-                              : "hover:bg-transparent hover:underline"
-                          )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
+                      <NavLinkItem item={item} />
                     </li>
                   </ProtectComponent>
                 ))}
               </ul>
             </li>
           </>
-        )} */}
+        )}
 
         {hasAccessToNavigation({
           isSuperAdmin,
@@ -581,9 +292,7 @@ export default function AppNavigation() {
           <>
             <Separator className="my-4" />
             <li>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Others
-              </h3>
+              <NavGroupHeader label="Others" />
               <ul className="-mx-2 space-y-1">
                 {othersNavigation.map((item) => (
                   <ProtectComponent
@@ -591,26 +300,7 @@ export default function AppNavigation() {
                     permission={item.permissions}
                   >
                     <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
-                          pathname.startsWith(item.href)
-                            ? "bg-primary/20 hover:bg-primary/10"
-                            : "hover:bg-muted"
-                        )}
-                      >
-                        <item.icon
-                          className={cn(
-                            "w- h-5 mr-3",
-                            pathname.startsWith(item.href)
-                              ? "bg-transparent"
-                              : "hover:bg-transparent hover:underline"
-                          )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
+                      <NavLinkItem item={item} />
                     </li>
                   </ProtectComponent>
                 ))}
@@ -620,5 +310,39 @@ export default function AppNavigation() {
         )}
       </ul>
     </nav>
+  );
+}
+
+function NavLinkItem({ item }: { item: NavigationItem }) {
+  const { pathname } = useLocation();
+  return (
+    <Link
+      to={item.href}
+      className={cn(
+        "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
+        pathname.startsWith(item.href)
+          ? "bg-primary/20 hover:bg-primary/10"
+          : "hover:bg-muted"
+      )}
+    >
+      <item.icon
+        className={cn(
+          "w- h-5 mr-3",
+          pathname.startsWith(item.href)
+            ? "bg-transparent"
+            : "hover:bg-transparent hover:underline"
+        )}
+        aria-hidden="true"
+      />
+      {item.name}
+    </Link>
+  );
+}
+
+function NavGroupHeader({ label }: { label: string }) {
+  return (
+    <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+      {label}
+    </h3>
   );
 }

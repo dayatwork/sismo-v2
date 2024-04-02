@@ -15,24 +15,24 @@ import {
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
+import { ArrowLeft } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label, labelVariants } from "~/components/ui/label";
-import { redirectWithToast } from "~/utils/toast.server";
 import { Textarea } from "~/components/ui/textarea";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Separator } from "~/components/ui/separator";
-import { cn } from "~/lib/utils";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "~/components/ui/hover-card";
+import { redirectWithToast } from "~/utils/toast.server";
 import { groupedPermissions } from "~/utils/permission";
-import { createRole } from "~/services/role.server";
-import { ArrowLeft } from "lucide-react";
 import { requirePermission } from "~/utils/auth.server";
+import { cn } from "~/lib/utils";
+import { createRole } from "~/services/role.server";
 
 const schema = z.object({
   name: z.string(),

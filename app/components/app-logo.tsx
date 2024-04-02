@@ -1,14 +1,35 @@
-export default function AppLogo() {
+type Props = {
+  logoUrl?: string;
+  logoDarkUrl?: string;
+};
+
+export default function AppLogo(props: Props) {
   return (
     <div className="flex h-[64px] shrink-0 items-center px-6">
-      <span className="text-2xl font-bold text-foreground dark:text-white">
-        SISMO
-      </span>
-      {/* <img
-        className="h-8 w-auto"
-        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-        alt="Your Company"
-      /> */}
+      {props.logoUrl && props.logoDarkUrl ? (
+        <>
+          <img
+            className="h-8 w-auto dark:hidden"
+            src={props.logoUrl}
+            alt="Logo"
+          />
+          <img
+            className="h-8 w-auto hidden dark:inline"
+            src={props.logoDarkUrl}
+            alt="Logo"
+          />
+        </>
+      ) : props.logoUrl || props.logoDarkUrl ? (
+        <img
+          className="h-8 w-auto"
+          src={props.logoDarkUrl || props.logoUrl}
+          alt="Logo"
+        />
+      ) : (
+        <span className="text-2xl font-bold text-foreground dark:text-white">
+          SISMO
+        </span>
+      )}
     </div>
   );
 }

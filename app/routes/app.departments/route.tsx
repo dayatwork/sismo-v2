@@ -15,6 +15,7 @@ import {
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
 import { getDepartments } from "~/services/department.server";
+import { ProtectComponent } from "~/utils/auth";
 import { requirePermission } from "~/utils/auth.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -33,11 +34,11 @@ export default function Departments() {
       <Outlet />
       <div className="mb-3 flex justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Departments</h1>
-        {/* <ProtectComponent permission="manage:organization"> */}
-        <Link to="new" className={cn(buttonVariants())}>
-          + Add New Department
-        </Link>
-        {/* </ProtectComponent> */}
+        <ProtectComponent permission="manage:department">
+          <Link to="new" className={cn(buttonVariants())}>
+            + Add New Department
+          </Link>
+        </ProtectComponent>
       </div>
       <div className="rounded-md border bg-neutral-50 dark:bg-neutral-900">
         <Table>
@@ -77,15 +78,19 @@ export default function Departments() {
                 </TableCell>
                 <TableCell>{department.description}</TableCell>
                 <TableCell className="opacity-0 group-hover:opacity-100 pr-4">
-                  {/* <ProtectComponent permission="manage:organization"> */}
-                  <div className="flex justify-end items-center gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to={`${department.id}`} className="cursor-pointer">
-                        <FileText className="w-4 h-4 mr-2" />
-                        <span>Details</span>
-                      </Link>
-                    </Button>
-                  </div>
+                  <ProtectComponent permission="manage:organization">
+                    <div className="flex justify-end items-center gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          to={`${department.id}`}
+                          className="cursor-pointer"
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          <span>Details</span>
+                        </Link>
+                      </Button>
+                    </div>
+                  </ProtectComponent>
                 </TableCell>
               </TableRow>
             ))}

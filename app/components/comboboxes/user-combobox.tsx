@@ -14,7 +14,7 @@ interface Props {
   defaultValue?: string;
   disabledKeys?: string[];
   hideLabel?: boolean;
-  handleSearchParam?: (key: Key) => void;
+  handleSearchParam?: (userId: string) => void;
 }
 
 export function UserComboBox({
@@ -36,7 +36,9 @@ export function UserComboBox({
         defaultItems={users}
         onSelectionChange={(key) => {
           setUserId(key);
-          handleSearchParam?.(key);
+          if (key) {
+            handleSearchParam?.(key.toString());
+          }
         }}
         errorMessage={errorMessage}
         emptyText="No user"

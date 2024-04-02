@@ -6,6 +6,7 @@ import {
   MoreHorizontalIcon,
   XSquare,
 } from "lucide-react";
+
 import MainContainer from "~/components/main-container";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -23,11 +24,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import MeetingIcon from "./meeting-icon";
-import { getOpenedMeetings } from "~/services/meeting.server";
 import { requireUser } from "~/utils/auth.server";
+import { getOpenedMeetings } from "~/services/meeting.server";
+import MeetingIcon from "./meeting-icon";
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
 
   const meetings = await getOpenedMeetings();

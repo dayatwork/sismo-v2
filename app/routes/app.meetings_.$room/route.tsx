@@ -2,8 +2,8 @@ import { redirect, type LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 
 import { requireUser } from "~/utils/auth.server";
-import Meeting from "./meeting";
 import { getOpenedMeetingByRoomName } from "~/services/meeting.server";
+import Meeting from "./meeting";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const loggedInUser = await requireUser(request);

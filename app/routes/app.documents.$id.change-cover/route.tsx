@@ -17,18 +17,14 @@ import { z } from "zod";
 import { Modal, Dialog, Label, Button, Heading } from "react-aria-components";
 
 import { labelVariants } from "~/components/ui/label";
-import { redirectWithToast } from "~/utils/toast.server";
-import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { updateDocumentCover } from "~/services/document.server";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { redirectWithToast } from "~/utils/toast.server";
 import { requireUser } from "~/utils/auth.server";
+import { cn } from "~/lib/utils";
+import { updateDocumentCover } from "~/services/document.server";
 
-// const schema = z.object({
-//   url: z.string(),
-
-// });
 const schema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("link"), url: z.string() }),
   z.object({

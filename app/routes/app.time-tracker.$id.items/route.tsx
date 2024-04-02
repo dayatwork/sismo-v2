@@ -4,9 +4,7 @@ import { Modal, Dialog, Button, Heading } from "react-aria-components";
 import dayjs from "dayjs";
 import { PenSquare, Plus, Trash2 } from "lucide-react";
 
-import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
-import { requireUser } from "~/utils/auth.server";
 import {
   Table,
   TableBody,
@@ -15,6 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { requireUser } from "~/utils/auth.server";
+import { cn } from "~/lib/utils";
 import { getTaskTrackerByOwnerId } from "~/services/task-tracker.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -137,8 +137,6 @@ export default function SetTrackerItems() {
               </TableBody>
             </Table>
           )}
-          {}
-          {/* <ul className="mt-4 border p-1"></ul> */}
           <div className="mt-6 flex justify-between">
             {totalDuration !== assignDuration || assignDuration === 0 ? (
               <Button

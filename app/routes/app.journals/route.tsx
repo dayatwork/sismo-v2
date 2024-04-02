@@ -1,6 +1,7 @@
 import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { MoreVerticalIcon, Trash2Icon } from "lucide-react";
+
 import MainContainer from "~/components/main-container";
 import { Button } from "~/components/ui/button";
 import {
@@ -19,9 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { getJournals } from "~/services/journal.server";
 import { requirePermission } from "~/utils/auth.server";
 import { currencyFormatter } from "~/utils/currency";
+import { getJournals } from "~/services/journal.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:finance");

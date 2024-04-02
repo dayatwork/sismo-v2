@@ -12,21 +12,7 @@ import { Separator } from "~/components/ui/separator";
 import { type NotificationLoader } from "../notifications";
 import { Button } from "~/components/ui/button";
 
-// interface Notification {
-//   id: string;
-//   title: string;
-//   description: string | null;
-//   isBroadcast: boolean;
-//   receiverId: string | null;
-//   read: boolean;
-//   type: string | null;
-//   thumbnail: string | null;
-//   link: string;
-//   createdAt: string;
-// }
-
 export default function NotificationButton() {
-  // const [notifications, setNotifications] = useState<Notification[]>([]);
   const path = useResolvedPath("/notifications/stream");
   const data = useEventSource(path.pathname, { event: "notifications" });
 

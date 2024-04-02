@@ -14,14 +14,14 @@ import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { labelVariants } from "~/components/ui/label";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import { redirectWithToast } from "~/utils/toast.server";
+import { requirePermission } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
 import { createDepartment } from "~/services/department.server";
-import { Textarea } from "~/components/ui/textarea";
-import { requirePermission } from "~/utils/auth.server";
 
 const schema = z.object({
   name: z.string(),

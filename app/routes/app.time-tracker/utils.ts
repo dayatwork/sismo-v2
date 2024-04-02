@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { type SerializeFrom } from "@remix-run/node";
+
 import { type CompletedTracker } from "./type";
 
 export function groupTimeTrackerByDays(trackers: CompletedTracker[]): {

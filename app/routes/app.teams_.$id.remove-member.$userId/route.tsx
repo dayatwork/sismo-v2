@@ -10,12 +10,12 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
-import { redirectWithToast } from "~/utils/toast.server";
 import { Input } from "~/components/ui/input";
+import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
 
-import { type loader as teamIdLoader } from "../app.teams_.$id/route";
 import { removeTeamMembers } from "~/services/team.server";
+import { type loader as teamIdLoader } from "../app.teams_.$id/route";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const teamId = params.id;

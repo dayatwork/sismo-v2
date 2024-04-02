@@ -16,15 +16,7 @@ import {
 } from "lucide-react";
 
 import MainContainer from "~/components/main-container";
-import { requireUser } from "~/utils/auth.server";
-import { type CompletedTracker, type IncompletedTracker } from "./type";
-import { groupSerializeTimeTrackerByDays } from "./utils";
-import { millisecondsToHHMMSS } from "~/utils/datetime";
-import Timer from "./timer";
-import { TotalWorkingHours } from "./total-working-hours";
 import { Separator } from "~/components/ui/separator";
-// import { cn } from "~/lib/utils";
-import { Clockify } from "./clockify";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,22 +25,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-// import { useRevalidateWhenFocus } from "~/hooks/useRevalidateWhenFocus";
-// import { AttachmentsCard } from "./attachments-card";
-import { useLiveLoader } from "~/utils/sse/use-live-loader";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
+import { requireUser } from "~/utils/auth.server";
+import { millisecondsToHHMMSS } from "~/utils/datetime";
+import { useLiveLoader } from "~/utils/sse/use-live-loader";
 import { cn } from "~/lib/utils";
-import { AttachmentsCard } from "./attachments-card";
 import { getSettings } from "~/services/setting.server";
 import {
   getTaskTrackersByOwnerId,
   isUserAllowedClockedIn,
 } from "~/services/task-tracker.server";
+import { type CompletedTracker, type IncompletedTracker } from "./type";
+import { groupSerializeTimeTrackerByDays } from "./utils";
+import Timer from "./timer";
+import { TotalWorkingHours } from "./total-working-hours";
+import { Clockify } from "./clockify";
+import { AttachmentsCard } from "./attachments-card";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const loggedInUser = await requireUser(request);

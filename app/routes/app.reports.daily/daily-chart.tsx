@@ -6,10 +6,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
 import { type DailyReportData } from "./utils";
 
-// const GREEN = "#22c55e";
-// const ORANGE = "#f97316";
 interface Props {
   data: DailyReportData;
 }

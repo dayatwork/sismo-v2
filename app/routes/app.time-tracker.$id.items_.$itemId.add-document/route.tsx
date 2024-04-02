@@ -26,20 +26,20 @@ import {
   ListBoxItem,
   Heading,
 } from "react-aria-components";
-
-import { redirectWithToast } from "~/utils/toast.server";
-import { cn } from "~/lib/utils";
-import { buttonVariants } from "~/components/ui/button";
 import { ChevronDownIcon } from "lucide-react";
+
+import { buttonVariants } from "~/components/ui/button";
 import { labelVariants } from "~/components/ui/label";
 import { selectClassName } from "~/components/ui/select";
+import { redirectWithToast } from "~/utils/toast.server";
+import { emitter } from "~/utils/sse/emitter.server";
+import { requireUser } from "~/utils/auth.server";
+import { cn } from "~/lib/utils";
 import {
   getUserDocumentById,
   getUserDocuments,
 } from "~/services/document.server";
 import { createTrackerAttachmentTypeLink } from "~/services/attachment.server";
-import { emitter } from "~/utils/sse/emitter.server";
-import { requireUser } from "~/utils/auth.server";
 
 const schema = z.object({
   documentId: z.string(),

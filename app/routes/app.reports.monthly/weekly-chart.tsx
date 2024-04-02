@@ -8,8 +8,6 @@ import {
 } from "recharts";
 import { type MonthlyReportData } from "./utils";
 
-// const GREEN = "#22c55e";
-// const ORANGE = "#f97316";
 interface Props {
   data: MonthlyReportData;
 }

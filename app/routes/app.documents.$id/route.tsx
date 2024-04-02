@@ -16,18 +16,18 @@ import { useCallback, useEffect, useState } from "react";
 import { ClientOnly } from "remix-utils/client-only";
 import invariant from "tiny-invariant";
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
+import { File, Globe, Image, Smile } from "lucide-react";
 
 import { Editor } from "~/components/editor";
-import { requireUser } from "~/utils/auth.server";
+import { IconPicker } from "~/components/icon-picker";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Button } from "~/components/ui/button";
-import { File, Globe, Image, Smile } from "lucide-react";
+import { requireUser } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
-import { IconPicker } from "~/components/icon-picker";
 import {
   getUserDocumentById,
   updateUserDocumentById,
@@ -133,7 +133,6 @@ export default function Document() {
   const navigate = useNavigate();
   const clipboard = useClipboard({ timeout: 500 });
   const { id } = useParams<{ id: string }>();
-  // const theme = useTheme()
 
   const submitContent = contentFetcher.submit;
 

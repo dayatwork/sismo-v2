@@ -5,8 +5,8 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 import { Button } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
 import { requireUser } from "~/utils/auth.server";
-import { deleteAttachmentById } from "~/services/attachment.server";
 import { emitter } from "~/utils/sse/emitter.server";
+import { deleteAttachmentById } from "~/services/attachment.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const trackerId = params.id;

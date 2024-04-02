@@ -29,17 +29,17 @@ import {
   Heading,
 } from "react-aria-components";
 import { ChevronDownIcon } from "lucide-react";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { labelVariants } from "~/components/ui/label";
 import { selectClassName } from "~/components/ui/select";
-import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
+import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
-import { UserComboBox } from "./user-combobox";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { cn } from "~/lib/utils";
 import { addTeamMembers } from "~/services/team.server";
 import { getUsers } from "~/services/user.server";
+import { UserComboBox } from "~/components/comboboxes/user-combobox";
 
 const schema = z.object({
   userId: z.string(),

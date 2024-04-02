@@ -1,8 +1,8 @@
 import { json, type ActionFunctionArgs, redirect } from "@remix-run/node";
+import invariant from "tiny-invariant";
 
 import { requireUser } from "~/utils/auth.server";
 import { uploadDocumentImage } from "~/services/document.server";
-import invariant from "tiny-invariant";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const documentId = params.id;

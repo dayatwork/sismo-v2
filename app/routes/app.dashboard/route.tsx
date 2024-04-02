@@ -1,5 +1,6 @@
 import { json } from "@remix-run/node";
 import { Link } from "@remix-run/react";
+
 import {
   HoverCard,
   HoverCardContent,
@@ -7,9 +8,9 @@ import {
 } from "~/components/ui/hover-card";
 import { cn } from "~/lib/utils";
 import { useLiveLoader } from "~/utils/sse/use-live-loader";
-import Timer from "./timer";
 import { Separator } from "~/components/ui/separator";
 import { getUsersForDashboard } from "~/services/user.server";
+import Timer from "./timer";
 
 export async function loader() {
   const users = await getUsersForDashboard();

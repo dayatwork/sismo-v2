@@ -5,10 +5,10 @@ import {
   generateWeeklyReportData,
   groupSerializeTimeTrackerByWeeks,
 } from "./utils";
-import WeeklyChart from "./weekly-chart";
 import { getUserTrackersInAYear } from "~/services/task-tracker.server";
+import WeeklyChart from "./weekly-chart";
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
   const userId = url.searchParams.get("userId");

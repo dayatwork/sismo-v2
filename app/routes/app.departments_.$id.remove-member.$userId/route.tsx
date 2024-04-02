@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Form,
   useNavigate,
@@ -7,13 +8,11 @@ import {
 } from "@remix-run/react";
 import { type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Modal, Dialog, Heading } from "react-aria-components";
-import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
-import { redirectWithToast } from "~/utils/toast.server";
 import { Input } from "~/components/ui/input";
+import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
-
 import { removeDepartmentMembers } from "~/services/department.server";
 import { type loader as departmentIdLoader } from "../app.departments_.$id/route";
 
