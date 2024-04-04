@@ -16,14 +16,14 @@ import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { labelVariants } from "~/components/ui/label";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { cn } from "~/lib/utils";
 import { Textarea } from "~/components/ui/textarea";
-import { requireWorkspacePermission } from "~/services/workspace.server";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+import { cn } from "~/lib/utils";
+import { redirectWithToast } from "~/utils/toast.server";
+import { requireWorkspacePermission } from "~/services/workspace.server";
 import { createBoard } from "~/services/board.server";
 
 const schema = z.object({

@@ -6,9 +6,9 @@ import {
   MoreHorizontalIcon,
   Trash2Icon,
 } from "lucide-react";
+
 import MainContainer from "~/components/main-container";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -27,8 +27,8 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
-import { getWorkspaces } from "~/services/workspace.server";
 import { requireUser } from "~/utils/auth.server";
+import { getWorkspaces } from "~/services/workspace.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -47,7 +47,6 @@ export default function Workspaces() {
       <Outlet />
       <div className="mb-3 flex justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Workspaces</h1>
-        {/* <ProtectComponent permission="manage:organization"> */}
         <div className="flex gap-2">
           <Link to="new" className={cn(buttonVariants())}>
             + Add New Workspace
@@ -72,7 +71,6 @@ export default function Workspaces() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {/* </ProtectComponent> */}
       </div>
       <div className="rounded-md border bg-neutral-50 dark:bg-neutral-900">
         <Table>
@@ -120,7 +118,6 @@ export default function Workspaces() {
                   </div>
                 </TableCell>
                 <TableCell className="opacity-0 group-hover:opacity-100 pr-4">
-                  {/* <ProtectComponent permission="manage:organization"> */}
                   <div className="flex justify-end items-center gap-2">
                     <Button variant="outline" size="sm" asChild>
                       <Link to={`${workspace.id}`} className="cursor-pointer">

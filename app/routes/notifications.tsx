@@ -4,12 +4,12 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 
+import { requireUser } from "~/utils/auth.server";
 import {
   getUserNotifications,
   readNotification,
   readUserNotifications,
 } from "~/services/notification.server";
-import { requireUser } from "~/utils/auth.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);

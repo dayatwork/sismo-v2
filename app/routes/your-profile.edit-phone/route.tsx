@@ -19,8 +19,8 @@ import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { changePhoneNumber } from "~/services/user.server";
 import { requireUser } from "~/utils/auth.server";
+import { changePhoneNumber } from "~/services/user.server";
 
 const schema = z.object({
   phone: z.string({ required_error: "Phone is required" }),

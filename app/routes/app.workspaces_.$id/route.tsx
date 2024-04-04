@@ -14,6 +14,7 @@ import {
   Trash2Icon,
   UsersRoundIcon,
 } from "lucide-react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import {
@@ -44,13 +45,12 @@ import {
 } from "~/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
+import { requireUser } from "~/utils/auth.server";
 import { getUsers } from "~/services/user.server";
 import {
   getWorkspaceById,
   getWorkspaceRoles,
 } from "~/services/workspace.server";
-
-import { requireUser } from "~/utils/auth.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const workspaceId = params.id;

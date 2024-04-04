@@ -13,8 +13,8 @@ import { Dialog, Heading, Modal } from "react-aria-components";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { changeUserPhoto } from "~/services/user.server";
 import { requireUser } from "~/utils/auth.server";
+import { changeUserPhoto } from "~/services/user.server";
 
 const schema = z.object({
   photo: z.instanceof(File, { message: "Photo is required" }),

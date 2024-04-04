@@ -7,8 +7,8 @@ import ProfileDropdown from "~/components/profile-dropdown";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { ThemeSwitch } from "../action.set-theme";
 import { requireUser } from "~/utils/auth.server";
+import { ThemeSwitch } from "../action.set-theme";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const loggedInUser = await requireUser(request);

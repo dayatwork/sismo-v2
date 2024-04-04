@@ -10,13 +10,13 @@ import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { buttonVariants } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
-import { createTrackerAttachmentTypeFile } from "~/services/attachment.server";
+import { cn } from "~/lib/utils";
+import { redirectWithToast } from "~/utils/toast.server";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
+import { createTrackerAttachmentTypeFile } from "~/services/attachment.server";
 
 const schema = z.object({
   file: z.instanceof(File, { message: "File is required" }),

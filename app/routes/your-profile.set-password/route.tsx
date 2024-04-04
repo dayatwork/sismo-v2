@@ -8,13 +8,13 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { Dialog, Heading, Modal } from "react-aria-components";
-
 import { z } from "zod";
+
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { authenticator, setPassword } from "~/services/auth.server";
 import { requireUser } from "~/utils/auth.server";
+import { authenticator, setPassword } from "~/services/auth.server";
 
 const schema = z.object({
   password: z.string().min(6, "Minimum 6 characters"),

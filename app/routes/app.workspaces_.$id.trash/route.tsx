@@ -7,7 +7,7 @@ import { redirectWithToast } from "~/utils/toast.server";
 import {
   requireWorkspacePermission,
   softDeleteWorkspace,
-} from "../../services/workspace.server";
+} from "~/services/workspace.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const workspaceId = params.id;

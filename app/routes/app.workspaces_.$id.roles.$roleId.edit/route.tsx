@@ -20,21 +20,21 @@ import { Modal, Dialog, Label, Button, Heading } from "react-aria-components";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { labelVariants } from "~/components/ui/label";
-import { redirectWithToast } from "~/utils/toast.server";
 import { Textarea } from "~/components/ui/textarea";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Separator } from "~/components/ui/separator";
-import { cn } from "~/lib/utils";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "~/components/ui/hover-card";
+import { cn } from "~/lib/utils";
+import { redirectWithToast } from "~/utils/toast.server";
+import { groupedWorkspacePermissions } from "~/utils/workspace.permission";
 import {
   editWorkspaceRole,
   requireWorkspacePermission,
 } from "~/services/workspace.server";
-import { groupedWorkspacePermissions } from "~/utils/workspace.permission";
 
 const schema = z.object({
   name: z.string(),

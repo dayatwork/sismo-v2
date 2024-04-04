@@ -2,10 +2,10 @@ import { json } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 
+import { DarkModeToggle } from "~/components/dark-mode-toggle";
 import { type Theme } from "~/utils";
 import { useHints, isTheme, useRequestInfo } from "~/utils";
 import { setTheme } from "~/utils/theme-session.server";
-import { DarkModeToggle } from "~/components/dark-mode-toggle";
 
 export const action: ActionFunction = async ({ request }) => {
   console.log("CHANGE THEME");

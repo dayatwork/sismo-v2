@@ -16,14 +16,13 @@ import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { labelVariants } from "~/components/ui/label";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { cn } from "~/lib/utils";
-// import { requireWorkspacePermission } from "~/services/workspace.server";
-import { createTaskGroup } from "~/services/board.server";
 import { ColorPicker } from "~/components/ui/color-picker";
+import { cn } from "~/lib/utils";
+import { redirectWithToast } from "~/utils/toast.server";
+import { createTaskGroup } from "~/services/board.server";
 
 const schema = z.object({
   name: z.string(),
@@ -40,18 +39,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!boardId) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
-
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirectWithToast(`/app/workspaces/${workspaceId}`, {
-  //     description: `Unauthorized`,
-  //     type: "error",
-  //   });
-  // }
 
   const formData = await request.formData();
 
@@ -87,15 +74,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!boardId) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
-
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirect(`/app/workspace/${workspaceId}`);
-  // }
 
   return null;
 }

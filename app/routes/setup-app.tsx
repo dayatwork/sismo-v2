@@ -4,16 +4,17 @@ import { type ActionFunctionArgs, redirect, json } from "@remix-run/node";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 import { z } from "zod";
+
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { redirectWithToast } from "~/utils/toast.server";
 import {
   authenticator,
   createSuperAdmin,
   hasSuperAdmin,
 } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
-import { redirectWithToast } from "~/utils/toast.server";
 
 const setupSchema = z.object({
   email: z

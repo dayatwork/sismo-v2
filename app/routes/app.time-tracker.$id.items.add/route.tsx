@@ -18,7 +18,6 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import {
   RAComboBox,
@@ -26,6 +25,7 @@ import {
 } from "~/components/ui/react-aria/combobox";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
+import { cn } from "~/lib/utils";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
 import {
@@ -237,7 +237,6 @@ export default function AddTaskToTracker() {
             </Button>
           </div>
         </Form>
-        {/* <ul className="mt-4 border p-1"></ul> */}
       </Dialog>
     </Modal>
   );

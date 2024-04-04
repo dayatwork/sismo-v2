@@ -17,13 +17,13 @@ import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
-import { redirectWithToast } from "~/utils/toast.server";
+import { UserComboBox } from "~/components/comboboxes/user-combobox";
 import { buttonVariants } from "~/components/ui/button";
+import { redirectWithToast } from "~/utils/toast.server";
+import { requireUser } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
 import { editBoardTask } from "~/services/board.server";
-import { requireUser } from "~/utils/auth.server";
 import { type loader as boardLoader } from "../app.workspaces_.$id_.boards.$boardId/route";
-import { UserComboBox } from "~/components/comboboxes/user-combobox";
 
 const schema = z.object({
   ownerId: z.string(),

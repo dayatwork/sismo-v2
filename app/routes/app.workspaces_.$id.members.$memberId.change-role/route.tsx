@@ -19,17 +19,16 @@ import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
 
 import { buttonVariants } from "~/components/ui/button";
+import { RoleComboBox } from "~/components/comboboxes/role-combobox";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { labelVariants } from "~/components/ui/label";
+import { cn } from "~/lib/utils";
 import { redirectWithToast } from "~/utils/toast.server";
 import {
   requireWorkspacePermission,
   updateWorkspaceMemberRole,
 } from "~/services/workspace.server";
-import { RoleComboBox } from "~/components/comboboxes/role-combobox";
-
 import { type loader as workspaceIdLoader } from "../app.workspaces_.$id/route";
-import { cn } from "~/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { labelVariants } from "~/components/ui/label";
 
 const schema = z.object({
   roleId: z.string(),

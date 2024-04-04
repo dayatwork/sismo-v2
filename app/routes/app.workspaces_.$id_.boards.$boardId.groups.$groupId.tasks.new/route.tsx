@@ -15,21 +15,16 @@ import { Modal, Dialog, Label, Button, Heading } from "react-aria-components";
 import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
+import { now, parseZonedDateTime } from "@internationalized/date";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { labelVariants } from "~/components/ui/label";
 import { buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { cn } from "~/lib/utils";
-// import { requireWorkspacePermission } from "~/services/workspace.server";
-import { createBoardTask } from "~/services/board.server";
-import {
-  now,
-  // parseAbsoluteToLocal,
-  parseZonedDateTime,
-} from "@internationalized/date";
-import { requireUser } from "~/utils/auth.server";
 import { RADateRangePicker } from "~/components/ui/react-aria/date-range-picker";
+import { cn } from "~/lib/utils";
+import { redirectWithToast } from "~/utils/toast.server";
+import { requireUser } from "~/utils/auth.server";
+import { createBoardTask } from "~/services/board.server";
 
 const schema = z.object({
   name: z.string(),
@@ -61,18 +56,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const loggedInUser = await requireUser(request);
-
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirectWithToast(`/app/workspaces/${workspaceId}`, {
-  //     description: `Unauthorized`,
-  //     type: "error",
-  //   });
-  // }
 
   const formData = await request.formData();
 
@@ -130,15 +113,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!boardId) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
-
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirect(`/app/workspace/${workspaceId}`);
-  // }
 
   return null;
 }
@@ -213,39 +187,6 @@ export default function CreateBoardTask() {
                 </p>
               ) : null}
             </div>
-            {/* <div className="grid gap-2">
-              <RADatePicker
-                label="Timeline Start"
-                name="timelineStart"
-                granularity="second"
-                hourCycle={24}
-                // defaultValue={
-                //   fields.timelineStart.initialValue
-                //     ? parseAbsoluteToLocal(fields.timelineStart.initialValue)
-                //     : undefined
-                // }
-              />
-              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.timelineStart.errors}
-              </p>
-            </div>
-
-            <div className="grid gap-2">
-              <RADatePicker
-                label="Timeline End"
-                name="timelineEnd"
-                granularity="second"
-                hourCycle={24}
-                // defaultValue={
-                //   fields.timelineEnd.initialValue
-                //     ? parseAbsoluteToLocal(fields.timelineEnd.initialValue)
-                //     : undefined
-                // }
-              />
-              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.timelineEnd.errors || actionData?.errorTime}
-              </p>
-            </div> */}
 
             <RADateRangePicker
               label="Timeline"

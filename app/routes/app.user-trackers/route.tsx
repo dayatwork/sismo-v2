@@ -8,10 +8,6 @@ import dayjs from "dayjs";
 import { type Key } from "react-aria-components";
 
 import MainContainer from "~/components/main-container";
-import { requireUser } from "~/utils/auth.server";
-import { cn } from "~/lib/utils";
-import { Clockify } from "./clockify";
-import { useRevalidateWhenFocus } from "~/hooks/useRevalidateWhenFocus";
 import { Calendar } from "~/components/ui/calendar";
 import {
   Accordion,
@@ -19,15 +15,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { AttachmentsCard } from "../app.time-tracker/attachments-card";
+import { UserComboBox } from "~/components/comboboxes/user-combobox";
+import { useRevalidateWhenFocus } from "~/hooks/useRevalidateWhenFocus";
+import { cn } from "~/lib/utils";
+import { requireUser } from "~/utils/auth.server";
 import {
   deleteTaskTracker,
   getTaskTrackers,
 } from "~/services/task-tracker.server";
-import { UserComboBox } from "~/components/comboboxes/user-combobox";
 import { getUsers } from "~/services/user.server";
+import { Clockify } from "./clockify";
+import { AttachmentsCard } from "../app.time-tracker/attachments-card";
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);
 
   const formData = await request.formData();
@@ -44,7 +44,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   return null;
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
   const from = url.searchParams.get("from");
@@ -196,76 +196,12 @@ export default function UserTrackers() {
                             : "Tasks"}
                         </span>
                       </AccordionTrigger>
-                      {/* <p
-                      className={cn(
-                        timeTracker.taskCompletion > 80
-                          ? "text-green-600"
-                          : timeTracker.taskCompletion > 70
-                          ? "text-blue-600"
-                          : timeTracker.taskCompletion > 50
-                          ? "text-orange-600"
-                          : "text-red-600",
-                        "rounded w-16 flex items-center justify-center border font-bold text-lg"
-                      )}
-                    >
-                      {timeTracker.taskCompletion}%
-                    </p> */}
-                      <div>
-                        {/* <Link
-                        to={`/app/tasks/${timeTracker.task.id}`}
-                        className="font-bold hover:text-primary hover:underline line-clamp-1"
-                      >
-                        {timeTracker.task.name}
-                      </Link>
-                      <div className="text-sm flex gap-1">
-                        {timeTracker.task.project ? (
-                          <Link
-                            to={`/app/projects/${timeTracker.task.project.id}`}
-                            className="hover:text-indigo-700 hover:underline font-semibold capitalize text-indigo-600 line-clamp-1"
-                          >
-                            {timeTracker.task.project.name}
-                          </Link>
-                        ) : (
-                          <span className="text-cyan-600 font-semibold">
-                            Personal
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-0.5 text-sm text-muted-foreground">
-                        Note : {timeTracker.note || "-"}
-                      </p> */}
-                      </div>
+                      <div></div>
                     </div>
                     <Clockify
                       startAt={timeTracker.startAt}
                       endAt={timeTracker.endAt!}
                     />
-                    {/* <DropdownMenu>
-                      <DropdownMenuTrigger className="h-9 w-9 flex items-center justify-center border border-transparent hover:border-border rounded">
-                        <span className="sr-only">Open</span>
-                        <MoreVerticalIcon className="w-4 h-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="text-red-600" asChild>
-                          <Form method="post">
-                            <input
-                              type="hidden"
-                              name="trackerId"
-                              value={timeTracker.id}
-                            />
-                            <button
-                              type="submit"
-                              className="w-full cursor-pointer flex items-center gap-2 font-semibold"
-                              name="_action"
-                              value="DELETE"
-                            >
-                              <Trash2Icon className="w-4 h-4" />
-                              <span className="pr-2">Delete</span>
-                            </button>
-                          </Form>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu> */}
                   </div>
                   <AccordionContent className="border-none">
                     {timeTracker.trackerItems.length === 0 && (
@@ -307,49 +243,6 @@ export default function UserTrackers() {
                               attachments={trackerItem.attachments}
                               appUrl={appUrl}
                             />
-                            {/* <DropdownMenu>
-                              <DropdownMenuTrigger className="h-9 w-9 flex items-center justify-center border border-transparent hover:border-border rounded">
-                                <span className="sr-only">Open</span>
-                                <MoreVerticalIcon className="w-4 h-4" />
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>
-                                  Attachment
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    navigate(
-                                      `${timeTracker.id}/items/${trackerItem.id}/upload`
-                                    )
-                                  }
-                                >
-                                  <Upload className="mr-2 w-4 h-4" />
-                                  Upload File
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    navigate(
-                                      `${timeTracker.id}/items/${trackerItem.id}/add-link`
-                                    )
-                                  }
-                                >
-                                  <LinkIcon className="mr-2 w-4 h-4" />
-                                  Add Link
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    navigate(
-                                      `${timeTracker.id}/items/${trackerItem.id}/add-document`
-                                    )
-                                  }
-                                >
-                                  <File className="mr-2 w-4 h-4" />
-                                  Add Document
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu> */}
                           </div>
                         </li>
                       ))}

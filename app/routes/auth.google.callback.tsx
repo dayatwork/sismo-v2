@@ -1,9 +1,9 @@
 import { type LoaderFunctionArgs } from "@remix-run/node";
 import { AuthorizationError } from "remix-auth";
 
+import { redirectWithToast } from "~/utils/toast.server";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
-import { redirectWithToast } from "~/utils/toast.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {

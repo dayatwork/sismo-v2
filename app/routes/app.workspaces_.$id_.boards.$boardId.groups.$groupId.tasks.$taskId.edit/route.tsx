@@ -16,21 +16,20 @@ import { Modal, Dialog, Label, Button, Heading } from "react-aria-components";
 import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
-
-import { redirectWithToast } from "~/utils/toast.server";
-import { labelVariants } from "~/components/ui/label";
-import { buttonVariants } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { cn } from "~/lib/utils";
-// import { requireWorkspacePermission } from "~/services/workspace.server";
-import { editBoardTask } from "~/services/board.server";
 import {
   now,
   parseAbsoluteToLocal,
   parseZonedDateTime,
 } from "@internationalized/date";
-import { requireUser } from "~/utils/auth.server";
+
+import { labelVariants } from "~/components/ui/label";
+import { buttonVariants } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { RADateRangePicker } from "~/components/ui/react-aria/date-range-picker";
+import { cn } from "~/lib/utils";
+import { redirectWithToast } from "~/utils/toast.server";
+import { requireUser } from "~/utils/auth.server";
+import { editBoardTask } from "~/services/board.server";
 import { type loader as boardLoader } from "../app.workspaces_.$id_.boards.$boardId/route";
 
 const schema = z.object({
@@ -68,18 +67,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   await requireUser(request);
-
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirectWithToast(`/app/workspaces/${workspaceId}`, {
-  //     description: `Unauthorized`,
-  //     type: "error",
-  //   });
-  // }
 
   const formData = await request.formData();
 
@@ -236,39 +223,6 @@ export default function EditBoardTask() {
                 </p>
               ) : null}
             </div>
-            {/* <div className="grid gap-2">
-              <RADatePicker
-                label="Timeline Start"
-                name="timelineStart"
-                granularity="second"
-                hourCycle={24}
-                // defaultValue={
-                //   fields.timelineStart.initialValue
-                //     ? parseAbsoluteToLocal(fields.timelineStart.initialValue)
-                //     : undefined
-                // }
-              />
-              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.timelineStart.errors}
-              </p>
-            </div>
-
-            <div className="grid gap-2">
-              <RADatePicker
-                label="Timeline End"
-                name="timelineEnd"
-                granularity="second"
-                hourCycle={24}
-                // defaultValue={
-                //   fields.timelineEnd.initialValue
-                //     ? parseAbsoluteToLocal(fields.timelineEnd.initialValue)
-                //     : undefined
-                // }
-              />
-              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.timelineEnd.errors || actionData?.errorTime}
-              </p>
-            </div> */}
 
             <RADateRangePicker
               label="Timeline"

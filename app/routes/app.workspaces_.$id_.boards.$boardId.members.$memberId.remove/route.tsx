@@ -12,12 +12,12 @@ import {
 } from "@remix-run/node";
 import { Modal, Dialog, Heading } from "react-aria-components";
 
+import { Button } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
 import { removeBoardMembers } from "~/services/board.server";
 import { type loader as boardLoader } from "../app.workspaces_.$id_.boards.$boardId/route";
-import { Button } from "~/components/ui/button";
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ params }: ActionFunctionArgs) {
   const workspaceId = params.id;
   if (!workspaceId) {
     return redirect("/app/workspaces");
@@ -57,7 +57,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const workspaceId = params.id;
   if (!workspaceId) {
     return redirect("/app/workspaces");

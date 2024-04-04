@@ -7,24 +7,24 @@ import { Link, Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
 import dayjs from "dayjs";
 
 import MainContainer from "~/components/main-container";
-import { requireUser } from "~/utils/auth.server";
-import { cn } from "~/lib/utils";
-import { Clockify } from "./clockify";
-import { useRevalidateWhenFocus } from "~/hooks/useRevalidateWhenFocus";
-import { Calendar } from "~/components/ui/calendar";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { AttachmentsCard } from "../app.time-tracker/attachments-card";
+import { Calendar } from "~/components/ui/calendar";
+import { useRevalidateWhenFocus } from "~/hooks/useRevalidateWhenFocus";
+import { requireUser } from "~/utils/auth.server";
+import { cn } from "~/lib/utils";
 import {
   deleteTaskTracker,
   getTaskTrackers,
 } from "~/services/task-tracker.server";
+import { AttachmentsCard } from "../app.time-tracker/attachments-card";
+import { Clockify } from "./clockify";
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);
 
   const formData = await request.formData();
@@ -41,7 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   return null;
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
   const from = url.searchParams.get("from");
@@ -272,49 +272,6 @@ export default function TrackerHistory() {
                               attachments={trackerItem.attachments}
                               appUrl={appUrl}
                             />
-                            {/* <DropdownMenu>
-                              <DropdownMenuTrigger className="h-9 w-9 flex items-center justify-center border border-transparent hover:border-border rounded">
-                                <span className="sr-only">Open</span>
-                                <MoreVerticalIcon className="w-4 h-4" />
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>
-                                  Attachment
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    navigate(
-                                      `${timeTracker.id}/items/${trackerItem.id}/upload`
-                                    )
-                                  }
-                                >
-                                  <Upload className="mr-2 w-4 h-4" />
-                                  Upload File
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    navigate(
-                                      `${timeTracker.id}/items/${trackerItem.id}/add-link`
-                                    )
-                                  }
-                                >
-                                  <LinkIcon className="mr-2 w-4 h-4" />
-                                  Add Link
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    navigate(
-                                      `${timeTracker.id}/items/${trackerItem.id}/add-document`
-                                    )
-                                  }
-                                >
-                                  <File className="mr-2 w-4 h-4" />
-                                  Add Document
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu> */}
                           </div>
                         </li>
                       ))}

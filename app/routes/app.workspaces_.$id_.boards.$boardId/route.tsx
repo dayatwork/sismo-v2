@@ -62,9 +62,8 @@ import {
 } from "~/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
-import { getBoardById } from "~/services/board.server";
-
 import { requireUser } from "~/utils/auth.server";
+import { getBoardById } from "~/services/board.server";
 import { getUsers } from "~/services/user.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

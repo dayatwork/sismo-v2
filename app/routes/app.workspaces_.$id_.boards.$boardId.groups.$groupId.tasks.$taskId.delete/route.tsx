@@ -6,10 +6,10 @@ import {
 } from "@remix-run/node";
 import { Modal, Dialog, Button, Heading } from "react-aria-components";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { buttonVariants } from "~/components/ui/button";
-import { deleteBoardTask } from "~/services/board.server";
+import { redirectWithToast } from "~/utils/toast.server";
 import { requireUser } from "~/utils/auth.server";
+import { deleteBoardTask } from "~/services/board.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const workspaceId = params.id;
@@ -66,15 +66,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!boardId) {
     return redirect(`/app/workspaces/${workspaceId}`);
   }
-
-  // const { allowed } = await requireWorkspacePermission(
-  //   request,
-  //   workspaceId,
-  //   "manage:board"
-  // );
-  // if (!allowed) {
-  //   return redirect(`/app/workspace/${workspaceId}`);
-  // }
 
   return null;
 }

@@ -16,18 +16,18 @@ import { Modal, Dialog, Button, Heading } from "react-aria-components";
 import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm } from "@conform-to/react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 
-import { redirectWithToast } from "~/utils/toast.server";
 import { buttonVariants } from "~/components/ui/button";
+import { UserComboBox } from "~/components/comboboxes/user-combobox";
+import { RoleComboBox } from "~/components/comboboxes/role-combobox";
 import { cn } from "~/lib/utils";
+import { redirectWithToast } from "~/utils/toast.server";
 import {
   addWorkspaceMembers,
   requireWorkspacePermission,
 } from "~/services/workspace.server";
 import { type loader as workspaceIdLoader } from "../app.workspaces_.$id/route";
-import { UserComboBox } from "./user-combobox";
-import { RoleComboBox } from "./role-combobox";
-import { PlusIcon, Trash2Icon } from "lucide-react";
 
 const schema = z.object({
   members: z

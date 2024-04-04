@@ -14,8 +14,8 @@ import { Modal, Dialog, Heading } from "react-aria-components";
 import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
-import { redirectWithToast } from "~/utils/toast.server";
 import { Input } from "~/components/ui/input";
+import { redirectWithToast } from "~/utils/toast.server";
 import {
   hardDeleteWorkspace,
   requireWorkspacePermission,

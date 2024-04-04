@@ -1,6 +1,7 @@
 import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { FileText, LayoutDashboard, Trash2Icon } from "lucide-react";
+
 import MainContainer from "~/components/main-container";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
@@ -11,7 +12,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
-
 import { Button } from "~/components/ui/button";
 import {
   Table,
@@ -21,8 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { getWorkspaces } from "~/services/workspace.server";
 import { requireUser } from "~/utils/auth.server";
+import { getWorkspaces } from "~/services/workspace.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
