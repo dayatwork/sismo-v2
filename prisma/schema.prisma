@@ -572,6 +572,7 @@ model Deduction {
   name   DeductionName @relation(fields: [nameId], references: [id])
   nameId String
   amount Int
+  fixed  Boolean
 }
 
 model PayrollTransaction {

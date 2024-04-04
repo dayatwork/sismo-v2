@@ -30,19 +30,19 @@ export default function WagesLayout() {
             className="pl-6 pr-8 hover:bg-background"
             value="regular"
           >
-            Regular
+            Regular Wages
           </TabsTrigger>
           <TabsTrigger
             className="pl-6 pr-8 hover:bg-background"
             value="overtime"
           >
-            Overtime
+            Overtime Wages
           </TabsTrigger>
           <TabsTrigger
             className="pl-6 pr-8 hover:bg-background"
             value="suplemental"
           >
-            Suplemental
+            Suplemental Wages
           </TabsTrigger>
         </TabsList>
       </Tabs>

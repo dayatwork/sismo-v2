@@ -28,7 +28,7 @@ export default function SuplementalWages() {
       <div className="mb-4 flex justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Suplemental Wages</h1>
       </div>
-      <ul className="space-y-1">
+      <ul className="space-y-2">
         {loaderData?.usersWithWages.map((user) => (
           <li key={user.id} className="border rounded-lg">
             <div className="flex justify-between items-center py-2 px-4">
@@ -48,30 +48,46 @@ export default function SuplementalWages() {
             </div>
             <Separator />
             {user.supplementalWages.length > 0 ? (
-              <ul className="py-4 px-4 list-disc space-y-2">
-                {user.supplementalWages.map((wage, index) => (
-                  <li
-                    key={wage.id}
-                    className="flex items-center justify-between pl-12"
-                  >
-                    <div className="flex items-center gap-2">
-                      <p className="w-5 text-right inline-block">
-                        {index + 1}.
-                      </p>
-                      <p>{wage.name.name}</p>
-                    </div>
-                    <div className="flex gap-4 items-center">
-                      {wage.fixed && <Badge>Fixed</Badge>}{" "}
-                      <p className="w-52 text-right font-semibold">
-                        {currencyFormatter("IDR", wage.amount)} /{" "}
-                        <span className="w-14 inline-block text-left">
-                          month
-                        </span>
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div>
+                <ul className="py-4 px-4 list-disc space-y-2">
+                  {user.supplementalWages.map((wage, index) => (
+                    <li
+                      key={wage.id}
+                      className="flex items-center justify-between pl-12"
+                    >
+                      <div className="flex items-center gap-2">
+                        <p className="w-5 text-right inline-block">
+                          {index + 1}.
+                        </p>
+                        <p>{wage.name.name}</p>
+                      </div>
+                      <div className="flex gap-4 items-center">
+                        {wage.fixed && <Badge>Fixed</Badge>}{" "}
+                        <p className="w-52 text-right font-semibold">
+                          {currencyFormatter("IDR", wage.amount)} /{" "}
+                          <span className="w-14 inline-block text-left">
+                            month
+                          </span>
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <Separator />
+                <div className="py-2 px-4 flex justify-between items-center">
+                  <p className="pl-14 font-semibold">Total</p>
+                  <p className="w-52 text-right font-semibold">
+                    {currencyFormatter(
+                      "IDR",
+                      user.supplementalWages.reduce(
+                        (acc, curr) => acc + curr.amount,
+                        0
+                      )
+                    )}{" "}
+                    / <span className="w-14 inline-block text-left">month</span>
+                  </p>
+                </div>
+              </div>
             ) : (
               <p className="text-center py-4 px-4  text-muted-foreground text-sm">
                 No suplemental wages
