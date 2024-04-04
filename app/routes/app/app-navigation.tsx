@@ -16,6 +16,9 @@ import {
   Video,
   Landmark,
   Banknote,
+  HandCoins,
+  Scissors,
+  Coins,
 } from "lucide-react";
 
 import { Separator } from "~/components/ui/separator";
@@ -79,12 +82,36 @@ const toolNavigation: NavigationItem[] = [
   },
 ];
 
-const workManagementNavigation: NavigationItem[] = [
+const taskManagementNavigation: NavigationItem[] = [
   {
     name: "Workspaces",
     href: "/app/workspaces",
     icon: MessageCircle,
     current: false,
+  },
+  {
+    name: "Departments",
+    href: "/app/departments",
+    icon: NetworkIcon,
+    current: false,
+    permissions: ["manage:department"],
+  },
+  {
+    name: "Teams",
+    href: "/app/teams",
+    icon: UsersIcon,
+    current: false,
+    permissions: ["manage:team"],
+  },
+];
+
+const userManagementNavigation: NavigationItem[] = [
+  {
+    name: "IAM",
+    href: "/app/iam",
+    icon: KeyRoundIcon,
+    current: false,
+    permissions: ["manage:iam"],
   },
   {
     name: "User Trackers",
@@ -102,27 +129,27 @@ const workManagementNavigation: NavigationItem[] = [
   },
 ];
 
-const userManagementNavigation: NavigationItem[] = [
+const payrollManagementNavigation: NavigationItem[] = [
   {
-    name: "IAM",
-    href: "/app/iam",
-    icon: KeyRoundIcon,
+    name: "Payroll",
+    href: "/app/payroll",
+    icon: HandCoins,
     current: false,
-    permissions: ["manage:iam"],
+    permissions: ["manage:payroll"],
   },
   {
-    name: "Departments",
-    href: "/app/departments",
-    icon: NetworkIcon,
+    name: "Wages",
+    href: "/app/wages",
+    icon: Coins,
     current: false,
-    permissions: ["manage:department"],
+    permissions: ["manage:payroll"],
   },
   {
-    name: "Teams",
-    href: "/app/teams",
-    icon: UsersIcon,
+    name: "Deductions",
+    href: "/app/deductions",
+    icon: Scissors,
     current: false,
-    permissions: ["manage:team"],
+    permissions: ["manage:payroll"],
   },
 ];
 
@@ -199,7 +226,7 @@ export default function AppNavigation() {
         </li>
         <Separator className="my-4" />
         <li>
-          <NavGroupHeader label="Tools" />
+          <NavGroupHeader label="Tools & Communication" />
           <ul className="-mx-2 space-y-1">
             {toolNavigation.map((item) => (
               <li key={item.name}>
@@ -212,14 +239,14 @@ export default function AppNavigation() {
         {hasAccessToNavigation({
           isSuperAdmin,
           userPermissions,
-          navigationItems: workManagementNavigation,
+          navigationItems: taskManagementNavigation,
         }) && (
           <>
             <Separator className="my-4" />
             <li>
-              <NavGroupHeader label="Work & Report" />
+              <NavGroupHeader label="Task Management" />
               <ul className="-mx-2 space-y-1">
-                {workManagementNavigation.map((item) => (
+                {taskManagementNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
                     permission={item.permissions}
@@ -242,9 +269,34 @@ export default function AppNavigation() {
           <>
             <Separator className="my-4" />
             <li>
-              <NavGroupHeader label="User & Group" />
+              <NavGroupHeader label="User Management" />
               <ul className="-mx-2 space-y-1">
                 {userManagementNavigation.map((item) => (
+                  <ProtectComponent
+                    key={item.name}
+                    permission={item.permissions}
+                  >
+                    <li key={item.name}>
+                      <NavLinkItem item={item} />
+                    </li>
+                  </ProtectComponent>
+                ))}
+              </ul>
+            </li>
+          </>
+        )}
+
+        {hasAccessToNavigation({
+          isSuperAdmin,
+          userPermissions,
+          navigationItems: payrollManagementNavigation,
+        }) && (
+          <>
+            <Separator className="my-4" />
+            <li>
+              <NavGroupHeader label="Payroll Management" />
+              <ul className="-mx-2 space-y-1">
+                {payrollManagementNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
                     permission={item.permissions}

@@ -62,6 +62,11 @@ export const permissions = [
     description: "Akses untuk manage data finance",
   },
   {
+    group: "payroll",
+    name: "manage:payroll",
+    description: "Akses untuk manage data payroll",
+  },
+  {
     group: "meeting",
     name: "manage:meeting",
     description: "Akses untuk manage data meeting",
