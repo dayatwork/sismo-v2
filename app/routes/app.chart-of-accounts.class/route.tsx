@@ -37,9 +37,11 @@ export default function ChartOfAccountClasses() {
     <>
       <Outlet />
       <div className="flex justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">COA Class</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Account Categories
+        </h1>
         <Button asChild>
-          <Link to="new">Create New Class</Link>
+          <Link to="new">Create New Category</Link>
         </Button>
       </div>
 
@@ -48,7 +50,10 @@ export default function ChartOfAccountClasses() {
           <TableHeader>
             <TableRow>
               <TableHead className="pl-6 whitespace-nowrap">
-                Class Name
+                Category Name
+              </TableHead>
+              <TableHead className="pl-6 whitespace-nowrap">
+                Normal Balance
               </TableHead>
               <TableHead>
                 <span className="sr-only">Action</span>
@@ -59,7 +64,7 @@ export default function ChartOfAccountClasses() {
             {coaClasses.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={2}
+                  colSpan={3}
                   className="py-10 text-muted-foreground text-center"
                 >
                   No chart of account classes
@@ -70,6 +75,9 @@ export default function ChartOfAccountClasses() {
               <TableRow key={coaClass.id} className="group">
                 <TableCell className="px-6 whitespace-nowrap">
                   {coaClass.name}
+                </TableCell>
+                <TableCell className="px-6 whitespace-nowrap">
+                  {coaClass.normalBalance}
                 </TableCell>
 
                 <TableCell className="flex justify-end">

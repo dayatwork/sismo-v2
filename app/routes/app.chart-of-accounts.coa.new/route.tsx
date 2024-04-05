@@ -14,39 +14,28 @@ import {
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
-import {
-  Modal,
-  Dialog,
-  Select,
-  Button,
-  SelectValue,
-  Popover,
-  ListBox,
-  ListBoxItem,
-  Heading,
-  Label,
-} from "react-aria-components";
+import { Modal, Dialog, Button, Heading, Label } from "react-aria-components";
 
 import { Input } from "~/components/ui/input";
 import { redirectWithToast } from "~/utils/toast.server";
 import { Textarea } from "~/components/ui/textarea";
 import { requirePermission } from "~/utils/auth.server";
+import { buttonVariants } from "~/components/ui/button";
+import { labelVariants } from "~/components/ui/label";
+import { AccountCategoryComboBox } from "~/components/comboboxes/account-category-combobox";
+import { AccountTypeComboBox } from "~/components/comboboxes/account-type-combobox";
+import { cn } from "~/lib/utils";
 import {
   createChartOfAccount,
   getCoaClasses,
   getCoaTypes,
 } from "~/services/chart-of-account.server";
-import { cn } from "~/lib/utils";
-import { selectClassName } from "~/components/ui/select";
-import { ChevronDownIcon } from "lucide-react";
-import { buttonVariants } from "~/components/ui/button";
-import { labelVariants } from "~/components/ui/label";
 
 const schema = z.object({
   typeId: z.string(),
   code: z.string(),
   accountName: z.string(),
-  normalBalance: z.enum(["CREDIT", "DEBIT"]),
+  // normalBalance: z.enum(["CREDIT", "DEBIT"]),
   description: z.string().optional(),
 });
 
@@ -61,13 +50,12 @@ export async function action({ request }: ActionFunctionArgs) {
     return json(submission.reply());
   }
 
-  const { accountName, code, normalBalance, typeId, description } =
-    submission.value;
+  const { accountName, code, typeId, description } = submission.value;
 
   await createChartOfAccount({
     accountName,
     code,
-    normalBalance,
+    // normalBalance,
     typeId,
     description,
   });
@@ -98,8 +86,10 @@ export default function CreateChartOfAccount() {
   const [classId, setClassId] = useState("");
 
   const filteredTypesOptions = classId
-    ? coaTypes.filter((type) => type.classId === classId)
-    : coaTypes;
+    ? coaTypes
+        .filter((type) => type.classId === classId)
+        .map((type) => ({ ...type, category: type.class.name }))
+    : coaTypes.map((type) => ({ ...type, category: type.class.name }));
 
   const [form, fields] = useForm({
     lastResult,
@@ -123,14 +113,14 @@ export default function CreateChartOfAccount() {
           </Heading>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Select
+              {/* <Select
                 name="classId"
                 selectedKey={classId}
                 onSelectionChange={(v) => setClassId(v.toString())}
               >
                 <Label className={cn(labelVariants())}>Select Class</Label>
-                <Button className={cn(selectClassName, "mt-1")}>
-                  <SelectValue />
+                <Button className={cn(selectClassName, "mt-1 flex")}>
+                  <SelectValue></SelectValue>
                   <span aria-hidden="true">
                     <ChevronDownIcon className="w-4 h-4" />
                   </span>
@@ -144,15 +134,24 @@ export default function CreateChartOfAccount() {
                         value={{ id: coaClass.id }}
                         className="px-1 py-1.5 text-sm font-semibold rounded flex justify-between items-center cursor-pointer hover:bg-accent"
                       >
-                        {coaClass.name}
+                        <span>{coaClass.name}</span>
+                        <span className="text-muted-foreground">
+                          {coaClass.normalBalance}
+                        </span>
                       </ListBoxItem>
                     ))}
                   </ListBox>
                 </Popover>
-              </Select>
+              </Select> */}
+              <AccountCategoryComboBox
+                name="classId"
+                categories={coaClasses}
+                selectedKey={classId}
+                onSelectionChange={(v) => setClassId(v?.toString())}
+              />
             </div>
             <div className="grid gap-2">
-              <Select name="typeId" isDisabled={!classId}>
+              {/* <Select name="typeId" isDisabled={!classId}>
                 <Label className={cn(labelVariants())}>Select Type</Label>
                 <Button className={cn(selectClassName, "mt-1")}>
                   <SelectValue />
@@ -174,7 +173,8 @@ export default function CreateChartOfAccount() {
                     ))}
                   </ListBox>
                 </Popover>
-              </Select>
+              </Select> */}
+              <AccountTypeComboBox name="typeId" types={filteredTypesOptions} />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.typeId.errors}
               </p>
@@ -205,8 +205,8 @@ export default function CreateChartOfAccount() {
                 {fields.accountName.errors}
               </p>
             </div>
-            <div className="grid gap-2">
-              <Select name="normalBalance">
+            {/* <div className="grid gap-2">
+              <Select name="normalBalance" >
                 <Label className={cn(labelVariants())}>
                   Select Normal Balance
                 </Label>
@@ -240,7 +240,7 @@ export default function CreateChartOfAccount() {
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.normalBalance.errors}
               </p>
-            </div>
+            </div> */}
 
             <div className="grid gap-2">
               <div className="flex justify-between items-center">

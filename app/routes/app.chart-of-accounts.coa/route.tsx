@@ -21,6 +21,7 @@ import {
 } from "~/components/ui/table";
 import { getChartOfAccounts } from "~/services/chart-of-account.server";
 import { requirePermission } from "~/utils/auth.server";
+import { currencyFormatter } from "~/utils/currency";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:finance");
@@ -37,9 +38,9 @@ export default function ChartOfAccounts() {
     <>
       <Outlet />
       <div className="flex justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Chart of Accounts</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Accounts</h1>
         <Button asChild>
-          <Link to="new">Create New COA</Link>
+          <Link to="new">Create New Account</Link>
         </Button>
       </div>
 
@@ -47,7 +48,7 @@ export default function ChartOfAccounts() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="pl-6 w-[200px]">Class</TableHead>
+              <TableHead className="pl-6 w-[200px]">Category</TableHead>
               <TableHead className="px-6">Type</TableHead>
               <TableHead className="px-6">Code</TableHead>
               <TableHead className="whitespace-nowrap px-6">
@@ -57,6 +58,9 @@ export default function ChartOfAccounts() {
                 Normal Balance
               </TableHead>
               <TableHead className="px-6">Description</TableHead>
+              <TableHead className="px-6 whitespace-nowrap">
+                Opening Balance
+              </TableHead>
               <TableHead>
                 <span className="sr-only">Action</span>
               </TableHead>
@@ -89,7 +93,10 @@ export default function ChartOfAccounts() {
                 </TableCell>
                 <TableCell className="px-6">{coa.normalBalance}</TableCell>
                 <TableCell className="px-6">{coa.description}</TableCell>
-                <TableCell className="flex justify-end">
+                <TableCell className="px-6 text-right">
+                  {currencyFormatter("IDR", coa.openingBalance)}
+                </TableCell>
+                <TableCell className="w-14">
                   <DropdownMenu>
                     <DropdownMenuTrigger className="h-9 w-9 flex items-center justify-center border border-transparent hover:border-border rounded">
                       <span className="sr-only">Open</span>

@@ -56,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json({ coaClass });
 }
 
-export default function DeleteChartOfAccountClass() {
+export default function DeleteAccountCategory() {
   const { coaClass } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [confirmText, setConfirmText] = useState("");
@@ -73,10 +73,10 @@ export default function DeleteChartOfAccountClass() {
       <Dialog className="bg-background border rounded-md p-6 outline-none">
         <Form method="post">
           <Heading slot="title" className="text-lg font-semibold">
-            Delete chart of account class
+            Delete Account Category
           </Heading>
           <p className="my-4">
-            Are you sure to delete COA class "{coaClass.name}"?
+            Are you sure to delete account category "{coaClass.name}"?
           </p>
           <Input
             value={confirmText}

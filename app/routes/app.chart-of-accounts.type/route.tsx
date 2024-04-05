@@ -37,7 +37,7 @@ export default function ChartOfAccountTypes() {
     <>
       <Outlet />
       <div className="flex justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">COA Type</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Account Types</h1>
         <Button asChild>
           <Link to="new">Create New Type</Link>
         </Button>
@@ -47,7 +47,7 @@ export default function ChartOfAccountTypes() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="pl-6 whitespace-nowrap">Class</TableHead>
+              <TableHead className="pl-6 whitespace-nowrap">Category</TableHead>
               <TableHead className="pl-6 whitespace-nowrap">Type</TableHead>
               <TableHead>
                 <span className="sr-only">Action</span>

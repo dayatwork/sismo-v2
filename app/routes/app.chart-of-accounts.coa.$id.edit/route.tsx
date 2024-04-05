@@ -48,8 +48,8 @@ const schema = z.object({
   typeId: z.string(),
   code: z.string(),
   accountName: z.string(),
-  normalBalance: z.enum(["CREDIT", "DEBIT"]),
   description: z.string().optional(),
+  openingBalance: z.number(),
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -68,19 +68,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return json(submission.reply());
   }
 
-  const { accountName, code, normalBalance, typeId, description } =
+  const { accountName, code, typeId, description, openingBalance } =
     submission.value;
 
   await editChartOfAccount({
     chartOfAccountId,
     accountName,
     code,
-    normalBalance,
     typeId,
     description,
+    openingBalance,
   });
 
-  return redirectWithToast(`/app/chart-of-accounts`, {
+  return redirectWithToast(`/app/chart-of-accounts/coa`, {
     description: `Chart of account edited`,
     type: "success",
   });
@@ -129,7 +129,6 @@ export default function EditChartOfAccount() {
       typeId: chartOfAccount.typeId,
       code: chartOfAccount.code,
       accountName: chartOfAccount.accountName,
-      normalBalance: chartOfAccount.normalBalance,
       description: chartOfAccount.description,
     },
     onValidate({ formData }) {
@@ -220,6 +219,7 @@ export default function EditChartOfAccount() {
                 autoFocus
                 name="code"
                 defaultValue={fields.code.initialValue}
+                className="w-[200px]"
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.code.errors}
@@ -237,45 +237,6 @@ export default function EditChartOfAccount() {
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.accountName.errors}
-              </p>
-            </div>
-            <div className="grid gap-2">
-              <Select
-                name="normalBalance"
-                defaultSelectedKey={fields.normalBalance.initialValue}
-              >
-                <Label className={cn(labelVariants())}>
-                  Select Normal Balance
-                </Label>
-                <Button className={cn(selectClassName, "mt-1")}>
-                  <SelectValue />
-                  <span aria-hidden="true">
-                    <ChevronDownIcon className="w-4 h-4" />
-                  </span>
-                </Button>
-                <Popover className="-mt-1 w-full max-w-md">
-                  <ListBox className="border p-2 rounded-md bg-background space-y-1 ">
-                    <ListBoxItem
-                      key="DEBIT"
-                      id="DEBIT"
-                      value={{ id: "DEBIT" }}
-                      className="px-1 py-1.5 text-sm font-semibold rounded flex justify-between items-center cursor-pointer hover:bg-accent"
-                    >
-                      Debit
-                    </ListBoxItem>
-                    <ListBoxItem
-                      key="CREDIT"
-                      id="CREDIT"
-                      value={{ id: "CREDIT" }}
-                      className="px-1 py-1.5 text-sm font-semibold rounded flex justify-between items-center cursor-pointer hover:bg-accent"
-                    >
-                      Credit
-                    </ListBoxItem>
-                  </ListBox>
-                </Popover>
-              </Select>
-              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.normalBalance.errors}
               </p>
             </div>
 
@@ -296,6 +257,21 @@ export default function EditChartOfAccount() {
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.description.errors}
               </p>
+              <div className="grid gap-2">
+                <Label htmlFor="openingBalance" className={cn(labelVariants())}>
+                  Opening Balance (Rp)
+                </Label>
+                <Input
+                  type="number"
+                  id="openingBalance"
+                  name="openingBalance"
+                  defaultValue={fields.openingBalance.initialValue}
+                  className="w-[200px]"
+                />
+                <p className="-mt-1.5 text-sm text-red-600 font-semibold">
+                  {fields.openingBalance.errors}
+                </p>
+              </div>
             </div>
           </div>
           <div className="mt-4 flex justify-end gap-2 w-full">

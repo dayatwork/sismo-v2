@@ -14,18 +14,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 const tabItems: { label: string; value: string; icon: LucideIcon }[] = [
   {
-    label: "Chart of Accounts",
-    value: "coa",
-    icon: FileText,
-  },
-  {
-    label: "Class",
+    label: "Account Categories",
     value: "class",
     icon: FileText,
   },
   {
-    label: "Type",
+    label: "Account Types",
     value: "type",
+    icon: FileText,
+  },
+  {
+    label: "Accounts",
+    value: "coa",
     icon: FileText,
   },
 ];
@@ -39,7 +39,7 @@ export default function ChartOfAccountsLayout() {
       <h1 className="sr-only">Chart of Accounts</h1>
       <Tabs
         className="mb-4"
-        defaultValue={location.pathname.split("/")[4]}
+        defaultValue={location.pathname.split("/")[3]}
         onValueChange={(v) => navigate(`/app/chart-of-accounts/${v}`)}
       >
         <TabsList className="gap-1">

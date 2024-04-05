@@ -2,7 +2,7 @@ import prisma from "~/lib/prisma";
 
 export async function getChartOfAccounts() {
   const chartOfAccounts = await prisma.chartOfAccount.findMany({
-    orderBy: { createdAt: "asc" },
+    orderBy: { code: "asc" },
     include: { type: { include: { class: true } } },
   });
   return chartOfAccounts;
@@ -24,22 +24,33 @@ export async function createChartOfAccount({
   typeId,
   code,
   accountName,
-  normalBalance,
+  // normalBalance,
   description,
+  openingBalance,
 }: {
   typeId: string;
   code: string;
   accountName: string;
-  normalBalance: "CREDIT" | "DEBIT";
+  // normalBalance: "CREDIT" | "DEBIT";
   description?: string;
+  openingBalance: number;
 }) {
+  const type = await prisma.chartOfAccountType.findUnique({
+    where: { id: typeId },
+    include: { class: true },
+  });
+  if (!type) {
+    throw new Error(`Type with id ${typeId} not found`);
+  }
+
   const chartOfAccount = await prisma.chartOfAccount.create({
     data: {
       code,
       accountName,
-      normalBalance,
+      normalBalance: type?.class.normalBalance,
       typeId,
       description,
+      openingBalance,
     },
   });
   return chartOfAccount;
@@ -50,16 +61,31 @@ export async function editChartOfAccount({
   accountName,
   code,
   description,
-  normalBalance,
+  // normalBalance,
   typeId,
+  openingBalance,
 }: {
   chartOfAccountId: string;
   typeId?: string;
   code?: string;
   accountName?: string;
-  normalBalance?: "CREDIT" | "DEBIT";
+  // normalBalance?: "CREDIT" | "DEBIT";
   description?: string;
+  openingBalance?: number;
 }) {
+  let normalBalance: "CREDIT" | "DEBIT" | undefined;
+
+  if (typeId) {
+    const type = await prisma.chartOfAccountType.findUnique({
+      where: { id: typeId },
+      include: { class: true },
+    });
+    if (!type) {
+      throw new Error(`Type with id ${typeId} not found`);
+    }
+    normalBalance = type.class.normalBalance;
+  }
+
   const chartOfAccount = await prisma.chartOfAccount.update({
     where: { id: chartOfAccountId },
     data: {
@@ -68,6 +94,7 @@ export async function editChartOfAccount({
       description,
       normalBalance,
       typeId,
+      openingBalance,
     },
   });
   return chartOfAccount;
@@ -98,10 +125,17 @@ export async function getCoaClassById({ classId }: { classId: string }) {
   return coaClass;
 }
 
-export async function createCoaClass({ name }: { name: string }) {
+export async function createCoaClass({
+  name,
+  normalBalance,
+}: {
+  name: string;
+  normalBalance: "DEBIT" | "CREDIT";
+}) {
   const coaClass = await prisma.chartOfAccountClass.create({
     data: {
       name,
+      normalBalance,
     },
   });
   return coaClass;
@@ -110,14 +144,17 @@ export async function createCoaClass({ name }: { name: string }) {
 export async function editCoaClass({
   classId,
   name,
+  normalBalance,
 }: {
   classId: string;
   name: string;
+  normalBalance: "CREDIT" | "DEBIT";
 }) {
   const coaClass = await prisma.chartOfAccountClass.update({
     where: { id: classId },
     data: {
       name,
+      normalBalance,
     },
   });
   return coaClass;

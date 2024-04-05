@@ -153,6 +153,7 @@ enum NormalBalance {
 model ChartOfAccountClass {
   id                  String               @id @default(uuid())
   name                String               @unique
+  normalBalance       NormalBalance
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   chartOfAccountTypes ChartOfAccountType[]
@@ -169,16 +170,17 @@ model ChartOfAccountType {
 }
 
 model ChartOfAccount {
-  id            String             @id @default(uuid())
-  type          ChartOfAccountType @relation(fields: [typeId], references: [id])
-  typeId        String
-  code          String             @unique
-  accountName   String
-  normalBalance NormalBalance
-  description   String?            @default("")
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  journals      Journal[]
+  id             String             @id @default(uuid())
+  type           ChartOfAccountType @relation(fields: [typeId], references: [id])
+  typeId         String
+  code           String             @unique
+  accountName    String
+  normalBalance  NormalBalance
+  description    String?            @default("")
+  openingBalance Int                @default(0)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  journals       Journal[]
 
   @@index([accountName])
   @@index([typeId])

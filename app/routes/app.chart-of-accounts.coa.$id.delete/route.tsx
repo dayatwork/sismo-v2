@@ -32,7 +32,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   await deleteChartOfAccount({ chartOfAccountId });
 
-  return redirectWithToast(`/app/chart-of-accounts`, {
+  return redirectWithToast(`/app/chart-of-accounts/coa`, {
     description: `Chart of account deleted`,
     type: "success",
   });
