@@ -40,7 +40,20 @@ const months = [
 ];
 
 const schema = z.object({
-  month: z.enum(["1", "2", "3", "4", "6", "7", "8", "9", "10", "11", "12"]),
+  month: z.enum([
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+  ]),
   year: z.number().int().min(2024).max(2030),
   type: z.enum(["MONTHLY_SALARY", "RELIGIOUS_HOLIDAY_ALLOWANCE"]),
 });
@@ -109,7 +122,7 @@ export default function NewPayroll() {
             </p>
           ) : null}
           <div className="mt-4 grid gap-4 py-4">
-            <div className="grid gap-2">
+            <div className="grid gap-3">
               <Label htmlFor="type" className={labelVariants()}>
                 Type of payroll
               </Label>
@@ -126,7 +139,7 @@ export default function NewPayroll() {
                   />
                   <Label
                     htmlFor="MONTHLY_SALARY"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary font-semibold"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-sky-600/10 hover:text-accent-foreground peer-data-[state=checked]:border-sky-600 [&:has([data-state=checked])]:border-sky-600 font-semibold"
                   >
                     Monthly Salary
                   </Label>
@@ -139,7 +152,7 @@ export default function NewPayroll() {
                   />
                   <Label
                     htmlFor="RELIGIOUS_HOLIDAY_ALLOWANCE"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary font-semibold"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-pink-600/10 hover:text-accent-foreground peer-data-[state=checked]:border-pink-600 [&:has([data-state=checked])]:border-pink-600 font-semibold"
                   >
                     THR
                   </Label>

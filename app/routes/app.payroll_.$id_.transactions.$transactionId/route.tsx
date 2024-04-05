@@ -5,7 +5,13 @@ import {
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
 } from "@remix-run/node";
-import { LayoutDashboard, PenSquare } from "lucide-react";
+import {
+  LayoutDashboard,
+  Lock,
+  PenSquare,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
 
 import MainContainer from "~/components/main-container";
 import {
@@ -16,7 +22,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { requirePermission } from "~/utils/auth.server";
 import { currencyFormatter } from "~/utils/currency";
 import {
@@ -24,6 +30,8 @@ import {
   getPayrollTransactionById,
 } from "~/services/payroll.server";
 import { monthName } from "../app.payroll/route";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { cn } from "~/lib/utils";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const payrollId = params.id;
@@ -87,7 +95,7 @@ export default function PayrollTransaction() {
       <Outlet />
       <MainContainer>
         <Breadcrumb>
-          <BreadcrumbList className="mb-4">
+          <BreadcrumbList className="mb-6">
             <BreadcrumbItem>
               <BreadcrumbLink href="/app/dashboard">
                 <span className="sr-only">Dashboard</span>
@@ -118,10 +126,22 @@ export default function PayrollTransaction() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        {payrollTransaction.isLocked && (
+          <p className="bg-green-600/20 text-green-600 border-green-600/30 inline-flex items-center py-4 pl-8 pr-10 rounded-lg opacity-50 font-bold text-4xl -rotate-12 absolute top-[50%] left-[50%] -translate-y-[50%] tracking-wide">
+            <Lock className="w-8 h-8 mr-2" />
+            LOCKED
+          </p>
+        )}
         <div className="flex items-center justify-between mb-4 pr-1">
-          <h1 className="text-2xl font-bold tracking-tight">
-            {payrollTransaction.user.name}
-          </h1>
+          <div className="flex items-center gap-3">
+            <Avatar className="w-12 h-12">
+              <AvatarImage src={payrollTransaction.user.photo || ""} />
+              <AvatarFallback>{payrollTransaction.user.name[0]}</AvatarFallback>
+            </Avatar>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {payrollTransaction.user.name}
+            </h1>
+          </div>
           <p className="text-2xl font-semibold">
             Total: {currencyFormatter("IDR", payrollTransaction.total)}
           </p>
@@ -134,7 +154,14 @@ export default function PayrollTransaction() {
           <div className="mt-6">
             <div className="border bg-foreground/5 rounded-md mb-2 px-4 py-2 flex items-center justify-between">
               <h3 className="uppercase text-lg font-bold">Wages</h3>
-              <Button variant="outline">Add Wage</Button>
+              {!payrollTransaction.isLocked && (
+                <Link
+                  to="items/new-wage"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  Add Wage
+                </Link>
+              )}
             </div>
             <ul className="space-y-2">
               {payrollTransaction.transactionItems
@@ -146,29 +173,55 @@ export default function PayrollTransaction() {
                   >
                     <p className="font-semibold">{transactionItem.note}</p>
                     <div className="flex gap-6 items-center">
-                      <p className="w-44 text-right">
+                      <p className="w-32 text-right">
                         {transactionItem.type === "WAGE" &&
                           currencyFormatter("IDR", transactionItem.amount)}
                       </p>
                       <span className="w-6"></span>
-                      <p className="w-44 text-right"></p>
-                      <Button
-                        onClick={() => navigate(`items/${transactionItem.id}`)}
-                        variant="outline"
-                        size="sm"
-                        disabled={!transactionItem.editable}
-                        className="ml-24"
-                      >
-                        <PenSquare className="mr-2 w-3.5 h-3.5" />
-                        Edit
-                      </Button>
+                      <p className="w-32 text-right"></p>
+                      {payrollTransaction.isLocked ? (
+                        <div className="w-[185px]" />
+                      ) : (
+                        <div className="ml-6 gap-2 flex items-center">
+                          <Button
+                            onClick={() =>
+                              navigate(`items/${transactionItem.id}/edit`)
+                            }
+                            variant="outline"
+                            size="sm"
+                            disabled={!transactionItem.editable}
+                          >
+                            <PenSquare className="mr-2 w-3.5 h-3.5" />
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={() =>
+                              navigate(`items/${transactionItem.id}/delete`)
+                            }
+                            variant="outline"
+                            size="sm"
+                            disabled={!transactionItem.editable}
+                            className="border-red-600/50 text-red-600"
+                          >
+                            <Trash2 className="mr-2 w-3.5 h-3.5" />
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </li>
                 ))}
             </ul>
             <div className="mt-6 border bg-foreground/5 rounded-md mb-2 px-4 py-2 flex items-center justify-between">
               <h3 className="uppercase text-lg font-bold">Deductions</h3>
-              <Button variant="outline">Add Deduction</Button>
+              {!payrollTransaction.isLocked && (
+                <Link
+                  to="items/new-deduction"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  Add Deduction
+                </Link>
+              )}
             </div>
             <ul className="space-y-2">
               {payrollTransaction.transactionItems
@@ -182,22 +235,41 @@ export default function PayrollTransaction() {
                   >
                     <p className="font-semibold">{transactionItem.note}</p>
                     <div className="flex gap-6 items-center">
-                      <p className="w-44 text-right"></p>
+                      <p className="w-32 text-right"></p>
                       <span className="w-6"></span>
-                      <p className="w-44 text-right">
+                      <p className="w-32 text-right">
                         {transactionItem.type === "DEDUCTION" &&
                           currencyFormatter("IDR", transactionItem.amount)}
                       </p>
-                      <Button
-                        onClick={() => navigate(`items/${transactionItem.id}`)}
-                        variant="outline"
-                        size="sm"
-                        disabled={!transactionItem.editable}
-                        className="ml-24"
-                      >
-                        <PenSquare className="mr-2 w-3.5 h-3.5" />
-                        Edit
-                      </Button>
+                      {payrollTransaction.isLocked ? (
+                        <div className="w-[185px]" />
+                      ) : (
+                        <div className="ml-6 gap-2 flex items-center">
+                          <Button
+                            onClick={() =>
+                              navigate(`items/${transactionItem.id}/edit`)
+                            }
+                            variant="outline"
+                            size="sm"
+                            disabled={!transactionItem.editable}
+                          >
+                            <PenSquare className="mr-2 w-3.5 h-3.5" />
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={() =>
+                              navigate(`items/${transactionItem.id}/delete`)
+                            }
+                            variant="outline"
+                            size="sm"
+                            disabled={!transactionItem.editable}
+                            className="border-red-600/50 text-red-600"
+                          >
+                            <Trash2 className="mr-2 w-3.5 h-3.5" />
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -205,7 +277,7 @@ export default function PayrollTransaction() {
             <div className="mt-6 border bg-foreground/5 rounded-md mb-2 px-4 py-2 flex items-center justify-between">
               <h3 className="uppercase text-lg font-bold">Total</h3>
               <div className="flex gap-6 items-center">
-                <p className="w-44 text-right">
+                <p className="w-32 text-right">
                   {currencyFormatter(
                     "IDR",
                     payrollTransaction.transactionItems
@@ -214,7 +286,7 @@ export default function PayrollTransaction() {
                   )}
                 </p>
                 <span className="w-6 text-center">-</span>
-                <p className="w-44 text-right">
+                <p className="w-32 text-right">
                   {currencyFormatter(
                     "IDR",
                     payrollTransaction.transactionItems
@@ -222,12 +294,37 @@ export default function PayrollTransaction() {
                       .reduce((acc, curr) => acc + curr.amount, 0)
                   )}
                 </p>
-                <span className="w-5 text-center">=</span>
+                <span className="w-10 text-center">=</span>
                 <p className="text-right font-bold">
                   {currencyFormatter("IDR", payrollTransaction.total)}
                 </p>
               </div>
             </div>
+
+            {!payrollTransaction.isLocked && (
+              <div className="mt-6 flex justify-between items-center">
+                <Link
+                  to="reset"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "text-lg"
+                  )}
+                >
+                  <RotateCcw className="w-6 h-6 mr-2" />
+                  Reset Payroll Transaction
+                </Link>
+                <Link
+                  to="lock"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "text-lg text-green-600 border-green-600/40 hover:bg-green-600/10 hover:text-green-600"
+                  )}
+                >
+                  <Lock className="w-6 h-6 mr-2" />
+                  Lock Payroll Transaction
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </MainContainer>

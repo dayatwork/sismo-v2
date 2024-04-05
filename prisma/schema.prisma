@@ -590,6 +590,7 @@ model Payroll {
   month        Int                  @db.SmallInt
   year         Int                  @db.SmallInt
   note         String               @default("")
+  locked       Boolean              @default(false)
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   transactions PayrollTransaction[]
@@ -597,7 +598,7 @@ model Payroll {
 
 model PayrollTransaction {
   id               String                   @id @default(uuid())
-  payroll          Payroll                  @relation(fields: [payrollId], references: [id])
+  payroll          Payroll                  @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId        String
   user             User                     @relation(fields: [userId], references: [id])
   userId           String

@@ -7,6 +7,7 @@ import { getPayrolls } from "~/services/payroll.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { currencyFormatter } from "~/utils/currency";
+import { Lock, Plus } from "lucide-react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:payroll");
@@ -39,27 +40,40 @@ export default function Payroll() {
       <MainContainer>
         <div className="mb-4 flex justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Payroll</h1>
-          <Link to="new" className={buttonVariants({ variant: "outline" })}>
-            Create New Payroll
-          </Link>
+          {payrolls.length > 0 && (
+            <Link to="new" className={buttonVariants({ variant: "outline" })}>
+              Create New Payroll
+            </Link>
+          )}
         </div>
         {payrolls.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-6">
             {payrolls.map((payroll) => (
               <Link
                 key={payroll.id}
                 to={payroll.id}
-                className="border rounded-lg p-4 relative w-52 hover:bg-accent transition"
+                className={cn(
+                  "border rounded-lg p-4 relative w-52 hover:bg-accent transition",
+                  payroll.locked ? "border-green-600/30" : "border-border"
+                )}
               >
-                <p className="bg-foreground text-background px-2 rounded text-sm font-bold text-center">
+                {payroll.locked && (
+                  <Lock className="w-10 h-10 absolute -top-6 -right-5 rotate-12 text-green-600" />
+                )}
+                <p
+                  className={cn(
+                    "text-background px-2 rounded text-sm font-bold text-center",
+                    payroll.locked ? "bg-green-600" : "bg-foreground"
+                  )}
+                >
                   {payroll.code}
                 </p>
                 <h3
                   className={cn(
                     "mt-4 font-bold text-sm text-center",
                     payroll.type === "MONTHLY_SALARY"
-                      ? "text-green-600"
-                      : "text-indigo-600"
+                      ? "text-sky-600"
+                      : "text-pink-600"
                   )}
                 >
                   {payroll.type === "MONTHLY_SALARY" ? "MONTHLY SALARY" : "THR"}
@@ -93,8 +107,14 @@ export default function Payroll() {
             ))}
           </div>
         ) : (
-          <div className="h-60 border-2 rounded-xl border-dashed flex flex-col items-center justify-center">
-            <p className="text-muted-foreground">No payrolls</p>
+          <div className="flex">
+            <Link
+              to="new"
+              className="border rounded-lg p-4 w-52 hover:bg-accent transition flex gap-4 flex-col items-center justify-center h-[265px] font-semibold"
+            >
+              <Plus className="w-10 h-10" />
+              <span>Create New Payroll</span>
+            </Link>
           </div>
         )}
       </MainContainer>
