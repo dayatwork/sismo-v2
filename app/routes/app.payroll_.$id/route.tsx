@@ -118,10 +118,18 @@ export default function Payroll() {
                     {currencyFormatter("IDR", transaction.total)}
                   </p>
                   {transaction.isLocked ? (
-                    <p className="inline-flex items-center border justify-center w-24 h-8 font-semibold rounded-md text-sm border-green-600/5 text-green-600/80 bg-green-600/5">
-                      <Lock className="mr-2 w-3.5 h-3.5" />
-                      Locked
-                    </p>
+                    <div className="flex gap-2">
+                      <p className="inline-flex items-center border justify-center w-24 h-8 font-semibold rounded-md text-sm border-green-600/5 text-green-600/80 bg-green-600/5">
+                        <Lock className="mr-2 w-3.5 h-3.5" />
+                        Locked
+                      </p>
+                      <Link
+                        to={`transactions/${transaction.id}`}
+                        className="inline-flex items-center border justify-center w-16 h-8 font-semibold rounded-md text-sm border-border hover:bg-accent transition"
+                      >
+                        Detail
+                      </Link>
+                    </div>
                   ) : (
                     <Link
                       to={`transactions/${transaction.id}`}
