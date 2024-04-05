@@ -10,7 +10,6 @@ import { Modal, Dialog, Button, Heading } from "react-aria-components";
 import { buttonVariants } from "~/components/ui/button";
 import { redirectWithToast } from "~/utils/toast.server";
 import { cn } from "~/lib/utils";
-import { getWeekNumber } from "~/utils/datetime";
 import { emitter } from "~/utils/sse/emitter.server";
 import { requireUser } from "~/utils/auth.server";
 import { getSettings } from "~/services/setting.server";
@@ -27,14 +26,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return redirect("/app");
   }
 
-  const week = getWeekNumber(new Date());
-  const year = new Date().getFullYear();
-
   try {
     await startTracker({
       ownerId: loggedInUser.id,
-      week,
-      year,
     });
 
     emitter.emit(`tracker-${loggedInUser.id}-changed`);

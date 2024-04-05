@@ -6,6 +6,7 @@ export interface CompletedTracker {
   startAt: Date;
   endAt: Date;
   week: number;
+  month: number;
   year: number;
   trackerItems: {
     id: string;
@@ -28,6 +29,7 @@ export type IncompletedTracker = {
   startAt: Date;
   endAt: null;
   week: number;
+  month: number;
   year: number;
   trackerItems: {
     id: string;

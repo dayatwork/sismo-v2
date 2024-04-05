@@ -1,6 +1,7 @@
 import type { BoardTask, TaskTracker, TaskTrackerItem } from "@prisma/client";
 import prisma from "~/lib/prisma";
 import redisClient from "~/lib/redis.server";
+import { getWeekNumber } from "~/utils/datetime";
 
 // =================
 // ===== QUERY =====
@@ -200,17 +201,13 @@ export async function getPreviousTaskTrackerItem({
 // ====================
 // ===== MUTATION =====
 // ====================
-export async function startTracker({
-  ownerId,
-  week,
-  year,
-}: {
-  ownerId: string;
-  week: number;
-  year: number;
-}) {
+export async function startTracker({ ownerId }: { ownerId: string }) {
   const cacheKey = `task-tracker:${ownerId}`;
   await redisClient.del(cacheKey);
+
+  const week = getWeekNumber(new Date());
+  const month = new Date().getMonth() + 1;
+  const year = new Date().getFullYear();
 
   return await prisma.$transaction(async (tx) => {
     const totalInCompleteTrackers = await tx.taskTracker.count({
@@ -225,6 +222,7 @@ export async function startTracker({
       data: {
         ownerId,
         week,
+        month,
         year,
       },
     });
@@ -336,6 +334,16 @@ export async function editTaskTracker({
   const cacheKey = `task-tracker:${ownerId}`;
   await redisClient.del(cacheKey);
 
+  let week: number | undefined;
+  let month: number | undefined;
+  let year: number | undefined;
+
+  if (startAt) {
+    week = getWeekNumber(new Date(startAt));
+    month = new Date(startAt).getMonth() + 1;
+    year = new Date(startAt).getFullYear();
+  }
+
   return await prisma.$transaction(async (tx) => {
     const foundTracker = await tx.taskTracker.findUnique({
       where: { id: trackerId },
@@ -347,7 +355,7 @@ export async function editTaskTracker({
 
     const taskTracker = await tx.taskTracker.update({
       where: { id: trackerId },
-      data: { startAt, endAt },
+      data: { startAt, endAt, week, month, year },
     });
 
     return taskTracker;

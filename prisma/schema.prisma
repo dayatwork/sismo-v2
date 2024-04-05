@@ -489,8 +489,11 @@ model TaskTracker {
   startAt      DateTime          @default(now())
   endAt        DateTime?
   week         Int               @db.SmallInt
+  month        Int               @db.SmallInt
   year         Int               @db.SmallInt
   trackerItems TaskTrackerItem[]
+  approved     Boolean           @default(false)
+  locked       Boolean           @default(false)
 
   @@index([ownerId])
   @@index([ownerId, week, year])
@@ -575,10 +578,27 @@ model Deduction {
   fixed  Boolean
 }
 
+enum PayrollType {
+  MONTHLY_SALARY
+  RELIGIOUS_HOLIDAY_ALLOWANCE
+}
+
+model Payroll {
+  id           String               @id @default(uuid())
+  type         PayrollType
+  code         String               @unique
+  month        Int                  @db.SmallInt
+  year         Int                  @db.SmallInt
+  note         String               @default("")
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  transactions PayrollTransaction[]
+}
+
 model PayrollTransaction {
   id               String                   @id @default(uuid())
-  month            Int                      @db.SmallInt
-  year             Int                      @db.SmallInt
+  payroll          Payroll                  @relation(fields: [payrollId], references: [id])
+  payrollId        String
   user             User                     @relation(fields: [userId], references: [id])
   userId           String
   total            Int
@@ -587,9 +607,9 @@ model PayrollTransaction {
   updatedAt        DateTime                 @updatedAt
   transactionItems PayrollTransactionItem[]
 
+  @@unique([payrollId, userId])
+  @@index([payrollId])
   @@index([userId])
-  @@index([month, year])
-  @@index([month, year, userId])
 }
 
 enum TransactionItemType {
