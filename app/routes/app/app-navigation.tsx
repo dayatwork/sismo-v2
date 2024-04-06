@@ -19,6 +19,8 @@ import {
   HandCoins,
   Scissors,
   Coins,
+  FileCog,
+  PieChart,
 } from "lucide-react";
 
 import { Separator } from "~/components/ui/separator";
@@ -155,6 +157,13 @@ const payrollManagementNavigation: NavigationItem[] = [
 
 const financeNavigation: NavigationItem[] = [
   {
+    name: "Dashboard",
+    href: "finance-dashboard",
+    icon: PieChart,
+    current: false,
+    permissions: ["manage:finance"],
+  },
+  {
     name: "Chart of Account",
     href: "chart-of-accounts",
     icon: Landmark,
@@ -165,6 +174,13 @@ const financeNavigation: NavigationItem[] = [
     name: "Journal",
     href: "journals",
     icon: Banknote,
+    current: false,
+    permissions: ["manage:finance"],
+  },
+  {
+    name: "Settings",
+    href: "finance-settings",
+    icon: FileCog,
     current: false,
     permissions: ["manage:finance"],
   },
