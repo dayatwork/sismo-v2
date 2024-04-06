@@ -19,19 +19,19 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { getCoaClasses } from "~/services/chart-of-account.server";
+import { getCoaCategories } from "~/services/chart-of-account.server";
 import { requirePermission } from "~/utils/auth.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:finance");
 
-  const coaClasses = await getCoaClasses();
+  const coaCategories = await getCoaCategories();
 
-  return json({ coaClasses });
+  return json({ coaCategories });
 }
 
-export default function ChartOfAccountClasses() {
-  const { coaClasses } = useLoaderData<typeof loader>();
+export default function ChartOfAccountCategories() {
+  const { coaCategories } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -61,23 +61,23 @@ export default function ChartOfAccountClasses() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {coaClasses.length === 0 && (
+            {coaCategories.length === 0 && (
               <TableRow>
                 <TableCell
                   colSpan={3}
                   className="py-10 text-muted-foreground text-center"
                 >
-                  No chart of account classes
+                  No chart of account categories
                 </TableCell>
               </TableRow>
             )}
-            {coaClasses.map((coaClass) => (
-              <TableRow key={coaClass.id} className="group">
+            {coaCategories.map((category) => (
+              <TableRow key={category.id} className="group">
                 <TableCell className="px-6 whitespace-nowrap">
-                  {coaClass.name}
+                  {category.name}
                 </TableCell>
                 <TableCell className="px-6 whitespace-nowrap">
-                  {coaClass.normalBalance}
+                  {category.normalBalance}
                 </TableCell>
 
                 <TableCell className="flex justify-end">
@@ -91,7 +91,7 @@ export default function ChartOfAccountClasses() {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link
-                          to={`${coaClass.id}/edit`}
+                          to={`${category.id}/edit`}
                           className="cursor-pointer"
                         >
                           <PenSquareIcon className="w-4 h-4 mr-2" />
@@ -100,7 +100,7 @@ export default function ChartOfAccountClasses() {
                       </DropdownMenuItem>
                       <DropdownMenuItem className="text-red-600" asChild>
                         <Link
-                          to={`${coaClass.id}/delete`}
+                          to={`${category.id}/delete`}
                           className="cursor-pointer"
                         >
                           <Trash2Icon className="w-4 h-4 mr-2" />

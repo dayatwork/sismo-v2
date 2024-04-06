@@ -36,7 +36,7 @@ import { requirePermission } from "~/utils/auth.server";
 import {
   editChartOfAccount,
   getChartOfAccountById,
-  getCoaClasses,
+  getCoaCategories,
   getCoaTypes,
 } from "~/services/chart-of-account.server";
 import { cn } from "~/lib/utils";
@@ -102,7 +102,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   }
 
   const [coaClasses, coaTypes] = await Promise.all([
-    getCoaClasses(),
+    getCoaCategories(),
     getCoaTypes(),
   ]);
 
@@ -116,10 +116,10 @@ export default function EditChartOfAccount() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
-  const [classId, setClassId] = useState(chartOfAccount.type.classId);
+  const [categoryId, setCategoryId] = useState(chartOfAccount.type.categoryId);
 
-  const filteredTypesOptions = classId
-    ? coaTypes.filter((type) => type.classId === classId)
+  const filteredTypesOptions = categoryId
+    ? coaTypes.filter((type) => type.categoryId === categoryId)
     : coaTypes;
 
   const [form, fields] = useForm({
@@ -151,9 +151,9 @@ export default function EditChartOfAccount() {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Select
-                name="classId"
-                selectedKey={classId}
-                onSelectionChange={(v) => setClassId(v.toString())}
+                name="categoryId"
+                selectedKey={categoryId}
+                onSelectionChange={(v) => setCategoryId(v.toString())}
               >
                 <Label className={cn(labelVariants())}>Select Class</Label>
                 <Button className={cn(selectClassName, "mt-1")}>
@@ -181,7 +181,7 @@ export default function EditChartOfAccount() {
             <div className="grid gap-2">
               <Select
                 name="typeId"
-                isDisabled={!classId}
+                isDisabled={!categoryId}
                 defaultSelectedKey={chartOfAccount.typeId}
               >
                 <Label className={cn(labelVariants())}>Select Type</Label>

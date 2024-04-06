@@ -32,14 +32,14 @@ import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
 import {
   createCoaType,
-  getCoaClasses,
+  getCoaCategories,
 } from "~/services/chart-of-account.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { selectClassName } from "~/components/ui/select";
 
 const schema = z.object({
-  classId: z.string(),
+  categoryId: z.string(),
   name: z.string(),
 });
 
@@ -54,11 +54,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return json(submission.reply());
   }
 
-  const { name, classId } = submission.value;
+  const { name, categoryId } = submission.value;
 
   await createCoaType({
     name,
-    classId,
+    categoryId,
   });
 
   return redirectWithToast(`/app/chart-of-accounts/type`, {
@@ -70,7 +70,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export async function loader({ params, request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:finance");
 
-  const coaClasses = await getCoaClasses();
+  const coaClasses = await getCoaCategories();
 
   return json({ coaClasses });
 }
@@ -104,7 +104,7 @@ export default function CreateCoaType() {
           </Heading>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Select name="classId">
+              <Select name="categoryId">
                 <Label>Select Class</Label>
                 <Button className={cn(selectClassName, "mt-1")}>
                   <SelectValue />
@@ -128,7 +128,7 @@ export default function CreateCoaType() {
                 </Popover>
               </Select>
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.classId.errors}
+                {fields.categoryId.errors}
               </p>
             </div>
             <div className="grid gap-2">

@@ -3,7 +3,7 @@ import prisma from "~/lib/prisma";
 export async function getChartOfAccounts() {
   const chartOfAccounts = await prisma.chartOfAccount.findMany({
     orderBy: { code: "asc" },
-    include: { type: { include: { class: true } } },
+    include: { type: { include: { category: true } } },
   });
   return chartOfAccounts;
 }
@@ -15,7 +15,7 @@ export async function getChartOfAccountById({
 }) {
   const chartOfAccount = await prisma.chartOfAccount.findUnique({
     where: { id: chartOfAccountId },
-    include: { type: { include: { class: true } } },
+    include: { type: { include: { category: true } } },
   });
   return chartOfAccount;
 }
@@ -37,7 +37,7 @@ export async function createChartOfAccount({
 }) {
   const type = await prisma.chartOfAccountType.findUnique({
     where: { id: typeId },
-    include: { class: true },
+    include: { category: true },
   });
   if (!type) {
     throw new Error(`Type with id ${typeId} not found`);
@@ -47,7 +47,7 @@ export async function createChartOfAccount({
     data: {
       code,
       accountName,
-      normalBalance: type?.class.normalBalance,
+      normalBalance: type?.category.normalBalance,
       typeId,
       description,
       openingBalance,
@@ -78,12 +78,12 @@ export async function editChartOfAccount({
   if (typeId) {
     const type = await prisma.chartOfAccountType.findUnique({
       where: { id: typeId },
-      include: { class: true },
+      include: { category: true },
     });
     if (!type) {
       throw new Error(`Type with id ${typeId} not found`);
     }
-    normalBalance = type.class.normalBalance;
+    normalBalance = type.category.normalBalance;
   }
 
   const chartOfAccount = await prisma.chartOfAccount.update({
@@ -111,69 +111,77 @@ export async function deleteChartOfAccount({
   return chartOfAccount;
 }
 
-export async function getCoaClasses() {
-  const coaClasses = await prisma.chartOfAccountClass.findMany({
+export async function getCoaCategories() {
+  const coaCategories = await prisma.chartOfAccountCategory.findMany({
     orderBy: { createdAt: "asc" },
   });
-  return coaClasses;
+  return coaCategories;
 }
 
-export async function getCoaClassById({ classId }: { classId: string }) {
-  const coaClass = await prisma.chartOfAccountClass.findUnique({
-    where: { id: classId },
+export async function getCoaCategoryById({
+  categoryId,
+}: {
+  categoryId: string;
+}) {
+  const coaCategory = await prisma.chartOfAccountCategory.findUnique({
+    where: { id: categoryId },
   });
-  return coaClass;
+  return coaCategory;
 }
 
-export async function createCoaClass({
+export async function createCoaCategory({
   name,
   normalBalance,
 }: {
   name: string;
   normalBalance: "DEBIT" | "CREDIT";
 }) {
-  const coaClass = await prisma.chartOfAccountClass.create({
+  const coaCategory = await prisma.chartOfAccountCategory.create({
     data: {
       name,
       normalBalance,
     },
   });
-  return coaClass;
+  return coaCategory;
 }
 
-export async function editCoaClass({
-  classId,
+export async function editCoaCategory({
+  categoryId,
   name,
   normalBalance,
 }: {
-  classId: string;
+  categoryId: string;
   name: string;
   normalBalance: "CREDIT" | "DEBIT";
 }) {
-  const coaClass = await prisma.chartOfAccountClass.update({
-    where: { id: classId },
+  const coaCategory = await prisma.chartOfAccountCategory.update({
+    where: { id: categoryId },
     data: {
       name,
       normalBalance,
     },
   });
-  return coaClass;
+  return coaCategory;
 }
 
-export async function deleteCoaClass({ classId }: { classId: string }) {
-  const coaClass = await prisma.chartOfAccountClass.delete({
-    where: { id: classId },
+export async function deleteCoaCategory({
+  categoryId,
+}: {
+  categoryId: string;
+}) {
+  const coaCategory = await prisma.chartOfAccountCategory.delete({
+    where: { id: categoryId },
   });
-  return coaClass;
+  return coaCategory;
 }
 
-type GetCoaTypesProps = { classId?: string };
+type GetCoaTypesProps = { categoryId?: string };
 
 export async function getCoaTypes(props?: GetCoaTypesProps) {
   const coaTypes = await prisma.chartOfAccountType.findMany({
-    where: { classId: props?.classId },
+    where: { categoryId: props?.categoryId },
     orderBy: { createdAt: "asc" },
-    include: { class: true },
+    include: { category: true },
   });
   return coaTypes;
 }
@@ -181,21 +189,21 @@ export async function getCoaTypes(props?: GetCoaTypesProps) {
 export async function getCoaTypeById({ typeId }: { typeId: string }) {
   const coaType = await prisma.chartOfAccountType.findUnique({
     where: { id: typeId },
-    include: { class: true },
+    include: { category: true },
   });
   return coaType;
 }
 
 export async function createCoaType({
   name,
-  classId,
+  categoryId,
 }: {
   name: string;
-  classId: string;
+  categoryId: string;
 }) {
   const coaType = await prisma.chartOfAccountType.create({
     data: {
-      classId,
+      categoryId,
       name,
     },
   });
@@ -205,17 +213,17 @@ export async function createCoaType({
 export async function editCoaType({
   typeId,
   name,
-  classId,
+  categoryId,
 }: {
   typeId: string;
   name?: string;
-  classId?: string;
+  categoryId?: string;
 }) {
   const coaType = await prisma.chartOfAccountType.update({
     where: { id: typeId },
     data: {
       name,
-      classId,
+      categoryId,
     },
   });
   return coaType;

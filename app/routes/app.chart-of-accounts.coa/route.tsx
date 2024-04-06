@@ -80,7 +80,7 @@ export default function ChartOfAccounts() {
             {chartOfAccounts.map((coa) => (
               <TableRow key={coa.id} className="group">
                 <TableCell className="px-6 w-[200px] whitespace-nowrap">
-                  {coa.type.class.name}
+                  {coa.type.category.name}
                 </TableCell>
                 <TableCell className="whitespace-nowrap px-6">
                   {coa.type.name}

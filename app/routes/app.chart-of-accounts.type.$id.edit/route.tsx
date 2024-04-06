@@ -36,13 +36,13 @@ import { requirePermission } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
 import {
   editCoaType,
-  getCoaClasses,
+  getCoaCategories,
   getCoaTypeById,
 } from "~/services/chart-of-account.server";
 
 const schema = z.object({
   name: z.string(),
-  classId: z.string(),
+  categoryId: z.string(),
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -61,11 +61,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return json(submission.reply());
   }
 
-  const { name, classId } = submission.value;
+  const { name, categoryId } = submission.value;
 
   await editCoaType({
     name,
-    classId,
+    categoryId,
     typeId,
   });
 
@@ -87,7 +87,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     getCoaTypeById({
       typeId,
     }),
-    getCoaClasses(),
+    getCoaCategories(),
   ]);
 
   if (!coaType) {
@@ -129,7 +129,7 @@ export default function EditChartOfAccountType() {
           </Heading>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Select name="classId" defaultSelectedKey={coaType.classId}>
+              <Select name="categoryId" defaultSelectedKey={coaType.categoryId}>
                 <Label>Select Class</Label>
                 <Button className={cn(selectClassName, "mt-1")}>
                   <SelectValue />
@@ -153,7 +153,7 @@ export default function EditChartOfAccountType() {
                 </Popover>
               </Select>
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
-                {fields.classId.errors}
+                {fields.categoryId.errors}
               </p>
             </div>
             <div className="grid gap-2">

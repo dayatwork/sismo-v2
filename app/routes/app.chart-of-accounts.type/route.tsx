@@ -71,7 +71,7 @@ export default function ChartOfAccountTypes() {
                   {coaType.name}
                 </TableCell>
                 <TableCell className="px-6 whitespace-nowrap">
-                  {coaType.class.name}
+                  {coaType.category.name}
                 </TableCell>
 
                 <TableCell className="flex justify-end">

@@ -15,7 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 const tabItems: { label: string; value: string; icon: LucideIcon }[] = [
   {
     label: "Account Categories",
-    value: "class",
+    value: "category",
     icon: FileText,
   },
   {

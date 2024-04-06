@@ -31,8 +31,8 @@ import { Label, labelVariants } from "~/components/ui/label";
 import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
 import {
-  editCoaClass,
-  getCoaClassById,
+  editCoaCategory,
+  getCoaCategoryById,
 } from "~/services/chart-of-account.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -45,9 +45,9 @@ const schema = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const classId = params.id;
-  if (!classId) {
-    return redirect(`/app/chart-of-accounts/class`);
+  const categoryId = params.id;
+  if (!categoryId) {
+    return redirect(`/app/chart-of-accounts/category`);
   }
 
   await requirePermission(request, "manage:finance");
@@ -62,39 +62,39 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { name, normalBalance } = submission.value;
 
-  await editCoaClass({
+  await editCoaCategory({
     name,
-    classId,
+    categoryId,
     normalBalance,
   });
 
-  return redirectWithToast(`/app/chart-of-accounts/class`, {
+  return redirectWithToast(`/app/chart-of-accounts/category`, {
     description: `Account category edited`,
     type: "success",
   });
 }
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  const classId = params.id;
-  if (!classId) {
-    return redirect(`/app/chart-of-accounts/class`);
+  const categoryId = params.id;
+  if (!categoryId) {
+    return redirect(`/app/chart-of-accounts/category`);
   }
 
   await requirePermission(request, "manage:finance");
 
-  const coaClass = await getCoaClassById({
-    classId,
+  const coaCategory = await getCoaCategoryById({
+    categoryId,
   });
-  if (!coaClass) {
-    return redirect(`/app/chart-of-accounts/class`);
+  if (!coaCategory) {
+    return redirect(`/app/chart-of-accounts/category`);
   }
 
-  return json({ coaClass });
+  return json({ coaCategory });
 }
 
 export default function EditAccountCategory() {
   const lastResult = useActionData<typeof action>();
-  const { coaClass } = useLoaderData<typeof loader>();
+  const { coaCategory } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
@@ -103,7 +103,7 @@ export default function EditAccountCategory() {
     lastResult,
     shouldValidate: "onSubmit",
     defaultValue: {
-      name: coaClass.name,
+      name: coaCategory.name,
     },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema });
@@ -114,7 +114,7 @@ export default function EditAccountCategory() {
     <Modal
       isDismissable
       isOpen={true}
-      onOpenChange={() => navigate(`/app/chart-of-accounts/class`)}
+      onOpenChange={() => navigate(`/app/chart-of-accounts/category`)}
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6 outline-none">
@@ -138,7 +138,7 @@ export default function EditAccountCategory() {
             <div className="grid gap-2">
               <Select
                 name="normalBalance"
-                defaultSelectedKey={coaClass.normalBalance}
+                defaultSelectedKey={coaCategory.normalBalance}
               >
                 <Label className={cn(labelVariants())}>
                   Select Normal Balance
@@ -179,7 +179,7 @@ export default function EditAccountCategory() {
             <Button
               type="button"
               className={buttonVariants({ variant: "ghost" })}
-              onPress={() => navigate(`/app/chart-of-accounts/class`)}
+              onPress={() => navigate(`/app/chart-of-accounts/category`)}
             >
               Cancel
             </Button>

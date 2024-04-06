@@ -24,7 +24,7 @@ import { Input } from "~/components/ui/input";
 import { Label, labelVariants } from "~/components/ui/label";
 import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
-import { createCoaClass } from "~/services/chart-of-account.server";
+import { createCoaCategory } from "~/services/chart-of-account.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { selectClassName } from "~/components/ui/select";
@@ -48,13 +48,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { name, normalBalance } = submission.value;
 
-  await createCoaClass({
+  await createCoaCategory({
     name,
     normalBalance,
   });
 
-  return redirectWithToast(`/app/chart-of-accounts/class`, {
-    description: `New class created`,
+  return redirectWithToast(`/app/chart-of-accounts/category`, {
+    description: `New category created`,
     type: "success",
   });
 }
@@ -77,7 +77,7 @@ export default function CreateAccountCategory() {
     <Modal
       isDismissable
       isOpen={true}
-      onOpenChange={() => navigate(`/app/chart-of-accounts/class`)}
+      onOpenChange={() => navigate(`/app/chart-of-accounts/category`)}
       className="overflow-hidden w-full max-w-md"
     >
       <Dialog className="bg-background border rounded-md p-6">
@@ -139,7 +139,7 @@ export default function CreateAccountCategory() {
             <Button
               type="button"
               className={buttonVariants({ variant: "ghost" })}
-              onPress={() => navigate(`/app/chart-of-accounts/class`)}
+              onPress={() => navigate(`/app/chart-of-accounts/category`)}
             >
               Cancel
             </Button>

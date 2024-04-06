@@ -27,7 +27,7 @@ import { AccountTypeComboBox } from "~/components/comboboxes/account-type-combob
 import { cn } from "~/lib/utils";
 import {
   createChartOfAccount,
-  getCoaClasses,
+  getCoaCategories,
   getCoaTypes,
 } from "~/services/chart-of-account.server";
 
@@ -37,6 +37,7 @@ const schema = z.object({
   accountName: z.string(),
   // normalBalance: z.enum(["CREDIT", "DEBIT"]),
   description: z.string().optional(),
+  openingBalance: z.number().min(0),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -50,14 +51,15 @@ export async function action({ request }: ActionFunctionArgs) {
     return json(submission.reply());
   }
 
-  const { accountName, code, typeId, description } = submission.value;
+  const { accountName, code, typeId, description, openingBalance } =
+    submission.value;
 
   await createChartOfAccount({
     accountName,
     code,
-    // normalBalance,
     typeId,
     description,
+    openingBalance,
   });
 
   return redirectWithToast(`/app/chart-of-accounts/coa`, {
@@ -70,7 +72,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:finance");
 
   const [coaClasses, coaTypes] = await Promise.all([
-    getCoaClasses(),
+    getCoaCategories(),
     getCoaTypes(),
   ]);
 
@@ -83,13 +85,13 @@ export default function CreateChartOfAccount() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
-  const [classId, setClassId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
-  const filteredTypesOptions = classId
+  const filteredTypesOptions = categoryId
     ? coaTypes
-        .filter((type) => type.classId === classId)
-        .map((type) => ({ ...type, category: type.class.name }))
-    : coaTypes.map((type) => ({ ...type, category: type.class.name }));
+        .filter((type) => type.categoryId === categoryId)
+        .map((type) => ({ ...type, category: type.category.name }))
+    : coaTypes.map((type) => ({ ...type, category: type.category.name }));
 
   const [form, fields] = useForm({
     lastResult,
@@ -114,9 +116,9 @@ export default function CreateChartOfAccount() {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               {/* <Select
-                name="classId"
-                selectedKey={classId}
-                onSelectionChange={(v) => setClassId(v.toString())}
+                name="categoryId"
+                selectedKey={categoryId}
+                onSelectionChange={(v) => setCategoryId(v.toString())}
               >
                 <Label className={cn(labelVariants())}>Select Class</Label>
                 <Button className={cn(selectClassName, "mt-1 flex")}>
@@ -144,14 +146,14 @@ export default function CreateChartOfAccount() {
                 </Popover>
               </Select> */}
               <AccountCategoryComboBox
-                name="classId"
+                name="categoryId"
                 categories={coaClasses}
-                selectedKey={classId}
-                onSelectionChange={(v) => setClassId(v?.toString())}
+                selectedKey={categoryId}
+                onSelectionChange={(v) => setCategoryId(v?.toString())}
               />
             </div>
             <div className="grid gap-2">
-              {/* <Select name="typeId" isDisabled={!classId}>
+              {/* <Select name="typeId" isDisabled={!categoryId}>
                 <Label className={cn(labelVariants())}>Select Type</Label>
                 <Button className={cn(selectClassName, "mt-1")}>
                   <SelectValue />
