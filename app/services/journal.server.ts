@@ -1,62 +1,136 @@
 import { type Prisma } from "@prisma/client";
 import prisma from "~/lib/prisma";
 
-export async function getJournals() {
-  const journals = await prisma.journal.findMany({
+export async function getJournalEntries() {
+  const journals = await prisma.journalEntry.findMany({
     orderBy: { date: "desc" },
     include: {
-      chartOfAccount: true,
+      entryLines: { include: { account: true } },
       createdBy: { select: { id: true, name: true, photo: true } },
     },
   });
   return journals;
 }
 
-export async function getJournalById({ journalId }: { journalId: string }) {
-  const journal = await prisma.journal.findUnique({
-    where: { id: journalId },
+export async function getJournalEntryById({ id }: { id: string }) {
+  const journal = await prisma.journalEntry.findUnique({
+    where: { id },
     include: {
-      chartOfAccount: true,
+      entryLines: { include: { account: true } },
       createdBy: { select: { id: true, name: true, photo: true } },
     },
   });
   return journal;
 }
 
-export async function createJournal({
-  amount,
-  chartOfAccountId,
+export async function createJournalEntry({
   createdById,
-  currency,
   referenceNumber,
   date,
   description,
+  entryLines,
 }: {
   referenceNumber: string;
-  chartOfAccountId: string;
-  amount: Prisma.Decimal;
-  currency: "IDR" | "USD";
   createdById: string;
   description?: string;
   date?: string;
+  entryLines: {
+    type: "CREDIT" | "DEBIT";
+    accountId: string;
+    amount: Prisma.Decimal;
+    currency?: "IDR" | "USD";
+  }[];
 }) {
-  const journal = await prisma.journal.create({
+  const totalDebit = entryLines.reduce((acc, curr) => {
+    if (curr.type === "DEBIT") {
+      return acc + curr.amount.toNumber();
+    }
+    return acc;
+  }, 0);
+
+  const totalCredit = entryLines.reduce((acc, curr) => {
+    if (curr.type === "CREDIT") {
+      return acc + curr.amount.toNumber();
+    }
+    return acc;
+  }, 0);
+
+  if (totalCredit !== totalDebit) {
+    throw new Error("Credit and Debit should match");
+  }
+
+  const journal = await prisma.journalEntry.create({
     data: {
-      amount,
-      chartOfAccountId,
-      createdById,
-      currency,
       referenceNumber,
-      date,
+      createdById,
       description,
+      date,
+      entryLines: { createMany: { data: entryLines } },
     },
   });
+
   return journal;
 }
 
-export async function deleteJournal({ journalId }: { journalId: string }) {
-  const journal = await prisma.journal.delete({
-    where: { id: journalId },
+export async function editJournalEntry({
+  id,
+  date,
+  description,
+  entryLines,
+}: {
+  id: string;
+  description?: string;
+  date?: string;
+  entryLines?: {
+    type: "CREDIT" | "DEBIT";
+    accountId: string;
+    amount: Prisma.Decimal;
+    currency?: "IDR" | "USD";
+  }[];
+}) {
+  const result = await prisma.$transaction(async (tx) => {
+    if (entryLines) {
+      const totalDebit = entryLines.reduce((acc, curr) => {
+        if (curr.type === "DEBIT") {
+          return acc + curr.amount.toNumber();
+        }
+        return acc;
+      }, 0);
+
+      const totalCredit = entryLines.reduce((acc, curr) => {
+        if (curr.type === "CREDIT") {
+          return acc + curr.amount.toNumber();
+        }
+        return acc;
+      }, 0);
+
+      if (totalCredit !== totalDebit) {
+        throw new Error("Credit and Debit should match");
+      }
+
+      await tx.journalEntryLine.deleteMany({ where: { journalEntryId: id } });
+      await tx.journalEntryLine.createMany({
+        data: entryLines.map((line) => ({ journalEntryId: id, ...line })),
+      });
+    }
+
+    const journal = await tx.journalEntry.update({
+      where: { id },
+      data: {
+        description,
+        date,
+      },
+    });
+
+    return journal;
+  });
+
+  return result;
+}
+
+export async function deleteJournal({ id }: { id: string }) {
+  const journal = await prisma.journalEntry.delete({
+    where: { id },
   });
   return journal;
 }

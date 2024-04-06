@@ -41,6 +41,7 @@ const schema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
+  console.log("CREATE COA");
   await requirePermission(request, "manage:finance");
 
   const formData = await request.formData();
@@ -260,6 +261,22 @@ export default function CreateChartOfAccount() {
               />
               <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                 {fields.description.errors}
+              </p>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="openingBalance" className={cn(labelVariants())}>
+                Opening Balance (Rp)
+              </Label>
+              <Input
+                type="number"
+                id="openingBalance"
+                name="openingBalance"
+                defaultValue={fields.openingBalance.initialValue}
+                className="w-[200px]"
+              />
+              <p className="-mt-1.5 text-sm text-red-600 font-semibold">
+                {fields.openingBalance.errors}
               </p>
             </div>
           </div>

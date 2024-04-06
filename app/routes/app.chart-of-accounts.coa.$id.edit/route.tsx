@@ -130,6 +130,7 @@ export default function EditChartOfAccount() {
       code: chartOfAccount.code,
       accountName: chartOfAccount.accountName,
       description: chartOfAccount.description,
+      openingBalance: chartOfAccount.openingBalance,
     },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema });

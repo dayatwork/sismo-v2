@@ -18,42 +18,42 @@ enum MemberStatus {
 }
 
 model User {
-  id                   String               @id @default(uuid())
-  email                String               @unique
-  name                 String
-  phone                String?              @unique
-  photo                String?
-  isSuperAdmin         Boolean              @default(false)
-  isActive             Boolean              @default(true)
-  memberId             String?              @unique
-  memberStatus         MemberStatus?
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  connections          Connection[]
-  password             Password?
-  roles                Role[]
-  documents            Document[]
-  meetingParticipants  MeetingParticipant[]
-  sentMessages         Message[]            @relation("sender")
-  coversations         Conversation[]       @relation("member")
-  seenMessages         Message[]            @relation("seen")
-  createdConversations Conversation[]       @relation("createdConversation")
-  createdJournals      Journal[]
-  notifications        Notification[]
-  departmentMembers    DepartmentMember[]
-  teamMembers          TeamMember[]
-  workspaces           Workspace[]
-  workspaceMembers     WorkspaceMember[]
-  boardMembers         BoardMember[]
-  boardTasks           BoardTask[]
-  taskTrackers         TaskTracker[]
-  attachments          Attachment[]
-  regularWage          RegularWage?
-  regularWageHistories RegularWageHistory[]
-  overtimeWage         OvertimeWage?
-  supplementalWages    SupplementalWage[]
-  deductions           Deduction[]
-  payrollTransactions  PayrollTransaction[]
+  id                    String               @id @default(uuid())
+  email                 String               @unique
+  name                  String
+  phone                 String?              @unique
+  photo                 String?
+  isSuperAdmin          Boolean              @default(false)
+  isActive              Boolean              @default(true)
+  memberId              String?              @unique
+  memberStatus          MemberStatus?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  connections           Connection[]
+  password              Password?
+  roles                 Role[]
+  documents             Document[]
+  meetingParticipants   MeetingParticipant[]
+  sentMessages          Message[]            @relation("sender")
+  coversations          Conversation[]       @relation("member")
+  seenMessages          Message[]            @relation("seen")
+  createdConversations  Conversation[]       @relation("createdConversation")
+  createdJournalEntries JournalEntry[]
+  notifications         Notification[]
+  departmentMembers     DepartmentMember[]
+  teamMembers           TeamMember[]
+  workspaces            Workspace[]
+  workspaceMembers      WorkspaceMember[]
+  boardMembers          BoardMember[]
+  boardTasks            BoardTask[]
+  taskTrackers          TaskTracker[]
+  attachments           Attachment[]
+  regularWage           RegularWage?
+  regularWageHistories  RegularWageHistory[]
+  overtimeWage          OvertimeWage?
+  supplementalWages     SupplementalWage[]
+  deductions            Deduction[]
+  payrollTransactions   PayrollTransaction[]
 
   @@index([name])
 }
@@ -170,17 +170,17 @@ model ChartOfAccountType {
 }
 
 model ChartOfAccount {
-  id             String             @id @default(uuid())
-  type           ChartOfAccountType @relation(fields: [typeId], references: [id])
-  typeId         String
-  code           String             @unique
-  accountName    String
-  normalBalance  NormalBalance
-  description    String?            @default("")
-  openingBalance Int                @default(0)
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  journals       Journal[]
+  id                String             @id @default(uuid())
+  type              ChartOfAccountType @relation(fields: [typeId], references: [id])
+  typeId            String
+  code              String             @unique
+  accountName       String
+  normalBalance     NormalBalance
+  description       String?            @default("")
+  openingBalance    Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  journalEntryLines JournalEntryLine[]
 
   @@index([accountName])
   @@index([typeId])
@@ -192,21 +192,38 @@ enum ExpenseStatus {
   REJECTED
 }
 
-model Journal {
-  id               String         @id @default(uuid())
-  referenceNumber  String         @unique
-  chartOfAccount   ChartOfAccount @relation(fields: [chartOfAccountId], references: [id])
-  chartOfAccountId String
-  amount           Decimal
-  currency         String
-  description      String?        @default("")
-  date             DateTime       @default(now())
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  createdBy        User           @relation(fields: [createdById], references: [id])
-  createdById      String
+model JournalEntry {
+  id              String             @id @default(uuid())
+  entryNumber     Int                @unique @default(autoincrement())
+  referenceNumber String?
+  description     String?            @default("")
+  date            DateTime           @default(now())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  createdBy       User               @relation(fields: [createdById], references: [id])
+  createdById     String
+  entryLines      JournalEntryLine[]
 
-  @@index([chartOfAccountId])
+  @@index([date])
+  @@index([entryNumber])
+}
+
+enum EntryLineType {
+  CREDIT
+  DEBIT
+}
+
+model JournalEntryLine {
+  id             String         @id @default(uuid())
+  journalEntry   JournalEntry   @relation(fields: [journalEntryId], references: [id])
+  journalEntryId String
+  type           EntryLineType
+  account        ChartOfAccount @relation(fields: [accountId], references: [id])
+  accountId      String
+  amount         Decimal
+  currency       String         @default("IDR")
+
+  @@unique([journalEntryId, accountId])
 }
 
 enum MeetingStatus {
