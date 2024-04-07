@@ -17,7 +17,10 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
-import { deleteJournal, getJournalById } from "~/services/journal.server";
+import {
+  deleteJournalEntry,
+  getJournalEntryById,
+} from "~/services/journal.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const journalId = params.id;
@@ -27,10 +30,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   await requirePermission(request, "manage:finance");
 
-  await deleteJournal({ journalId });
+  await deleteJournalEntry({ id: journalId });
 
   return redirectWithToast(`/app/journals`, {
-    description: `Journal deleted`,
+    description: `Journal entry deleted`,
     type: "success",
   });
 }
@@ -43,19 +46,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   await requirePermission(request, "manage:finance");
 
-  const journal = await getJournalById({
-    journalId,
+  const journalEntry = await getJournalEntryById({
+    id: journalId,
   });
 
-  if (!journal) {
+  if (!journalEntry) {
     return redirect(`/app/journals`);
   }
 
-  return json({ journal });
+  return json({ journalEntry });
 }
 
 export default function DeleteJournal() {
-  const { journal } = useLoaderData<typeof loader>();
+  const { journalEntry } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [confirmText, setConfirmText] = useState("");
   const navigation = useNavigation();
@@ -80,8 +83,10 @@ export default function DeleteJournal() {
           />
           <p className="mt-1 text-sm">
             type "
-            <span className="font-semibold">{journal.referenceNumber}</span>" to
-            confirm
+            <span className="font-semibold">
+              {`JE-${journalEntry.entryNumber.toString().padStart(5, "0")}`}
+            </span>
+            " to confirm
           </p>
           <div className="mt-4 flex justify-end gap-2 w-full">
             <Button
@@ -92,7 +97,10 @@ export default function DeleteJournal() {
               Cancel
             </Button>
             <Button
-              disabled={journal.referenceNumber !== confirmText || submitting}
+              disabled={
+                `JE-${journalEntry.entryNumber.toString().padStart(5, "0")}` !==
+                  confirmText || submitting
+              }
               variant="destructive"
               type="submit"
             >

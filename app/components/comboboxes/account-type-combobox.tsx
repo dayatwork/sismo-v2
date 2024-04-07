@@ -26,7 +26,9 @@ export function AccountTypeComboBox({
   selectedKey,
   isDisabled,
 }: Props) {
-  const [typeId, setTypeId] = useState<Key | null>(selectedKey || null);
+  const [typeId, setTypeId] = useState<Key | null>(
+    selectedKey || defaultValue || null
+  );
 
   return (
     <>

@@ -30,10 +30,10 @@ export async function createJournalEntry({
   description,
   entryLines,
 }: {
-  referenceNumber: string;
+  referenceNumber?: string;
   createdById: string;
   description?: string;
-  date?: string;
+  date?: string | Date;
   entryLines: {
     type: "CREDIT" | "DEBIT";
     accountId: string;
@@ -77,10 +77,12 @@ export async function editJournalEntry({
   date,
   description,
   entryLines,
+  referenceNumber,
 }: {
   id: string;
+  referenceNumber?: string;
   description?: string;
-  date?: string;
+  date?: string | Date;
   entryLines?: {
     type: "CREDIT" | "DEBIT";
     accountId: string;
@@ -119,6 +121,7 @@ export async function editJournalEntry({
       data: {
         description,
         date,
+        referenceNumber,
       },
     });
 
@@ -128,7 +131,7 @@ export async function editJournalEntry({
   return result;
 }
 
-export async function deleteJournal({ id }: { id: string }) {
+export async function deleteJournalEntry({ id }: { id: string }) {
   const journal = await prisma.journalEntry.delete({
     where: { id },
   });

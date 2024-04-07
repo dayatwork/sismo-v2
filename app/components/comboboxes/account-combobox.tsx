@@ -5,53 +5,67 @@ import { RAComboBox } from "~/components/ui/react-aria/combobox";
 
 interface Props {
   name: string;
-  categories: {
+  accounts: {
     id: string;
-    name: string;
-    normalBalance: string;
+    code: string;
+    accountName: string;
+    normalBalance: "CREDIT" | "DEBIT";
+    type: {
+      id: string;
+      name: string;
+      category: {
+        id: string;
+        name: string;
+      };
+    };
   }[];
   errorMessage?: string;
   defaultValue?: string;
   onSelectionChange?: (key: Key) => void;
   selectedKey?: Key;
+  isDisabled?: boolean;
 }
 
-export function AccountCategoryComboBox({
-  categories,
+export function AccountComboBox({
+  accounts,
   name,
   errorMessage,
   defaultValue,
   onSelectionChange,
   selectedKey,
+  isDisabled,
 }: Props) {
-  const [categoryId, setCategoryId] = useState<Key | null>(
+  const [typeId, setTypeId] = useState<Key | null>(
     selectedKey || defaultValue || null
   );
 
   return (
     <>
-      <input type="hidden" name={name} value={categoryId || ""} />
+      <input type="hidden" name={name} value={typeId || ""} />
       <RAComboBox
-        label="Account Category"
-        defaultItems={categories}
+        label="Account"
+        defaultItems={accounts}
         onSelectionChange={(key) => {
-          setCategoryId(key);
+          console.log({ key });
+          setTypeId(key);
           onSelectionChange?.(key);
         }}
         errorMessage={errorMessage}
-        emptyText="No category"
+        emptyText="No account"
         defaultInputValue={undefined}
         defaultSelectedKey={defaultValue}
-        placeholder="Select a category"
+        placeholder="Select a account"
+        isDisabled={isDisabled}
+        className="flex-1"
       >
-        {(category) => (
+        {(account) => (
           <ListBoxItem
             className="py-1.5 px-2 text-sm focus:bg-accent focus:text-accent-foreground selected:bg-accent selected:text-accent-foreground rounded flex items-center justify-between gap-2"
-            textValue={category.name}
+            textValue={account.accountName}
           >
-            <span>{category.name}</span>
+            <span>{account.accountName}</span>
             <span className="text-muted-foreground">
-              {category.normalBalance}
+              {account.type.category.name}
             </span>
           </ListBoxItem>
         )}

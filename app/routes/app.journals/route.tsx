@@ -48,45 +48,50 @@ export default function JournalEntries() {
           </Button>
         </div>
 
-        <ul className="mt-6">
+        <ul className="mt-6 space-y-4">
           {journalEntries.map((journalEntry) => (
             <li key={journalEntry.id} className="border rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">
-                  Journal Number : JR-
+                  Journal Number : JE-
                   {journalEntry.entryNumber.toString().padStart(5, "0")}
                 </h3>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <span className="sr-only">Open</span>
-                      <MoreVerticalIcon className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Action</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                <div className="flex items-center gap-6">
+                  <p className="text-sm text-muted-foreground">
+                    Reference Number : {journalEntry.referenceNumber || "-"}
+                  </p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <span className="sr-only">Open</span>
+                        <MoreVerticalIcon className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Action</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
 
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to={`${journalEntry.id}/edit`}
-                        className="cursor-pointer"
-                      >
-                        <PenSquareIcon className="w-4 h-4 mr-2" />
-                        <span className="pr-2 font-semibold">Edit</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600" asChild>
-                      <Link
-                        to={`${journalEntry.id}/delete`}
-                        className="cursor-pointer"
-                      >
-                        <Trash2Icon className="w-4 h-4 mr-2" />
-                        <span className="pr-2 font-semibold">Delete</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to={`${journalEntry.id}/edit`}
+                          className="cursor-pointer"
+                        >
+                          <PenSquareIcon className="w-4 h-4 mr-2" />
+                          <span className="pr-2 font-semibold">Edit</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600" asChild>
+                        <Link
+                          to={`${journalEntry.id}/delete`}
+                          className="cursor-pointer"
+                        >
+                          <Trash2Icon className="w-4 h-4 mr-2" />
+                          <span className="pr-2 font-semibold">Delete</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
               <Table className="mt-4">
                 <TableCaption className="text-left">

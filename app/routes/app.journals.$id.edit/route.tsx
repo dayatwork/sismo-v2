@@ -7,6 +7,7 @@ import {
 } from "@remix-run/react";
 import {
   json,
+  redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
@@ -36,8 +37,14 @@ import { redirectWithToast } from "~/utils/toast.server";
 import { requirePermission } from "~/utils/auth.server";
 import { cn } from "~/lib/utils";
 import { getChartOfAccounts } from "~/services/chart-of-account.server";
-import { createJournalEntry } from "~/services/journal.server";
-import { now, parseZonedDateTime } from "@internationalized/date";
+import {
+  editJournalEntry,
+  getJournalEntryById,
+} from "~/services/journal.server";
+import {
+  parseAbsoluteToLocal,
+  parseZonedDateTime,
+} from "@internationalized/date";
 import { RADatePicker } from "~/components/ui/react-aria/datepicker";
 import { AccountComboBox } from "~/components/comboboxes/account-combobox";
 import { Separator } from "~/components/ui/separator";
@@ -80,7 +87,11 @@ const schema = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const loggedInUser = await requirePermission(request, "manage:finance");
+  const journalId = params.id;
+  if (!journalId) {
+    return redirect(`/app/journals`);
+  }
+  await requirePermission(request, "manage:finance");
 
   const formData = await request.formData();
 
@@ -102,31 +113,44 @@ export async function action({ request, params }: ActionFunctionArgs) {
     amount: new Prisma.Decimal(line.amount),
   }));
 
-  await createJournalEntry({
-    createdById: loggedInUser.id,
+  await editJournalEntry({
+    id: journalId,
     description,
-    referenceNumber,
     entryLines,
     date,
+    referenceNumber,
   });
 
   return redirectWithToast(`/app/journals`, {
-    description: `New journal entry added`,
+    description: `Journal entry edited`,
     type: "success",
   });
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const journalId = params.id;
+  if (!journalId) {
+    return redirect(`/app/journals`);
+  }
+
   await requirePermission(request, "manage:finance");
+
+  const journalEntry = await getJournalEntryById({
+    id: journalId,
+  });
+
+  if (!journalEntry) {
+    return redirect(`/app/journals`);
+  }
 
   const accounts = await getChartOfAccounts();
 
-  return json({ accounts });
+  return json({ accounts, journalEntry });
 }
 
 export default function AddNewJournal() {
   const lastResult = useActionData<typeof action>();
-  const { accounts } = useLoaderData<typeof loader>();
+  const { accounts, journalEntry } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
@@ -138,7 +162,10 @@ export default function AddNewJournal() {
       return parseWithZod(formData, { schema });
     },
     defaultValue: {
-      entryLines: [{ type: "DEBIT" }, { type: "CREDIT" }],
+      entryLines: journalEntry.entryLines,
+      date: journalEntry.date,
+      description: journalEntry.description,
+      referenceNumber: journalEntry.referenceNumber,
     },
   });
 
@@ -174,7 +201,7 @@ export default function AddNewJournal() {
       <Dialog className="bg-background border rounded-md p-6 outline-none">
         <Form method="post" id={form.id} onSubmit={form.onSubmit}>
           <Heading slot="title" className="text-lg font-semibold mb-4">
-            Add New Entry
+            Edit Entry
           </Heading>
           <div className="grid gap-4 py-4">
             <div className="flex gap-x-4">
@@ -197,7 +224,11 @@ export default function AddNewJournal() {
                   name="date"
                   granularity="second"
                   hourCycle={24}
-                  defaultValue={now("Asia/Jakarta")}
+                  defaultValue={
+                    fields.date.initialValue
+                      ? parseAbsoluteToLocal(fields.date.initialValue)
+                      : undefined
+                  }
                 />
                 <p className="-mt-1.5 text-sm text-red-600 font-semibold">
                   {fields.date.errors}
@@ -220,7 +251,6 @@ export default function AddNewJournal() {
             <fieldset className="border p-4 rounded-lg">
               <div className="flex items-center justify-between">
                 <legend className={labelVariants()}>Entry Lines</legend>
-
                 <Button
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" })
@@ -245,8 +275,8 @@ export default function AddNewJournal() {
                             defaultSelectedKey={
                               entryLineFields.type.initialValue
                             }
-                            className="w-36"
-                            aria-label="Type"
+                            aria-label="type"
+                            className="w-32"
                           >
                             <Label className={cn(labelVariants())}>
                               Select Type
@@ -263,7 +293,7 @@ export default function AddNewJournal() {
                               </span>
                             </Button>
                             <Popover className="-mt-1">
-                              <ListBox className="border p-2 rounded-md bg-background space-y-1 w-36">
+                              <ListBox className="border p-2 rounded-md bg-background space-y-1 w-32">
                                 <ListBoxItem
                                   key="DEBIT"
                                   id="DEBIT"
@@ -297,6 +327,7 @@ export default function AddNewJournal() {
                               : undefined
                           }
                           accounts={accounts}
+                          defaultValue={entryLineFields.accountId.initialValue}
                         />
                         <div className="grid gap-2">
                           <Label
@@ -346,7 +377,7 @@ export default function AddNewJournal() {
               fields.entryLines.errors.length !== 0 ? (
                 <p
                   role="alert"
-                  className="block px-2 py-1 border border-red-800 text-red-600 rounded-md text-sm font-semibold mt-4 text-center"
+                  className="block px-2 py-1 border border-red-800 text-red-600 rounded-md text-sm font-semibold mt-2"
                 >
                   {fields.entryLines.errors}
                 </p>
@@ -366,7 +397,7 @@ export default function AddNewJournal() {
               className={buttonVariants()}
               isDisabled={submitting}
             >
-              {submitting ? "Submitting" : "Submit"}
+              {submitting ? "Saving" : "Save"}
             </Button>
           </div>
         </Form>

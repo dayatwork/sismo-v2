@@ -215,7 +215,7 @@ enum EntryLineType {
 
 model JournalEntryLine {
   id             String         @id @default(uuid())
-  journalEntry   JournalEntry   @relation(fields: [journalEntryId], references: [id])
+  journalEntry   JournalEntry   @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
   journalEntryId String
   type           EntryLineType
   account        ChartOfAccount @relation(fields: [accountId], references: [id])
