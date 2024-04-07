@@ -26,6 +26,7 @@ import {
 import { getUsers } from "~/services/user.server";
 import { Clockify } from "./clockify";
 import { AttachmentsCard } from "../app.time-tracker/attachments-card";
+import { Badge } from "~/components/ui/badge";
 
 export async function action({ request }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);
@@ -198,6 +199,13 @@ export default function UserTrackers() {
                       </AccordionTrigger>
                       <div></div>
                     </div>
+                    {timeTracker.approved ? (
+                      <Badge className="uppercase mx-6" variant="green">
+                        Approved
+                      </Badge>
+                    ) : (
+                      <Badge className="uppercase mx-6">Not Yet Approved</Badge>
+                    )}
                     <Clockify
                       startAt={timeTracker.startAt}
                       endAt={timeTracker.endAt!}

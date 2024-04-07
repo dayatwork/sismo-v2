@@ -262,6 +262,58 @@ export async function getAccountWithTransactions({
   return account;
 }
 
+type GetFinanceDashboardDataProps = {
+  endPeriod?: string | Date;
+};
+export async function getFinanceDashboardData(
+  props?: GetFinanceDashboardDataProps
+) {
+  const accounts = await prisma.chartOfAccount.findMany({
+    include: {
+      journalEntryLines: {
+        where: props?.endPeriod
+          ? { journalEntry: { date: { lte: props.endPeriod } } }
+          : undefined,
+      },
+      type: { include: { category: true } },
+    },
+  });
+
+  const trialBalance = accounts.map((account) => {
+    const totalBalance =
+      account.journalEntryLines.reduce((acc, curr) => {
+        if (
+          (account.normalBalance === "DEBIT" && curr.type === "DEBIT") ||
+          (account.normalBalance === "CREDIT" && curr.type === "CREDIT")
+        ) {
+          return acc + Number(curr.amount);
+        }
+        return acc - Number(curr.amount);
+      }, 0) + account.openingBalance;
+
+    return {
+      accountId: account.id,
+      accountName: account.accountName,
+      accountCategory: account.type.category.name,
+      normalBalance: account.normalBalance,
+      totalBalance,
+      openingBalance: account.openingBalance,
+    };
+  });
+
+  let dashboardData: Record<string, typeof trialBalance> = {};
+
+  trialBalance.forEach((trialBalance) => {
+    if (dashboardData[trialBalance.accountCategory]) {
+      dashboardData[trialBalance.accountCategory].push(trialBalance);
+    } else {
+      dashboardData[trialBalance.accountCategory] = [trialBalance];
+    }
+  });
+
+  return dashboardData;
+}
+
 type GetTrialBalanceProps = {
   endPeriod?: string | Date;
 };

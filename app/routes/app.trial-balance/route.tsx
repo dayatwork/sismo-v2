@@ -34,7 +34,7 @@ export default function TrialBalance() {
   }, 0);
 
   const totalCreditTrialBalance = trialBalance.reduce((acc, curr) => {
-    if (curr.normalBalance === "DEBIT") {
+    if (curr.normalBalance === "CREDIT") {
       return acc + curr.totalBalance;
     }
     return acc;
