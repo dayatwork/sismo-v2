@@ -20,32 +20,6 @@ export async function getChartOfAccountById({
   return chartOfAccount;
 }
 
-export async function getAccountWithTransactions({
-  accountId,
-}: {
-  accountId: string;
-}) {
-  const account = await prisma.chartOfAccount.findUnique({
-    where: { id: accountId },
-    include: {
-      type: { include: { category: true } },
-      journalEntryLines: {
-        include: {
-          journalEntry: {
-            select: {
-              id: true,
-              date: true,
-              description: true,
-              entryNumber: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return account;
-}
-
 export async function createChartOfAccount({
   typeId,
   code,
@@ -260,4 +234,69 @@ export async function deleteCoaType({ typeId }: { typeId: string }) {
     where: { id: typeId },
   });
   return coaType;
+}
+
+export async function getAccountWithTransactions({
+  accountId,
+}: {
+  accountId: string;
+}) {
+  const account = await prisma.chartOfAccount.findUnique({
+    where: { id: accountId },
+    include: {
+      type: { include: { category: true } },
+      journalEntryLines: {
+        include: {
+          journalEntry: {
+            select: {
+              id: true,
+              date: true,
+              description: true,
+              entryNumber: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return account;
+}
+
+type GetTrialBalanceProps = {
+  endPeriod?: string | Date;
+};
+export async function getTrialBalance(props?: GetTrialBalanceProps) {
+  const accounts = await prisma.chartOfAccount.findMany({
+    include: {
+      journalEntryLines: {
+        where: props?.endPeriod
+          ? { journalEntry: { date: { lte: props.endPeriod } } }
+          : undefined,
+      },
+      type: { include: { category: true } },
+    },
+  });
+
+  const trialBalance = accounts.map((account) => {
+    const totalBalance =
+      account.journalEntryLines.reduce((acc, curr) => {
+        if (
+          (account.normalBalance === "DEBIT" && curr.type === "DEBIT") ||
+          (account.normalBalance === "CREDIT" && curr.type === "CREDIT")
+        ) {
+          return acc + Number(curr.amount);
+        }
+        return acc - Number(curr.amount);
+      }, 0) + account.openingBalance;
+
+    return {
+      accountId: account.id,
+      accountName: account.accountName,
+      accountCategory: account.type.category.name,
+      normalBalance: account.normalBalance,
+      totalBalance,
+    };
+  });
+
+  return trialBalance;
 }
