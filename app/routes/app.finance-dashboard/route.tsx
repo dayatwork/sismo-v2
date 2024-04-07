@@ -32,8 +32,6 @@ export default function FinanceDashboard() {
   //   return acc;
   // }, 0);
 
-  console.log({ dashboardData });
-
   const totalAssets = dashboardData["Assets"].reduce(
     (acc, curr) => acc + curr.totalBalance,
     0

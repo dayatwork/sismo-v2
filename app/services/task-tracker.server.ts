@@ -386,3 +386,11 @@ export async function deleteTaskTracker({
     return taskTracker;
   });
 }
+
+export async function approveTracker({ trackerId }: { trackerId: string }) {
+  const tracker = await prisma.taskTracker.update({
+    where: { id: trackerId },
+    data: { approved: true },
+  });
+  return tracker;
+}

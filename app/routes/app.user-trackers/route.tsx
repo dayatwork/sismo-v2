@@ -3,7 +3,13 @@ import {
   json,
   type ActionFunctionArgs,
 } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  Outlet,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import dayjs from "dayjs";
 import { type Key } from "react-aria-components";
 
@@ -27,6 +33,15 @@ import { getUsers } from "~/services/user.server";
 import { Clockify } from "./clockify";
 import { AttachmentsCard } from "../app.time-tracker/attachments-card";
 import { Badge } from "~/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Check, MoreVerticalIcon } from "lucide-react";
 
 export async function action({ request }: ActionFunctionArgs) {
   const loggedInUser = await requireUser(request);
@@ -90,6 +105,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function UserTrackers() {
   const { timeTrackers, appUrl, users } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const fetcher = useFetcher();
 
   useRevalidateWhenFocus();
 
@@ -203,13 +219,35 @@ export default function UserTrackers() {
                       <Badge className="uppercase mx-6" variant="green">
                         Approved
                       </Badge>
-                    ) : (
-                      <Badge className="uppercase mx-6">Not Yet Approved</Badge>
-                    )}
+                    ) : null}
                     <Clockify
                       startAt={timeTracker.startAt}
                       endAt={timeTracker.endAt!}
                     />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="h-9 w-9 flex items-center justify-center border border-transparent hover:border-border rounded">
+                        <span className="sr-only">Open</span>
+                        <MoreVerticalIcon className="w-4 h-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Action</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          disabled={timeTracker.approved}
+                          asChild
+                        >
+                          <fetcher.Form
+                            method="POST"
+                            action={`/app/user-trackers/${timeTracker.id}/approve`}
+                          >
+                            <button type="submit" className="flex items-center">
+                              <Check className="w-4 h-4 mr-2" />
+                              Approve
+                            </button>
+                          </fetcher.Form>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <AccordionContent className="border-none">
                     {timeTracker.trackerItems.length === 0 && (
