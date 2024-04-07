@@ -2,6 +2,7 @@ import { useState } from "react";
 import { type Key, ListBoxItem } from "react-aria-components";
 
 import { RAComboBox } from "~/components/ui/react-aria/combobox";
+import { cn } from "~/lib/utils";
 
 interface Props {
   name: string;
@@ -24,6 +25,7 @@ interface Props {
   onSelectionChange?: (key: Key) => void;
   selectedKey?: Key;
   isDisabled?: boolean;
+  className?: string;
 }
 
 export function AccountComboBox({
@@ -34,6 +36,7 @@ export function AccountComboBox({
   onSelectionChange,
   selectedKey,
   isDisabled,
+  className,
 }: Props) {
   const [typeId, setTypeId] = useState<Key | null>(
     selectedKey || defaultValue || null
@@ -56,7 +59,7 @@ export function AccountComboBox({
         defaultSelectedKey={defaultValue}
         placeholder="Select a account"
         isDisabled={isDisabled}
-        className="flex-1"
+        className={cn("flex-1", className)}
       >
         {(account) => (
           <ListBoxItem

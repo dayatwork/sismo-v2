@@ -21,6 +21,9 @@ import {
   Coins,
   FileCog,
   PieChart,
+  ArrowRightLeft,
+  Scale,
+  FileLineChart,
 } from "lucide-react";
 
 import { Separator } from "~/components/ui/separator";
@@ -171,9 +174,30 @@ const financeNavigation: NavigationItem[] = [
     permissions: ["manage:finance"],
   },
   {
-    name: "Journal",
+    name: "Journal Entry",
     href: "journals",
     icon: Banknote,
+    current: false,
+    permissions: ["manage:finance"],
+  },
+  {
+    name: "Account Transactions",
+    href: "account-transactions",
+    icon: ArrowRightLeft,
+    current: false,
+    permissions: ["manage:finance"],
+  },
+  {
+    name: "Trial Balance",
+    href: "trial-balance",
+    icon: Scale,
+    current: false,
+    permissions: ["manage:finance"],
+  },
+  {
+    name: "Financial Statements",
+    href: "financial-statements",
+    icon: FileLineChart,
     current: false,
     permissions: ["manage:finance"],
   },
@@ -232,7 +256,7 @@ export default function AppNavigation() {
     <nav className="flex-1 flex flex-col pb-10">
       <ul className="flex flex-1 flex-col">
         <li>
-          <ul className="-mx-2 space-y-1">
+          <ul className="space-y-1">
             {navigation.map((item) => (
               <li key={item.name}>
                 <NavLinkItem item={item} />
@@ -243,7 +267,7 @@ export default function AppNavigation() {
         <Separator className="my-4" />
         <li>
           <NavGroupHeader label="Tools & Communication" />
-          <ul className="-mx-2 space-y-1">
+          <ul className="space-y-1">
             {toolNavigation.map((item) => (
               <li key={item.name}>
                 <NavLinkItem item={item} />
@@ -261,7 +285,7 @@ export default function AppNavigation() {
             <Separator className="my-4" />
             <li>
               <NavGroupHeader label="Task Management" />
-              <ul className="-mx-2 space-y-1">
+              <ul className="space-y-1">
                 {taskManagementNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
@@ -286,7 +310,7 @@ export default function AppNavigation() {
             <Separator className="my-4" />
             <li>
               <NavGroupHeader label="User Management" />
-              <ul className="-mx-2 space-y-1">
+              <ul className="space-y-1">
                 {userManagementNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
@@ -311,7 +335,7 @@ export default function AppNavigation() {
             <Separator className="my-4" />
             <li>
               <NavGroupHeader label="Payroll Management" />
-              <ul className="-mx-2 space-y-1">
+              <ul className="space-y-1">
                 {payrollManagementNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
@@ -336,7 +360,7 @@ export default function AppNavigation() {
             <Separator className="my-4" />
             <li>
               <NavGroupHeader label="Finance" />
-              <ul className="-mx-2 space-y-1">
+              <ul className="space-y-1">
                 {financeNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
@@ -361,7 +385,7 @@ export default function AppNavigation() {
             <Separator className="my-4" />
             <li>
               <NavGroupHeader label="Others" />
-              <ul className="-mx-2 space-y-1">
+              <ul className="space-y-1">
                 {othersNavigation.map((item) => (
                   <ProtectComponent
                     key={item.name}
@@ -387,7 +411,7 @@ function NavLinkItem({ item }: { item: NavigationItem }) {
     <Link
       to={item.href}
       className={cn(
-        "inline-flex items-center w-full px-2 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
+        "inline-flex items-center w-full px-4 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
         pathname.startsWith(item.href)
           ? "bg-primary/20 hover:bg-primary/10"
           : "hover:bg-muted"
@@ -409,7 +433,7 @@ function NavLinkItem({ item }: { item: NavigationItem }) {
 
 function NavGroupHeader({ label }: { label: string }) {
   return (
-    <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+    <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-4">
       {label}
     </h3>
   );

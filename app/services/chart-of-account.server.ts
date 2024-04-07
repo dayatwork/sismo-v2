@@ -20,6 +20,32 @@ export async function getChartOfAccountById({
   return chartOfAccount;
 }
 
+export async function getAccountWithTransactions({
+  accountId,
+}: {
+  accountId: string;
+}) {
+  const account = await prisma.chartOfAccount.findUnique({
+    where: { id: accountId },
+    include: {
+      type: { include: { category: true } },
+      journalEntryLines: {
+        include: {
+          journalEntry: {
+            select: {
+              id: true,
+              date: true,
+              description: true,
+              entryNumber: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return account;
+}
+
 export async function createChartOfAccount({
   typeId,
   code,

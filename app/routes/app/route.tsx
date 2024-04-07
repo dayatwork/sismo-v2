@@ -30,7 +30,7 @@ export default function AppLayout() {
           <Link to="/app">
             <AppLogo />
           </Link>
-          <div className="h-[calc(100vh-64px)] overflow-auto px-6 pb-4">
+          <div className="h-[calc(100vh-64px)] overflow-auto px-0 pb-4">
             <AppNavigation />
           </div>
         </div>
