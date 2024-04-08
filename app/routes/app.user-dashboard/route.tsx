@@ -14,6 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUserDashboardData } from "~/services/user.server";
 import dayjs from "dayjs";
+import { Badge } from "~/components/ui/badge";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:employee");
@@ -77,6 +78,7 @@ export default function UserDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead className="px-4">User</TableHead>
+                <TableHead className="px-4">Status</TableHead>
                 <TableHead className="px-4">Departments</TableHead>
                 <TableHead className="px-4">Teams</TableHead>
                 <TableHead className="px-4 text-right">
@@ -95,6 +97,24 @@ export default function UserDashboard() {
                       </Avatar>
                       <span className="font-semibold">{user.name}</span>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className="uppercase"
+                      variant={
+                        user.memberStatus === "FULLTIME"
+                          ? "green"
+                          : user.memberStatus === "PARTTIME"
+                          ? "blue"
+                          : user.memberStatus === "INTERN"
+                          ? "pink"
+                          : user.memberStatus === "OUTSOURCED"
+                          ? "indigo"
+                          : "default"
+                      }
+                    >
+                      {user.memberStatus || "No status"}
+                    </Badge>
                   </TableCell>
                   <TableCell className="px-4">
                     <ul className="flex items-center gap-1">
