@@ -155,6 +155,7 @@ export async function getUserDashboardData() {
       include: {
         departmentMembers: { include: { department: true } },
         teamMembers: { include: { team: true } },
+        taskTrackers: { where: { endAt: { not: null } } },
       },
     }),
     prisma.department.findMany(),

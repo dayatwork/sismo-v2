@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUserDashboardData } from "~/services/user.server";
+import dayjs from "dayjs";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermission(request, "manage:employee");
@@ -78,6 +79,9 @@ export default function UserDashboard() {
                 <TableHead className="px-4">User</TableHead>
                 <TableHead className="px-4">Departments</TableHead>
                 <TableHead className="px-4">Teams</TableHead>
+                <TableHead className="px-4 text-right">
+                  Total Working Hours
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -115,6 +119,19 @@ export default function UserDashboard() {
                         </li>
                       ))}
                     </ul>
+                  </TableCell>
+                  <TableCell className="px-4 text-base font-semibold text-right">
+                    {(
+                      user.taskTrackers.reduce((currDuration, timeTracker) => {
+                        return (
+                          dayjs(timeTracker.endAt).diff(
+                            dayjs(timeTracker.startAt)
+                          ) + currDuration
+                        );
+                      }, 0) /
+                      (1000 * 60 * 60)
+                    ).toFixed(1)}{" "}
+                    Hours
                   </TableCell>
                 </TableRow>
               ))}
