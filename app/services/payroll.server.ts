@@ -450,6 +450,7 @@ export async function lockPayroll({ payrollId }: { payrollId: string }) {
     const payroll = await tx.payroll.update({
       where: { id: payrollId },
       data: { locked: true },
+      include: { transactions: true },
     });
 
     return payroll;

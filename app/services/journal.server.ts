@@ -31,7 +31,7 @@ export async function createJournalEntry({
   entryLines,
 }: {
   referenceNumber?: string;
-  createdById: string;
+  createdById?: string;
   description?: string;
   date?: string | Date;
   entryLines: {

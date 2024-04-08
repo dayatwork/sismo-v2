@@ -235,12 +235,16 @@ export default function UserTrackers() {
                         <DropdownMenuItem
                           disabled={timeTracker.approved}
                           asChild
+                          className="p-0"
                         >
                           <fetcher.Form
                             method="POST"
                             action={`/app/user-trackers/${timeTracker.id}/approve`}
                           >
-                            <button type="submit" className="flex items-center">
+                            <button
+                              type="submit"
+                              className="flex items-center w-full px-2 py-1"
+                            >
                               <Check className="w-4 h-4 mr-2" />
                               Approve
                             </button>

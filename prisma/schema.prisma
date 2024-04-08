@@ -203,8 +203,8 @@ model JournalEntry {
   date            DateTime           @default(now())
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
-  createdBy       User               @relation(fields: [createdById], references: [id])
-  createdById     String
+  createdBy       User?              @relation(fields: [createdById], references: [id])
+  createdById     String?
   entryLines      JournalEntryLine[]
 
   @@index([date])

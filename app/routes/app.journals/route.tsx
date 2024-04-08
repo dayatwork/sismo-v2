@@ -48,6 +48,12 @@ export default function JournalEntries() {
           </Button>
         </div>
 
+        {journalEntries.length === 0 && (
+          <div className="h-40 mt-6 border border-dashed rounded-lg flex items-center justify-center">
+            <p className="text-muted-foreground">No entries</p>
+          </div>
+        )}
+
         <ul className="mt-6 space-y-4">
           {journalEntries.map((journalEntry) => (
             <li key={journalEntry.id} className="border rounded-lg p-4">
