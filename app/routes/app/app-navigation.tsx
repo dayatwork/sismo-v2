@@ -100,6 +100,22 @@ const taskManagementNavigation: NavigationItem[] = [
     icon: MessageCircle,
     current: false,
   },
+];
+
+const userManagementNavigation: NavigationItem[] = [
+  {
+    name: "Dashboard",
+    href: "/app/user-dashboard",
+    icon: PieChart,
+    current: false,
+  },
+  {
+    name: "IAM",
+    href: "/app/iam",
+    icon: KeyRoundIcon,
+    current: false,
+    permissions: ["manage:iam"],
+  },
   {
     name: "Departments",
     href: "/app/departments",
@@ -113,16 +129,6 @@ const taskManagementNavigation: NavigationItem[] = [
     icon: UsersIcon,
     current: false,
     permissions: ["manage:team"],
-  },
-];
-
-const userManagementNavigation: NavigationItem[] = [
-  {
-    name: "IAM",
-    href: "/app/iam",
-    icon: KeyRoundIcon,
-    current: false,
-    permissions: ["manage:iam"],
   },
   {
     name: "User Trackers",

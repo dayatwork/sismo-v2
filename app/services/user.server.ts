@@ -149,109 +149,21 @@ export async function editUser({
   return user;
 }
 
-// export async function activateOrganizationUser({
-//   organizationId,
-//   userId,
-// }: {
-//   userId: string;
-//   organizationId: string;
-// }) {
-//   const organizationUser = await prisma.organizationUser.update({
-//     where: { organizationId_userId: { organizationId, userId } },
-//     data: { isActive: true },
-//   });
-//   return organizationUser;
-// }
+export async function getUserDashboardData() {
+  const [users, departments, teams] = await prisma.$transaction([
+    prisma.user.findMany({
+      include: {
+        departmentMembers: { include: { department: true } },
+        teamMembers: { include: { team: true } },
+      },
+    }),
+    prisma.department.findMany(),
+    prisma.team.findMany(),
+  ]);
 
-// export async function deactivateOrganizationUser({
-//   organizationId,
-//   userId,
-// }: {
-//   userId: string;
-//   organizationId: string;
-// }) {
-//   const organizationUser = await prisma.organizationUser.update({
-//     where: { organizationId_userId: { organizationId, userId } },
-//     data: { isActive: false },
-//   });
-//   return organizationUser;
-// }
-
-// export async function editOrganizationUser({
-//   organizationId,
-//   userId,
-//   email,
-//   memberId,
-//   memberStatus,
-//   name,
-// }: {
-//   userId: string;
-//   organizationId: string;
-//   name?: string;
-//   email?: string;
-//   memberId?: string;
-//   memberStatus?: MemberStatus;
-// }) {
-//   const organizationUser = await prisma.organizationUser.update({
-//     where: { organizationId_userId: { organizationId, userId } },
-//     data: { memberId, memberStatus, user: { update: { name, email } } },
-//   });
-//   return organizationUser;
-// }
-
-// export async function createOrganizationUser({
-//   memberId,
-//   memberStatus,
-//   email,
-//   name,
-//   organizationId,
-// }: {
-//   organizationId: string;
-//   name: string;
-//   email: string;
-//   memberId: string;
-//   memberStatus: MemberStatus;
-// }) {
-//   try {
-//     const user = await prisma.$transaction(async (tx) => {
-//       const foundUser = await tx.user.findUnique({ where: { email } });
-//       if (!foundUser) {
-//         const user = await prisma.user.create({
-//           data: {
-//             email,
-//             name,
-//             organizationUsers: {
-//               create: { memberStatus, memberId, organizationId },
-//             },
-//           },
-//         });
-//         return user;
-//       }
-
-//       const updatedUser = await prisma.user.update({
-//         where: { id: foundUser.id },
-//         data: {
-//           name,
-//           organizationUsers: {
-//             create: { memberStatus, memberId, organizationId },
-//           },
-//         },
-//       });
-
-//       return updatedUser;
-//     });
-
-//     return user;
-//   } catch (error: any) {
-//     if (error.code === "P2002") {
-//       const target = error.meta?.target as string[];
-//       let message = "Email or member ID already exists";
-//       if (target.includes("email")) {
-//         message = "Email already exists";
-//       } else if (target.includes("memberId")) {
-//         message = "Member ID already exist";
-//       }
-//       throw new Error(message);
-//     }
-//   }
-// }
+  return {
+    users,
+    departments,
+    teams,
+  };
+}

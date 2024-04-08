@@ -2,7 +2,7 @@ import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 
 import MainContainer from "~/components/main-container";
-import { requirePermission } from "~/utils/auth.server";
+import { requireUser } from "~/utils/auth.server";
 import { getTaskDashboardData } from "~/services/workspace.server";
 import {
   Table,
@@ -15,7 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermission(request, "manage:finance");
+  await requireUser(request);
 
   const dashboardData = await getTaskDashboardData();
 
