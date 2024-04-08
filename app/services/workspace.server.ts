@@ -236,6 +236,75 @@ export async function updateWorkspaceMemberRole({
   return workspaceMember;
 }
 
+export async function getTaskDashboardData() {
+  const [workspaces, boards, tasks] = await prisma.$transaction([
+    prisma.workspace.findMany(),
+    prisma.board.findMany(),
+    prisma.boardTask.findMany(),
+  ]);
+
+  const totalWorkspaces = workspaces.length;
+  const totalActiveWorkspaces = workspaces.filter(
+    (ws) => ws.status === "ACTIVE"
+  ).length;
+  const totalPrivateWorkspaces = workspaces.filter(
+    (ws) => ws.privacy === "CLOSED"
+  ).length;
+
+  const totalBoards = boards.length;
+  const totalActiveBoards = boards.filter(
+    (board) => board.status === "ACTIVE"
+  ).length;
+  const totalPrivateBoards = boards.filter(
+    (board) => board.privacy === "PRIVATE"
+  ).length;
+
+  const totalTasks = tasks.length;
+  const totalCompletedTasks = tasks.filter(
+    (task) => task.status === "DONE"
+  ).length;
+  const totalInprogressTasks = tasks.filter(
+    (task) => task.status === "IN_PROGRESS"
+  ).length;
+  const totalStuckTasks = tasks.filter(
+    (task) => task.status === "STUCK"
+  ).length;
+
+  const users = await prisma.user.findMany({
+    include: {
+      workspaceMembers: { select: { workspaceId: true } },
+      boardMembers: { select: { boardId: true } },
+      boardTasks: { select: { id: true, status: true } },
+    },
+  });
+
+  const usersData = users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    photo: user.photo,
+    totalWorkspaces: user.workspaceMembers.length,
+    totalBoards: user.boardMembers.length,
+    totalTasks: user.boardTasks.length,
+    totalCompletedTasks: user.boardTasks.filter(
+      (task) => task.status === "DONE"
+    ).length,
+  }));
+
+  return {
+    totalWorkspaces,
+    totalBoards,
+    totalTasks,
+    totalActiveWorkspaces,
+    totalPrivateWorkspaces,
+    totalActiveBoards,
+    totalPrivateBoards,
+    totalCompletedTasks,
+    totalInprogressTasks,
+    totalStuckTasks,
+    usersData,
+  };
+}
+
 // ===============================================
 // =========== WORKSPACE PERMISSIONS =============
 // ===============================================

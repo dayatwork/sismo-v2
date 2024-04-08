@@ -89,6 +89,12 @@ const toolNavigation: NavigationItem[] = [
 
 const taskManagementNavigation: NavigationItem[] = [
   {
+    name: "Dashboard",
+    href: "/app/task-dashboard",
+    icon: PieChart,
+    current: false,
+  },
+  {
     name: "Workspaces",
     href: "/app/workspaces",
     icon: MessageCircle,
@@ -161,49 +167,49 @@ const payrollManagementNavigation: NavigationItem[] = [
 const financeNavigation: NavigationItem[] = [
   {
     name: "Dashboard",
-    href: "finance-dashboard",
+    href: "/app/finance-dashboard",
     icon: PieChart,
     current: false,
     permissions: ["manage:finance"],
   },
   {
     name: "Chart of Account",
-    href: "chart-of-accounts",
+    href: "/app/chart-of-accounts",
     icon: Landmark,
     current: false,
     permissions: ["manage:finance"],
   },
   {
     name: "Journal Entry",
-    href: "journals",
+    href: "/app/journals",
     icon: Banknote,
     current: false,
     permissions: ["manage:finance"],
   },
   {
     name: "Account Transactions",
-    href: "account-transactions",
+    href: "/app/account-transactions",
     icon: ArrowRightLeft,
     current: false,
     permissions: ["manage:finance"],
   },
   {
     name: "Trial Balance",
-    href: "trial-balance",
+    href: "/app/trial-balance",
     icon: Scale,
     current: false,
     permissions: ["manage:finance"],
   },
   {
     name: "Financial Statements",
-    href: "financial-statements",
+    href: "/app/financial-statements",
     icon: FileLineChart,
     current: false,
     permissions: ["manage:finance"],
   },
   {
     name: "Settings",
-    href: "finance-settings",
+    href: "/app/finance-settings",
     icon: FileCog,
     current: false,
     permissions: ["manage:finance"],
