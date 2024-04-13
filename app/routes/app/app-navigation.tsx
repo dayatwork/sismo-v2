@@ -82,12 +82,12 @@ const toolNavigation: NavigationItem[] = [
     icon: MessageCircle,
     current: false,
   },
-  {
-    name: "Meetings",
-    href: "/app/meetings",
-    icon: Video,
-    current: false,
-  },
+  // {
+  //   name: "Meetings",
+  //   href: "/app/meetings",
+  //   icon: Video,
+  //   current: false,
+  // },
 ];
 
 const meetingsNavigation: NavigationItem[] = [
