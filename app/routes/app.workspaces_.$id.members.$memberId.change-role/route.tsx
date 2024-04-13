@@ -183,7 +183,6 @@ export default function ChangeWorkspaceMemberRole() {
               type="submit"
               className={cn(buttonVariants())}
               isDisabled={submitting}
-              onPress={() => console.log("press")}
             >
               {submitting ? "Saving" : "Save"}
             </Button>

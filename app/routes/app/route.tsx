@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import AppLogo from "~/components/app-logo";
 
 import { requireUser } from "~/utils/auth.server";
@@ -20,6 +20,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function AppLayout() {
   const { loggedInUser } = useLoaderData<typeof loader>();
+  const location = useLocation();
+
+  if (location.pathname.startsWith("/app/stream-meetings/meeting")) {
+    return <Outlet />;
+  }
 
   return (
     <>

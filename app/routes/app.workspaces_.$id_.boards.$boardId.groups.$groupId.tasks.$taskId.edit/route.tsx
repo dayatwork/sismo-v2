@@ -82,7 +82,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { name, plannedEffortInMinutes, timelineEnd, timelineStart } =
     submission.value;
-  console.log({ timelineEnd, timelineStart });
 
   if (timelineStart.getTime() > timelineEnd.getTime()) {
     return json({

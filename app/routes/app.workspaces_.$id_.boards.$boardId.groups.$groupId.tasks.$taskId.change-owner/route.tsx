@@ -147,8 +147,6 @@ export default function ChangeBoardTaskOwner() {
     },
   });
 
-  console.log({ defaultValue: fields.ownerId.initialValue });
-
   return (
     <Modal
       isDismissable

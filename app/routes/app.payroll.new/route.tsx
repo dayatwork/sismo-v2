@@ -97,9 +97,6 @@ export default function NewPayroll() {
     lastResult: actionData?.submission,
     shouldValidate: "onSubmit",
     onValidate({ formData }) {
-      console.log("month", formData.get("month"));
-      console.log("year", formData.get("year"));
-      console.log("type", formData.get("type"));
       return parseWithZod(formData, { schema });
     },
   });

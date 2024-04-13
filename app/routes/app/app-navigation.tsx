@@ -24,6 +24,9 @@ import {
   ArrowRightLeft,
   Scale,
   FileLineChart,
+  ChevronsRight,
+  ChevronsLeft,
+  MonitorStop,
 } from "lucide-react";
 
 import { Separator } from "~/components/ui/separator";
@@ -82,6 +85,33 @@ const toolNavigation: NavigationItem[] = [
   {
     name: "Meetings",
     href: "/app/meetings",
+    icon: Video,
+    current: false,
+  },
+];
+
+const meetingsNavigation: NavigationItem[] = [
+  {
+    name: "Home",
+    href: "/app/stream-meetings/home",
+    icon: MonitorStop,
+    current: false,
+  },
+  {
+    name: "Upcoming",
+    href: "/app/stream-meetings/upcoming",
+    icon: ChevronsRight,
+    current: false,
+  },
+  {
+    name: "Previous",
+    href: "/app/stream-meetings/previous",
+    icon: ChevronsLeft,
+    current: false,
+  },
+  {
+    name: "Recordings",
+    href: "/app/stream-meetings/recordings",
     icon: Video,
     current: false,
   },
@@ -281,6 +311,18 @@ export default function AppNavigation() {
           <NavGroupHeader label="Tools & Communication" />
           <ul className="space-y-1">
             {toolNavigation.map((item) => (
+              <li key={item.name}>
+                <NavLinkItem item={item} />
+              </li>
+            ))}
+          </ul>
+        </li>
+
+        <Separator className="my-4" />
+        <li>
+          <NavGroupHeader label="Meetings" />
+          <ul className="space-y-1">
+            {meetingsNavigation.map((item) => (
               <li key={item.name}>
                 <NavLinkItem item={item} />
               </li>

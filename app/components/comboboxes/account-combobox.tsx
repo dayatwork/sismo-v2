@@ -49,7 +49,6 @@ export function AccountComboBox({
         label="Account"
         defaultItems={accounts}
         onSelectionChange={(key) => {
-          console.log({ key });
           setTypeId(key);
           onSelectionChange?.(key);
         }}

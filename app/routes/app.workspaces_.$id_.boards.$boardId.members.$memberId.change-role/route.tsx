@@ -117,8 +117,6 @@ export default function ChangeBoardMemberRole() {
     },
   });
 
-  console.log({ defaultValue: fields.isOwner.initialValue });
-
   return (
     <Modal
       isDismissable
@@ -170,7 +168,6 @@ export default function ChangeBoardMemberRole() {
               type="submit"
               className={cn(buttonVariants())}
               isDisabled={submitting}
-              onPress={() => console.log("press")}
             >
               {submitting ? "Saving" : "Save"}
             </Button>
