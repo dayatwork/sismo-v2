@@ -43,6 +43,8 @@
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
     "@remix-run/serve": "^2.8.1",
+    "@stream-io/node-sdk": "^0.1.13",
+    "@stream-io/video-react-sdk": "^0.6.3",
     "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",
     "@tiptap/pm": "^2.2.4",
     "@tiptap/react": "^2.2.4",

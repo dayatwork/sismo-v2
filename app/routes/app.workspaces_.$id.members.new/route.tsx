@@ -201,7 +201,6 @@ export default function AddWorkspaceMember() {
               type="submit"
               className={cn(buttonVariants())}
               isDisabled={submitting}
-              onPress={() => console.log("press")}
             >
               {submitting ? "Submitting" : "Submit"}
             </Button>

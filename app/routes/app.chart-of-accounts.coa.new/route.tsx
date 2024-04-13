@@ -41,7 +41,6 @@ const schema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  console.log("CREATE COA");
   await requirePermission(request, "manage:finance");
 
   const formData = await request.formData();

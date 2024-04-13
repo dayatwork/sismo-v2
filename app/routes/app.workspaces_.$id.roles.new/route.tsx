@@ -118,8 +118,6 @@ export default function AddRole() {
     },
   });
 
-  console.log({ form });
-
   return (
     <Modal
       isDismissable

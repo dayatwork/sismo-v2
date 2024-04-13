@@ -17,6 +17,7 @@ import {
 } from "@remix-run/react";
 import showToast, { Toaster } from "react-hot-toast";
 import styles from "./tailwind.css?url";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
 
 import { getToast } from "./utils/toast.server";
 import { combineHeaders } from "./utils/misc";
