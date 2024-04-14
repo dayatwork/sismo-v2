@@ -67,7 +67,8 @@ export default function AccountTransactions() {
       <MainContainer>
         <div className="flex justify-between">
           <h1 className="text-2xl font-bold tracking-tight">
-            Account Transactions
+            Ledger Accounts
+            {/* Account Transactions */}
           </h1>
         </div>
 

@@ -231,7 +231,7 @@ const financeNavigation: NavigationItem[] = [
     permissions: ["manage:finance"],
   },
   {
-    name: "Account Transactions",
+    name: "Ledger Accounts",
     href: "/app/account-transactions",
     icon: ArrowRightLeft,
     current: false,

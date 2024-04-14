@@ -1,11 +1,11 @@
-import { useNavigate } from "@remix-run/react";
+// import { useNavigate } from "@remix-run/react";
 import { useCall, useCallStateHooks } from "@stream-io/video-react-sdk";
 
 import { Button } from "~/components/ui/button";
 
 const EndCallButton = () => {
   const call = useCall();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   if (!call)
     throw new Error(
@@ -25,8 +25,13 @@ const EndCallButton = () => {
 
   const endCall = async () => {
     await call.endCall();
-    navigate("/app/stream-meetings");
+    window.location.href = `${
+      import.meta.env.VITE_APP_URL
+    }/app/stream-meetings`;
+    // navigate("/app/stream-meetings");
   };
+
+  console.log({ env: import.meta.env });
 
   return (
     <Button onClick={endCall} className="bg-red-500">
