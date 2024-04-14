@@ -12,7 +12,7 @@ export default function MobileNav() {
           <PanelLeft className="w-5 h-5" />
         </button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[260px] py-0 overflow-auto">
+      <SheetContent side="left" className="w-[260px] py-0 overflow-auto px-0">
         <AppLogo />
         <AppNavigation />
       </SheetContent>
