@@ -27,8 +27,16 @@ import {
   ChevronsRight,
   ChevronsLeft,
   MonitorStop,
+  CornerDownRight,
+  FolderKanban,
+  MoreHorizontal,
 } from "lucide-react";
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { ProtectComponent, useUserPermissions } from "~/utils/auth";
@@ -296,170 +304,210 @@ export default function AppNavigation() {
 
   return (
     <nav className="flex-1 flex flex-col pb-10">
-      <ul className="flex flex-1 flex-col">
-        <li>
-          <ul className="space-y-1">
-            {navigation.map((item) => (
-              <li key={item.name}>
-                <NavLinkItem item={item} />
-              </li>
-            ))}
-          </ul>
-        </li>
-        <Separator className="my-4" />
-        <li>
-          <NavGroupHeader label="Tools & Communication" />
-          <ul className="space-y-1">
-            {toolNavigation.map((item) => (
-              <li key={item.name}>
-                <NavLinkItem item={item} />
-              </li>
-            ))}
-          </ul>
-        </li>
+      <div className="flex flex-1 flex-col gap-1">
+        <ul className="space-y-2">
+          {navigation.map((item) => (
+            <li key={item.name}>
+              <NavLinkItem item={item} />
+            </li>
+          ))}
+        </ul>
+        <Separator className="my-2" />
 
-        <Separator className="my-4" />
-        <li>
-          <NavGroupHeader label="Meetings" />
-          <ul className="space-y-1">
-            {meetingsNavigation.map((item) => (
-              <li key={item.name}>
-                <NavLinkItem item={item} />
-              </li>
-            ))}
-          </ul>
-        </li>
-
-        {hasAccessToNavigation({
-          isSuperAdmin,
-          userPermissions,
-          navigationItems: taskManagementNavigation,
-        }) && (
-          <>
-            <Separator className="my-4" />
-            <li>
-              <NavGroupHeader label="Task Management" />
+        <Accordion type="multiple" className="space-y-2">
+          <AccordionItem value="tools" className="border-b-0">
+            <AccordionTrigger className="inline-flex items-center w-full pl-4 pr-2 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5 hover:bg-accent hover:no-underline">
+              <div className="flex items-center">
+                <PencilRuler className="w-5 h-5 mr-3" />
+                Tools
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="border-b-0">
               <ul className="space-y-1">
-                {taskManagementNavigation.map((item) => (
-                  <ProtectComponent
-                    key={item.name}
-                    permission={item.permissions}
-                  >
-                    <li key={item.name}>
-                      <NavLinkItem item={item} />
-                    </li>
-                  </ProtectComponent>
+                {toolNavigation.map((item) => (
+                  <li key={item.name}>
+                    <NavLinkItem item={item} isSubNav />
+                  </li>
                 ))}
               </ul>
-            </li>
-          </>
-        )}
+            </AccordionContent>
+          </AccordionItem>
 
-        {hasAccessToNavigation({
-          isSuperAdmin,
-          userPermissions,
-          navigationItems: userManagementNavigation,
-        }) && (
-          <>
-            <Separator className="my-4" />
-            <li>
-              <NavGroupHeader label="User Management" />
+          <AccordionItem value="meetings" className="border-b-0">
+            <AccordionTrigger className="inline-flex items-center w-full pl-4 pr-2 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5 hover:bg-accent hover:no-underline">
+              <div className="flex items-center">
+                <MonitorStop className="w-5 h-5 mr-3" />
+                Meetings
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="border-b-0">
               <ul className="space-y-1">
-                {userManagementNavigation.map((item) => (
-                  <ProtectComponent
-                    key={item.name}
-                    permission={item.permissions}
-                  >
-                    <li key={item.name}>
-                      <NavLinkItem item={item} />
-                    </li>
-                  </ProtectComponent>
+                {meetingsNavigation.map((item) => (
+                  <li key={item.name}>
+                    <NavLinkItem item={item} isSubNav />
+                  </li>
                 ))}
               </ul>
-            </li>
-          </>
-        )}
+            </AccordionContent>
+          </AccordionItem>
 
-        {hasAccessToNavigation({
-          isSuperAdmin,
-          userPermissions,
-          navigationItems: payrollManagementNavigation,
-        }) && (
-          <>
-            <Separator className="my-4" />
-            <li>
-              <NavGroupHeader label="Payroll Management" />
-              <ul className="space-y-1">
-                {payrollManagementNavigation.map((item) => (
-                  <ProtectComponent
-                    key={item.name}
-                    permission={item.permissions}
-                  >
-                    <li key={item.name}>
-                      <NavLinkItem item={item} />
-                    </li>
-                  </ProtectComponent>
-                ))}
-              </ul>
-            </li>
-          </>
-        )}
+          {hasAccessToNavigation({
+            isSuperAdmin,
+            userPermissions,
+            navigationItems: taskManagementNavigation,
+          }) && (
+            <AccordionItem value="tasks" className="border-b-0">
+              <AccordionTrigger className="inline-flex items-center w-full pl-4 pr-2 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5 hover:bg-accent hover:no-underline">
+                <div className="flex items-center">
+                  <FolderKanban className="w-5 h-5 mr-3" />
+                  Task Management
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="border-b-0">
+                <ul className="space-y-1">
+                  {taskManagementNavigation.map((item) => (
+                    <ProtectComponent
+                      key={item.name}
+                      permission={item.permissions}
+                    >
+                      <li>
+                        <NavLinkItem item={item} isSubNav />
+                      </li>
+                    </ProtectComponent>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          )}
 
-        {hasAccessToNavigation({
-          isSuperAdmin,
-          userPermissions,
-          navigationItems: financeNavigation,
-        }) && (
-          <>
-            <Separator className="my-4" />
-            <li>
-              <NavGroupHeader label="Finance" />
-              <ul className="space-y-1">
-                {financeNavigation.map((item) => (
-                  <ProtectComponent
-                    key={item.name}
-                    permission={item.permissions}
-                  >
-                    <li key={item.name}>
-                      <NavLinkItem item={item} />
-                    </li>
-                  </ProtectComponent>
-                ))}
-              </ul>
-            </li>
-          </>
-        )}
+          {hasAccessToNavigation({
+            isSuperAdmin,
+            userPermissions,
+            navigationItems: userManagementNavigation,
+          }) && (
+            <AccordionItem value="users" className="border-b-0">
+              <AccordionTrigger className="inline-flex items-center w-full pl-4 pr-2 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5 hover:bg-accent hover:no-underline">
+                <div className="flex items-center">
+                  <UsersIcon className="w-5 h-5 mr-3" />
+                  User Management
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="border-b-0">
+                <ul className="space-y-1">
+                  {userManagementNavigation.map((item) => (
+                    <ProtectComponent
+                      key={item.name}
+                      permission={item.permissions}
+                    >
+                      <li>
+                        <NavLinkItem item={item} isSubNav />
+                      </li>
+                    </ProtectComponent>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          )}
 
-        {hasAccessToNavigation({
-          isSuperAdmin,
-          userPermissions,
-          navigationItems: othersNavigation,
-        }) && (
-          <>
-            <Separator className="my-4" />
-            <li>
-              <NavGroupHeader label="Others" />
-              <ul className="space-y-1">
-                {othersNavigation.map((item) => (
-                  <ProtectComponent
-                    key={item.name}
-                    permission={item.permissions}
-                  >
-                    <li key={item.name}>
-                      <NavLinkItem item={item} />
-                    </li>
-                  </ProtectComponent>
-                ))}
-              </ul>
-            </li>
-          </>
-        )}
-      </ul>
+          {hasAccessToNavigation({
+            isSuperAdmin,
+            userPermissions,
+            navigationItems: payrollManagementNavigation,
+          }) && (
+            <AccordionItem value="payroll" className="border-b-0">
+              <AccordionTrigger className="inline-flex items-center w-full pl-4 pr-2 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5 hover:bg-accent hover:no-underline">
+                <div className="flex items-center">
+                  <HandCoins className="w-5 h-5 mr-3" />
+                  Payroll
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="border-b-0">
+                <ul className="space-y-1">
+                  {payrollManagementNavigation.map((item) => (
+                    <ProtectComponent
+                      key={item.name}
+                      permission={item.permissions}
+                    >
+                      <li>
+                        <NavLinkItem item={item} isSubNav />
+                      </li>
+                    </ProtectComponent>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {hasAccessToNavigation({
+            isSuperAdmin,
+            userPermissions,
+            navigationItems: financeNavigation,
+          }) && (
+            <AccordionItem value="finance" className="border-b-0">
+              <AccordionTrigger className="inline-flex items-center w-full pl-4 pr-2 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5 hover:bg-accent hover:no-underline">
+                <div className="flex items-center">
+                  <Landmark className="w-5 h-5 mr-3" />
+                  Finance
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="border-b-0">
+                <ul className="space-y-1">
+                  {financeNavigation.map((item) => (
+                    <ProtectComponent
+                      key={item.name}
+                      permission={item.permissions}
+                    >
+                      <li>
+                        <NavLinkItem item={item} isSubNav />
+                      </li>
+                    </ProtectComponent>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {hasAccessToNavigation({
+            isSuperAdmin,
+            userPermissions,
+            navigationItems: othersNavigation,
+          }) && (
+            <AccordionItem value="others" className="border-b-0">
+              <AccordionTrigger className="inline-flex items-center w-full pl-4 pr-2 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5 hover:bg-accent hover:no-underline">
+                <div className="flex items-center">
+                  <MoreHorizontal className="w-5 h-5 mr-3" />
+                  Others
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="border-b-0">
+                <ul className="space-y-1">
+                  {othersNavigation.map((item) => (
+                    <ProtectComponent
+                      key={item.name}
+                      permission={item.permissions}
+                    >
+                      <li>
+                        <NavLinkItem item={item} isSubNav />
+                      </li>
+                    </ProtectComponent>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+        </Accordion>
+      </div>
     </nav>
   );
 }
 
-function NavLinkItem({ item }: { item: NavigationItem }) {
+function NavLinkItem({
+  item,
+  isSubNav,
+}: {
+  item: NavigationItem;
+  isSubNav?: boolean;
+}) {
   const { pathname } = useLocation();
   return (
     <Link
@@ -468,27 +516,24 @@ function NavLinkItem({ item }: { item: NavigationItem }) {
         "inline-flex items-center w-full px-4 font-medium text-base transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 py-1.5",
         pathname.startsWith(item.href)
           ? "bg-primary/20 hover:bg-primary/10"
-          : "hover:bg-muted"
+          : "hover:bg-muted",
+        isSubNav ? "pl-6" : ""
       )}
     >
+      {isSubNav && (
+        <CornerDownRight className="w-4 h-4 mr-2 text-muted-foreground/50" />
+      )}
+
       <item.icon
         className={cn(
-          "w- h-5 mr-3",
+          isSubNav ? "w-4 h-4 mr-2" : "w-5 h-5 mr-3",
           pathname.startsWith(item.href)
             ? "bg-transparent"
             : "hover:bg-transparent hover:underline"
         )}
         aria-hidden="true"
       />
-      {item.name}
+      <span className={isSubNav ? "text-sm" : ""}>{item.name}</span>
     </Link>
-  );
-}
-
-function NavGroupHeader({ label }: { label: string }) {
-  return (
-    <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-4">
-      {label}
-    </h3>
   );
 }
