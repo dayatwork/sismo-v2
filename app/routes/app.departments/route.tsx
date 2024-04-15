@@ -70,6 +70,7 @@ export default function Departments() {
                       <AvatarImage
                         src={department.logo || ""}
                         alt={department.name}
+                        className="object-cover"
                       />
                       <AvatarFallback>{department.name[0]}</AvatarFallback>
                     </Avatar>

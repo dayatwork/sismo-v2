@@ -108,7 +108,10 @@ export default function Payroll() {
               >
                 <div className="flex gap-2 items-center">
                   <Avatar>
-                    <AvatarImage src={transaction.user.photo || ""} />
+                    <AvatarImage
+                      src={transaction.user.photo || ""}
+                      className="object-cover"
+                    />
                     <AvatarFallback>{transaction.user.name[0]}</AvatarFallback>
                   </Avatar>
                   <span className="font-semibold">{transaction.user.name}</span>

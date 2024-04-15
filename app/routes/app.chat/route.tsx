@@ -151,7 +151,11 @@ function ConversationListItem({
       onClick={onClick}
     >
       <Avatar className="w-8 h-8">
-        <AvatarImage src={contactUser.photo || ""} alt={contactUser.name} />
+        <AvatarImage
+          src={contactUser.photo || ""}
+          alt={contactUser.name}
+          className="object-cover"
+        />
         <AvatarFallback>{contactUser.name[0]}</AvatarFallback>
       </Avatar>
       <span className="truncate font-semibold text-sm">{contactUser.name}</span>

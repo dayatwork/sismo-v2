@@ -135,7 +135,10 @@ export default function PayrollTransaction() {
         <div className="flex items-center justify-between mb-4 pr-1">
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12">
-              <AvatarImage src={payrollTransaction.user.photo || ""} />
+              <AvatarImage
+                src={payrollTransaction.user.photo || ""}
+                className="object-cover"
+              />
               <AvatarFallback>{payrollTransaction.user.name[0]}</AvatarFallback>
             </Avatar>
             <h1 className="text-2xl font-bold tracking-tight">

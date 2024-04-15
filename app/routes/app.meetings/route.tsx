@@ -120,6 +120,7 @@ export default function Meetings() {
                               <AvatarImage
                                 src={participant.user.photo || ""}
                                 alt={participant.user.name}
+                                className="object-cover"
                               />
                               <AvatarFallback>
                                 {participant.user.name[0]}

@@ -170,7 +170,10 @@ export default function TeamDetails() {
                         <TableCell className="pl-4">
                           <div className="flex items-center gap-4">
                             <Avatar>
-                              <AvatarImage src={tm.user.photo || ""} />
+                              <AvatarImage
+                                src={tm.user.photo || ""}
+                                className="object-cover"
+                              />
                               <AvatarFallback>{tm.user.name[0]}</AvatarFallback>
                             </Avatar>
                             <div>

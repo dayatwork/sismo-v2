@@ -55,7 +55,11 @@ export function ChatHeader({
   return (
     <div className="flex items-center gap-4 h-16 px-4">
       <Avatar>
-        <AvatarImage src={contactUser.photo || ""} alt={contactUser.name} />
+        <AvatarImage
+          src={contactUser.photo || ""}
+          alt={contactUser.name}
+          className="object-cover"
+        />
         <AvatarFallback>{contactUser.name[0]}</AvatarFallback>
       </Avatar>
       <div>

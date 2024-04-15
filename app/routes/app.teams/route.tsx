@@ -66,7 +66,11 @@ export default function Teams() {
                 <TableCell className="pl-5">
                   <div className="flex items-center gap-4">
                     <Avatar>
-                      <AvatarImage src={team.logo || ""} alt={team.name} />
+                      <AvatarImage
+                        src={team.logo || ""}
+                        alt={team.name}
+                        className="object-cover"
+                      />
                       <AvatarFallback>{team.name[0]}</AvatarFallback>
                     </Avatar>
                     <span className="font-semibold">{team.name}</span>

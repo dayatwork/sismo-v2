@@ -92,7 +92,10 @@ export default function UserDashboard() {
                   <TableCell className="px-4">
                     <div className="flex items-center gap-2">
                       <Avatar>
-                        <AvatarImage src={user.photo || ""} />
+                        <AvatarImage
+                          src={user.photo || ""}
+                          className="object-cover"
+                        />
                         <AvatarFallback>{user.name[0]}</AvatarFallback>
                       </Avatar>
                       <span className="font-semibold">{user.name}</span>

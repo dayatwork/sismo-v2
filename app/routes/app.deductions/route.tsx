@@ -38,7 +38,10 @@ export default function Deductions() {
               <div className="flex justify-between items-center py-2 px-4">
                 <div className="flex items-center gap-4">
                   <Avatar>
-                    <AvatarImage src={user.photo || ""} />
+                    <AvatarImage
+                      src={user.photo || ""}
+                      className="object-cover"
+                    />
                     <AvatarFallback>{user.name[0]}</AvatarFallback>
                   </Avatar>
                   <span className="font-semibold">{user.name}</span>

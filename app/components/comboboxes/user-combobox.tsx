@@ -58,7 +58,11 @@ export function UserComboBox({
               className="w-6 h-6 rounded-full"
             /> */}
             <Avatar className="w-6 h-6">
-              <AvatarImage src={user.photo || ""} alt={user.name} />
+              <AvatarImage
+                src={user.photo || ""}
+                alt={user.name}
+                className="object-cover"
+              />
               <AvatarFallback>{user.name[0]}</AvatarFallback>
             </Avatar>
             <span className="truncate">{user.name}</span>

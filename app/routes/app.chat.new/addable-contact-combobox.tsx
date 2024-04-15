@@ -43,7 +43,11 @@ export function AddableContactComboBox({
               className="w-6 h-6 rounded-full"
             /> */}
             <Avatar className="w-6 h-6">
-              <AvatarImage src={contact.photo || ""} alt={contact.name} />
+              <AvatarImage
+                src={contact.photo || ""}
+                alt={contact.name}
+                className="object-cover"
+              />
               <AvatarFallback>{contact.name[0]}</AvatarFallback>
             </Avatar>
             <span className="truncate">{contact.name}</span>

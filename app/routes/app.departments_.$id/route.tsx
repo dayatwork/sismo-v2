@@ -173,7 +173,10 @@ export default function DepartmentDetails() {
                         <TableCell className="pl-4">
                           <div className="flex items-center gap-4">
                             <Avatar>
-                              <AvatarImage src={dm.user.photo || ""} />
+                              <AvatarImage
+                                src={dm.user.photo || ""}
+                                className="object-cover"
+                              />
                               <AvatarFallback>{dm.user.name[0]}</AvatarFallback>
                             </Avatar>
                             <div>

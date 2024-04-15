@@ -117,7 +117,10 @@ export default function NewSuplementalWage() {
         </Heading>
         <div className="mt-4 p-2 rounded-lg border flex items-center gap-2">
           <Avatar>
-            <AvatarImage src={selectedUser.photo || ""} />
+            <AvatarImage
+              src={selectedUser.photo || ""}
+              className="object-cover"
+            />
             <AvatarFallback>{selectedUser.name[0]}</AvatarFallback>
           </Avatar>
           <span className="font-semibold">{selectedUser.name}</span>

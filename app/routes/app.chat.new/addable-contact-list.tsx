@@ -54,7 +54,11 @@ export function AddableContactList({
             className="flex items-center gap-2 selected:bg-green-300 dark:selected:bg-green-800 rounded p-1 cursor-pointer hover:bg-accent"
           >
             <Avatar className="h-9 w-9">
-              <AvatarImage src={contact.photo || ""} alt="" />
+              <AvatarImage
+                src={contact.photo || ""}
+                alt=""
+                className="object-cover"
+              />
               <AvatarFallback>{contact.name[0]}</AvatarFallback>
             </Avatar>
             <Text slot="description" className="font-semibold text-sm truncate">

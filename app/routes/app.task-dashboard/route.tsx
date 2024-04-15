@@ -137,7 +137,10 @@ export default function TaskDashboard() {
                   <TableCell className="px-4">
                     <div className="flex items-center gap-2">
                       <Avatar>
-                        <AvatarImage src={userData.photo || ""} />
+                        <AvatarImage
+                          src={userData.photo || ""}
+                          className="object-cover"
+                        />
                         <AvatarFallback>{userData.name[0]}</AvatarFallback>
                       </Avatar>
                       <span className="font-semibold">{userData.name}</span>

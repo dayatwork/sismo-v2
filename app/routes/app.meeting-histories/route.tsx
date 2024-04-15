@@ -85,6 +85,7 @@ export default function MeetingHistories() {
                               <AvatarImage
                                 src={participant.user.photo || ""}
                                 alt={participant.user.name}
+                                className="object-cover"
                               />
                               <AvatarFallback>
                                 {participant.user.name[0]}
