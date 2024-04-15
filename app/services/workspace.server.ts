@@ -17,6 +17,7 @@ export async function getWorkspaces(props?: GetWorkspaceProps) {
       workspaceMembers: {
         include: { user: { select: { id: true, name: true, photo: true } } },
       },
+      boards: { select: { id: true } },
     },
   });
   return workspaces;

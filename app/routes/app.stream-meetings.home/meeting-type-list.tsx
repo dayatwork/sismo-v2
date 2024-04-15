@@ -75,27 +75,28 @@ const MeetingTypeList = () => {
         img="/icons/add-meeting.svg"
         title="New Meeting"
         description="Start an instant meeting"
+        className="border-orange-600/20 hover:bg-orange-600/20"
         handleClick={() => setMeetingState("isInstantMeeting")}
       />
       <HomeCard
         img="/icons/join-meeting.svg"
         title="Join Meeting"
         description="via invitation link"
-        className="bg-blue-600 hover:bg-blue-600/80"
+        className="border-blue-600/20 hover:bg-blue-600/20"
         handleClick={() => setMeetingState("isJoiningMeeting")}
       />
       <HomeCard
         img="/icons/schedule.svg"
         title="Schedule Meeting"
         description="Plan your meeting"
-        className="bg-purple-600 hover:bg-purple-600/80"
+        className="border-purple-600/20 hover:bg-purple-600/20"
         handleClick={() => setMeetingState("isScheduleMeeting")}
       />
       <HomeCard
         img="/icons/recordings.svg"
         title="View Recordings"
         description="Meeting Recordings"
-        className="bg-yellow-600 hover:bg-yellow-600/80"
+        className="border-yellow-600/20 hover:bg-yellow-600/20"
         handleClick={() => navigate("/app/stream-meetings/recordings")}
       />
 

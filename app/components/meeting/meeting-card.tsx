@@ -35,7 +35,7 @@ const MeetingCard = ({
   buttonText,
 }: MeetingCardProps) => {
   return (
-    <section className="flex min-h-[258px] w-full flex-col justify-between rounded-[14px] px-5 py-8 xl:max-w-[568px] border">
+    <section className="flex min-h-[230px] w-full flex-col justify-between rounded-[14px] px-5 py-8 border">
       <article className="flex flex-col gap-5 mb-3">
         <img src={icon} alt="upcoming" width={24} height={24} />
         <div className="flex justify-between">

@@ -8,6 +8,7 @@ interface HomeCardProps {
   title: string;
   description: string;
   handleClick?: () => void;
+  // color: "orange" | "blue" | "purple" | "yellow"
 }
 
 const HomeCard = ({
@@ -20,7 +21,7 @@ const HomeCard = ({
   return (
     <section
       className={cn(
-        "bg-orange-600 hover:bg-orange-600/80 transition px-4 py-6 flex flex-col justify-between w-full xl:max-w-[270px] min-h-[260px] rounded-[14px] cursor-pointer",
+        "border transition px-4 py-6 flex flex-col justify-between w-full xl:max-w-[270px] min-h-[180px] rounded-[14px] cursor-pointer",
         className
       )}
       onClick={handleClick}

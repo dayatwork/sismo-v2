@@ -2,9 +2,12 @@ import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import {
   ArchiveIcon,
-  FileText,
+  FolderKanban,
+  Lock,
+  LockOpen,
   MoreHorizontalIcon,
   Trash2Icon,
+  Users2,
 } from "lucide-react";
 
 import MainContainer from "~/components/main-container";
@@ -18,17 +21,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
 import { requireUser } from "~/utils/auth.server";
 import { getWorkspaces } from "~/services/workspace.server";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Separator } from "~/components/ui/separator";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -72,7 +84,68 @@ export default function Workspaces() {
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border bg-neutral-50 dark:bg-neutral-900">
+      <div className="grid grid-cols-4 gap-4">
+        {workspaces.map((workspace) => (
+          <Link key={workspace.id} to={workspace.id}>
+            <Card className="hover:bg-accent">
+              <CardHeader className="py-3">
+                <CardTitle className="text-2xl">{workspace.name}</CardTitle>
+                <CardDescription>{workspace.description}</CardDescription>
+              </CardHeader>
+              <Separator />
+              <CardContent className="py-4">
+                <dl className="space-y-4">
+                  <div className="grid gap-1">
+                    <dt className="w-16 text-muted-foreground text-sm">
+                      Privacy
+                    </dt>
+                    <dd className="font-semibold flex gap-2 items-center">
+                      {workspace.privacy === "CLOSED" ? (
+                        <Lock className="w-4 h-4" />
+                      ) : (
+                        <LockOpen className="w-4 h-4" />
+                      )}
+                      {workspace.privacy}
+                    </dd>
+                  </div>
+                  <div className="grid gap-1">
+                    <dt className="w-16 text-muted-foreground text-sm">
+                      Members
+                    </dt>
+                    <dd className="font-semibold flex gap-2 items-center">
+                      <Users2 className="w-4 h-4" />
+                      {workspace.workspaceMembers.length} members
+                    </dd>
+                  </div>
+                  <div className="grid gap-1">
+                    <dt className="w-16 text-muted-foreground text-sm">
+                      Boards
+                    </dt>
+                    <dd className="font-semibold flex gap-2 items-center">
+                      <FolderKanban className="w-4 h-4" />
+                      {workspace.boards.length} boards
+                    </dd>
+                  </div>
+                </dl>
+              </CardContent>
+              <Separator />
+              <CardFooter className="py-3">
+                <div className="flex gap-2 items-center">
+                  <Avatar>
+                    <AvatarImage
+                      src={workspace.owner.photo || ""}
+                      className="object-cover"
+                    />
+                    <AvatarFallback>{workspace.owner.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <span className="font-semibold">{workspace.owner.name}</span>
+                </div>
+              </CardFooter>
+            </Card>
+          </Link>
+        ))}
+      </div>
+      {/* <div className="rounded-md border bg-neutral-50 dark:bg-neutral-900">
         <Table>
           <TableHeader>
             <TableRow>
@@ -131,7 +204,7 @@ export default function Workspaces() {
             ))}
           </TableBody>
         </Table>
-      </div>
+      </div> */}
     </MainContainer>
   );
 }

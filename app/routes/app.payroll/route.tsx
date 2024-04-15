@@ -47,13 +47,13 @@ export default function Payroll() {
           )}
         </div>
         {payrolls.length > 0 ? (
-          <div className="flex flex-wrap gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {payrolls.map((payroll) => (
               <Link
                 key={payroll.id}
                 to={payroll.id}
                 className={cn(
-                  "border rounded-lg p-4 relative w-52 hover:bg-accent transition",
+                  "border rounded-lg p-4 relative hover:bg-accent transition",
                   payroll.locked ? "border-green-600/30" : "border-border"
                 )}
               >

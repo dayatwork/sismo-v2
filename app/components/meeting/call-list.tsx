@@ -67,7 +67,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   const noCallsMessage = getNoCallsMessage();
 
   return (
-    <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
       {calls && calls.length > 0 ? (
         calls.map((meeting: Call | CallRecording) => (
           <MeetingCard
@@ -112,9 +112,11 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           />
         ))
       ) : (
-        <h1 className="text-muted-foreground font-semibold">
-          {noCallsMessage}
-        </h1>
+        <div className="h-60 flex items-center justify-center border border-dashed col-span-3 rounded-xl">
+          <h1 className="text-muted-foreground font-semibold">
+            {noCallsMessage}
+          </h1>
+        </div>
       )}
     </div>
   );
