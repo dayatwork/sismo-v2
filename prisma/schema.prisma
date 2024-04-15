@@ -54,6 +54,7 @@ model User {
   supplementalWages     SupplementalWage[]
   deductions            Deduction[]
   payrollTransactions   PayrollTransaction[]
+  salesOrders           SalesOrder[]
 
   @@index([name])
 }
@@ -523,7 +524,7 @@ model TaskTracker {
 
 model TaskTrackerItem {
   id                    String       @id @default(uuid())
-  tracker               TaskTracker  @relation(fields: [trackerId], references: [id])
+  tracker               TaskTracker  @relation(fields: [trackerId], references: [id], onDelete: Cascade)
   trackerId             String
   task                  BoardTask    @relation(fields: [taskId], references: [id])
   taskId                String
@@ -650,4 +651,392 @@ model PayrollTransactionItem {
   editable      Boolean
 
   @@index([transactionId])
+}
+
+model Preference {
+  id    String @id @default(uuid())
+  name  String @unique
+  value String
+}
+
+model CustomField {
+  id                  String               @id @default(uuid())
+  entity              String               @unique
+  fieldName           String
+  isActive            Boolean              @default(true)
+  productCustomFields ProductCustomField[]
+
+  @@unique([entity, fieldName])
+}
+
+model TransactionNumber {
+  id              String  @id @default(uuid())
+  transactionName String  @unique
+  prefix          String?
+  suffix          String?
+}
+
+model Location {
+  id                 String            @id @default(uuid())
+  name               String            @unique
+  addressName        String?
+  addressLine        String?
+  city               String?
+  province           String?
+  postalCode         String?
+  country            String?
+  productLocations   ProductLocation[]
+  productReorders    ProductReorder[]
+  stockTransferFroms StockTransfer[]   @relation("fromLocation")
+  stockTransferTos   StockTransfer[]   @relation("toLocation")
+  stockAdjustments   StockAdjustment[]
+  salesOrders        SalesOrder[]
+  purchaseOrders     PurchaseOrder[]
+}
+
+model ProductCategory {
+  id            String            @id @default(uuid())
+  name          String
+  parentId      String?
+  parent        ProductCategory?  @relation("parentChildren", fields: [parentId], references: [id])
+  subCategories ProductCategory[] @relation("parentChildren")
+  products      Product[]
+}
+
+model AdjustmentReason {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  stockAdjustments StockAdjustment[]
+}
+
+model UnitsOfMeasurement {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model PricingScheme {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  currency        String
+  taxIncluded     Boolean          @default(false)
+  isDefault       Boolean          @default(false)
+  isActive        Boolean          @default(true)
+  productPricings ProductPricing[]
+  salesOrders     SalesOrder[]
+}
+
+model TaxingScheme {
+  id                     String          @id @default(uuid())
+  schemeName             String          @unique
+  primaryTaxName         String
+  primaryTaxRate         Decimal         @db.Decimal(5, 2)
+  primaryTaxOnShipping   Boolean         @default(false)
+  secondaryTaxName       String?
+  secondaryTaxRate       Decimal?        @db.Decimal(5, 2)
+  secondaryTaxOnShipping Boolean?        @default(false)
+  compoundSecondaryTax   Boolean?        @default(false)
+  salesOrders            SalesOrder[]
+  purchaseOrders         PurchaseOrder[]
+}
+
+model PaymentTerm {
+  id             String          @id @default(uuid())
+  name           String          @unique
+  daysDue        Int             @db.SmallInt
+  isActive       Boolean         @default(true)
+  salesOrders    SalesOrder[]
+  purchaseOrders PurchaseOrder[]
+}
+
+model PaymentMethod {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model Carrier {
+  id             String          @id @default(uuid())
+  name           String          @unique
+  purchaseOrders PurchaseOrder[]
+}
+
+model Customer {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  phone       String?
+  website     String?
+  fax         String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  salesOrders SalesOrder[]
+}
+
+model Vendor {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  phone           String?
+  website         String?
+  fax             String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  productVendors  ProductVendor[]
+  productReorders ProductReorder[]
+  purchaseOrders  PurchaseOrder[]
+}
+
+enum ProductType {
+  STOCKED
+  SERIALIZED
+  NON_STOCKED
+  SERVICE
+}
+
+model Product {
+  id                      String                   @id @default(uuid())
+  productNumber           Int                      @default(autoincrement())
+  name                    String                   @unique
+  sku                     String                   @unique
+  barcode                 String                   @unique
+  type                    ProductType
+  category                ProductCategory?         @relation(fields: [categoryId], references: [id])
+  categoryId              String?
+  remarks                 String?                  @default("")
+  serialProducts          SerialProduct[]
+  cost                    ProductCost?
+  productPricings         ProductPricing[]
+  productLocations        ProductLocation[]
+  productImages           ProductImage[]
+  productCustomFields     ProductCustomField[]
+  productVendors          ProductVendor[]
+  stockTransferProducts   StockTransferProduct[]
+  stockAdjustmentProducts StockAdjustmentProduct[]
+  salesOrderItems         SalesOrderItem[]
+  purchaseOrderItems      PurchaseOrderItem[]
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  url       String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model ProductCustomField {
+  product       Product     @relation(fields: [productId], references: [id])
+  productId     String
+  customField   CustomField @relation(fields: [customFieldId], references: [id])
+  customFieldId String
+  value         String
+
+  @@unique([customFieldId, productId])
+}
+
+model ProductCost {
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id])
+  currency  String
+  value     Decimal @db.Decimal(10, 2)
+}
+
+model ProductPricing {
+  id              String        @id @default(uuid())
+  product         Product       @relation(fields: [productId], references: [id])
+  productId       String
+  pricingScheme   PricingScheme @relation(fields: [pricingSchemeId], references: [id])
+  pricingSchemeId String
+  currency        String
+  value           Decimal       @db.Decimal(10, 2)
+
+  @@unique([productId, pricingSchemeId])
+}
+
+model ProductLocation {
+  id             String          @id @default(uuid())
+  product        Product         @relation(fields: [productId], references: [id])
+  productId      String
+  location       Location        @relation(fields: [locationId], references: [id])
+  locationId     String
+  quantity       Int
+  productReorder ProductReorder?
+
+  @@unique([productId, locationId])
+}
+
+enum ReorderMethod {
+  PURCHASE_ORDER
+  STOCK_TRANSFER
+  MANUFACTURE_ORDER
+}
+
+model ProductReorder {
+  productLocation           ProductLocation @relation(fields: [productLocationId], references: [id])
+  productLocationId         String          @unique
+  method                    ReorderMethod
+  isActive                  Boolean
+  reorderPoint              Int
+  reorderQuantity           Int
+  purchaseOrderFromVendor   Vendor?         @relation(fields: [purchaseOrderFromVendorId], references: [id])
+  purchaseOrderFromVendorId String?
+  transferFromLocation      Location?       @relation(fields: [transferFromLocationId], references: [id])
+  transferFromLocationId    String?
+}
+
+model ProductVendor {
+  id                  String  @id @default(uuid())
+  product             Product @relation(fields: [productId], references: [id])
+  productId           String
+  vendor              Vendor  @relation(fields: [vendorId], references: [id])
+  vendorId            String
+  vendorProductCode   String
+  vendorPriceCurrency String
+  vendorPriceValue    Decimal @db.Decimal(10, 2)
+}
+
+model SerialProduct {
+  id           String  @id @default(uuid())
+  serialNumber Int     @default(autoincrement())
+  productId    String
+  product      Product @relation(fields: [productId], references: [id])
+}
+
+enum StockTransferStatus {
+  OPEN
+  IN_TRANSIT
+  COMPLETED
+}
+
+model StockTransfer {
+  id                    String                 @id @default(uuid())
+  transferNumber        Int                    @default(autoincrement())
+  status                StockTransferStatus    @default(OPEN)
+  remarks               String
+  stockTransferProducts StockTransferProduct[]
+  requestedDate         DateTime               @default(now())
+  fromLocation          Location               @relation("fromLocation", fields: [fromLocationId], references: [id])
+  fromLocationId        String
+  toLocation            Location               @relation("toLocation", fields: [toLocationId], references: [id])
+  toLocationId          String
+}
+
+model StockTransferProduct {
+  stockTransfer   StockTransfer @relation(fields: [stockTransferId], references: [id])
+  stockTransferId String
+  product         Product       @relation(fields: [productId], references: [id])
+  productId       String
+  quantity        Int
+
+  @@unique([stockTransferId, productId])
+}
+
+model StockAdjustment {
+  id                      String                   @id @default(uuid())
+  adjustmentNumber        Int                      @default(autoincrement())
+  location                Location                 @relation(fields: [locationId], references: [id])
+  locationId              String
+  date                    DateTime                 @default(now())
+  reason                  AdjustmentReason?        @relation(fields: [reasonId], references: [id])
+  reasonId                String?
+  stockAdjustmentProducts StockAdjustmentProduct[]
+  remarks                 String
+}
+
+model StockAdjustmentProduct {
+  id                String          @id @default(uuid())
+  stockAdjustmentId String
+  stockAdjustment   StockAdjustment @relation(fields: [stockAdjustmentId], references: [id])
+  productId         String
+  product           Product         @relation(fields: [productId], references: [id])
+  initial           Int
+  change            Int
+}
+
+model SalesOrder {
+  id                String           @id @default(uuid())
+  salesOrderNumber  Int              @default(autoincrement())
+  orderDate         DateTime         @default(now())
+  customer          Customer         @relation(fields: [customerId], references: [id])
+  customerId        String
+  salesRep          User?            @relation(fields: [salesRepId], references: [id])
+  salesRepId        String?
+  location          Location         @relation(fields: [locationId], references: [id])
+  locationId        String
+  paymentTerm       PaymentTerm      @relation(fields: [paymentTermId], references: [id])
+  paymentTermId     String
+  taxingScheme      TaxingScheme     @relation(fields: [taxingSchemeId], references: [id])
+  taxingSchemeId    String
+  pricingScheme     PricingScheme    @relation(fields: [pricingSchemeId], references: [id])
+  pricingSchemeId   String
+  requestedShipDate DateTime?
+  freight           Decimal          @default(0) @db.Decimal(10, 2)
+  total             Decimal          @db.Decimal(10, 2)
+  paid              Decimal          @db.Decimal(10, 2)
+  fulfilled         Boolean          @default(false)
+  orderItems        SalesOrderItem[]
+}
+
+model SalesOrderItem {
+  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id])
+  salesOrderId String
+  product      Product    @relation(fields: [productId], references: [id])
+  productId    String
+  quantity     Int
+  unitPrice    Decimal    @db.Decimal(10, 2)
+  discount     Decimal    @default(0) @db.Decimal(10, 2)
+
+  @@unique([salesOrderId, productId])
+}
+
+model PurchaseOrder {
+  id                  String              @id @default(uuid())
+  purchaseOrderNumber Int                 @default(autoincrement())
+  orderDate           DateTime            @default(now())
+  vendor              Vendor              @relation(fields: [vendorId], references: [id])
+  vendorId            String
+  location            Location            @relation(fields: [locationId], references: [id])
+  locationId          String
+  paymentTerm         PaymentTerm         @relation(fields: [paymentTermId], references: [id])
+  paymentTermId       String
+  vendorOrderNumber   String?
+  carrier             Carrier?            @relation(fields: [carrierId], references: [id])
+  carrierId           String?
+  dueDate             DateTime?
+  taxingScheme        TaxingScheme        @relation(fields: [taxingSchemeId], references: [id])
+  taxingSchemeId      String
+  currency            String
+  requestedShipDate   DateTime?
+  freight             Decimal             @default(0) @db.Decimal(10, 2)
+  total               Decimal             @db.Decimal(10, 2)
+  paid                Decimal             @db.Decimal(10, 2)
+  fulfilled           Boolean             @default(false)
+  orderItems          PurchaseOrderItem[]
+}
+
+model PurchaseOrderItem {
+  id              String                      @id @default(uuid())
+  purchaseOrder   PurchaseOrder               @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId String
+  product         Product                     @relation(fields: [productId], references: [id])
+  productId       String
+  quantity        Int
+  unitPrice       Decimal                     @db.Decimal(10, 2)
+  discount        Decimal                     @default(0) @db.Decimal(10, 2)
+  itemsReceived   PurchaseOrderItemReceived[]
+  itemsReturned   PurchaseOrderItemReturn[]
+
+  @@unique([productId, purchaseOrderId])
+}
+
+model PurchaseOrderItemReceived {
+  id          String            @id @default(uuid())
+  item        PurchaseOrderItem @relation(fields: [itemId], references: [id])
+  itemId      String
+  quantity    Int
+  receiveDate DateTime          @default(now())
+}
+
+model PurchaseOrderItemReturn {
+  id         String            @id @default(uuid())
+  item       PurchaseOrderItem @relation(fields: [itemId], references: [id])
+  itemId     String
+  quantity   Int
+  returnDate DateTime          @default(now())
 }

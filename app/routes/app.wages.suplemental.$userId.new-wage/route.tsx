@@ -167,7 +167,9 @@ export default function NewSuplementalWage() {
                 name="fixed"
                 defaultChecked={fields.fixed.initialValue === "on"}
               />
-              <Label htmlFor="fixed">Fixed</Label>
+              <Label htmlFor="fixed" className={labelVariants()}>
+                Fixed
+              </Label>
             </div>
           </div>
           <div className="mt-4 flex justify-end gap-2 w-full">
