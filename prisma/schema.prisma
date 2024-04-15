@@ -524,7 +524,7 @@ model TaskTracker {
 
 model TaskTrackerItem {
   id                    String       @id @default(uuid())
-  tracker               TaskTracker  @relation(fields: [trackerId], references: [id])
+  tracker               TaskTracker  @relation(fields: [trackerId], references: [id], onDelete: Cascade)
   trackerId             String
   task                  BoardTask    @relation(fields: [taskId], references: [id])
   taskId                String

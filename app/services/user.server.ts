@@ -115,7 +115,7 @@ export async function getUsersAndExcludeSomeIds({
   return users;
 }
 
-export async function getUsersForDashboard() {
+export async function getWorkingUsers() {
   const users = await prisma.user.findMany({
     include: { taskTrackers: { where: { endAt: null } } },
   });
