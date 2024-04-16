@@ -526,14 +526,14 @@ function NavLinkItem({
 
       <item.icon
         className={cn(
-          isSubNav ? "w-4 h-4 mr-2" : "w-5 h-5 mr-3",
+          "w-5 h-5 mr-3",
           pathname.startsWith(item.href)
             ? "bg-transparent"
             : "hover:bg-transparent hover:underline"
         )}
         aria-hidden="true"
       />
-      <span className={isSubNav ? "text-sm" : ""}>{item.name}</span>
+      <span>{item.name}</span>
     </Link>
   );
 }

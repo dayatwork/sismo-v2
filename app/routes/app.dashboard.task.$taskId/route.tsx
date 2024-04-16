@@ -31,7 +31,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       group: { select: { id: true, name: true } },
       board: { include: { workspace: { select: { id: true, name: true } } } },
       trackerItems: {
-        include: { tracker: true },
+        include: { tracker: true, attachments: true },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -41,11 +41,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect("/app/dashboard");
   }
 
-  return json({ task });
+  return json({ task, appUrl: process.env.APP_URL || "http://localhost:5173" });
 }
 
 export default function DashboardTaskProgress() {
-  const { task } = useLoaderData<typeof loader>();
+  const { task, appUrl } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const durationInMinutes = task.trackerItems.reduce((acc, curr) => {
@@ -56,8 +56,6 @@ export default function DashboardTaskProgress() {
     return acc + duration;
   }, 0);
 
-  console.log({ task });
-
   return (
     <Modal
       isDismissable
@@ -65,7 +63,7 @@ export default function DashboardTaskProgress() {
       onOpenChange={() => navigate(`/app/dashboard`)}
       className="overflow-hidden w-full max-w-5xl"
     >
-      <Dialog className="bg-background border rounded-md p-6 outline-none">
+      <Dialog className="bg-background border rounded-xl p-6 outline-none">
         <div className="flex items-center gap-10">
           <h1 className="text-xl font-semibold">{task.name}</h1>
           {task.timelineEnd && new Date() > new Date(task.timelineEnd) && (
@@ -79,7 +77,7 @@ export default function DashboardTaskProgress() {
           )}
         </div>
         <div className="mt-8 grid grid-cols-2 gap-2">
-          <dl className="space-y-4">
+          <dl className="space-y-4 text-sm">
             <div className="flex items-center">
               <dt className="w-52 text-muted-foreground">Workspace</dt>
               <dd>{task.board?.workspace.name || "-"}</dd>
@@ -201,6 +199,8 @@ export default function DashboardTaskProgress() {
                           startAt={trackerItem.tracker.startAt}
                           endAt={trackerItem.tracker.endAt!}
                           note={trackerItem.note}
+                          appUrl={appUrl}
+                          attachments={trackerItem.attachments}
                         />
                       </li>
                     ))}
@@ -211,7 +211,7 @@ export default function DashboardTaskProgress() {
                       Total Duration
                     </span>{" "}
                     :{" "}
-                    <span className="ml-1 font-semibold text-2xl">
+                    <span className="ml-1 font-semibold">
                       {Math.floor(durationInMinutes / 60)}{" "}
                       <span className="font-normal text-muted-foreground text-base">
                         hours

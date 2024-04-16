@@ -303,11 +303,13 @@ export default function Dashboard() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => navigate(`task/${task.id}`)}
+                                className="pr-4"
                               >
                                 <TrendingUpIcon className="w-4 h-4 mr-2" />
                                 See progress
                               </DropdownMenuItem>
                               <DropdownMenuItem
+                                className="pr-4"
                                 onClick={() =>
                                   navigate(
                                     `/app/workspaces/${task.board?.workspaceId}/boards/${task.boardId}`
