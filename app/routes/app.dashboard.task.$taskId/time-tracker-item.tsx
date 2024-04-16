@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
+import { AttachmentsCard } from "./attachment-card";
 
 interface TimeTrackerItemProps {
   last: boolean;
@@ -13,6 +14,13 @@ interface TimeTrackerItemProps {
   startAt: string;
   endAt: string;
   note: string;
+  attachments: {
+    id: string;
+    url: string;
+    displayName: string;
+    type: "FILE" | "DOCUMENT" | "LINK";
+  }[];
+  appUrl: string;
 }
 
 export function TimeTrackerItem({
@@ -21,6 +29,8 @@ export function TimeTrackerItem({
   percentage,
   startAt,
   note,
+  appUrl,
+  attachments,
 }: TimeTrackerItemProps) {
   return (
     <div className={cn("relative", last ? "pb-0" : "pb-8")}>
@@ -44,7 +54,7 @@ export function TimeTrackerItem({
                 : "text-red-600 ring-red-600"
             )}
           >
-            {percentage}
+            {percentage}%
           </span>
         </div>
         <div className="flex min-w-0 flex-1 items-start justify-between">
@@ -71,13 +81,18 @@ export function TimeTrackerItem({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <p className="font-semibold text-sm">
-            {Math.floor(
-              (new Date(endAt).getTime() - new Date(startAt).getTime()) /
-                (1000 * 60)
-            )}{" "}
-            minutes
-          </p>
+          <div className="flex items-start gap-2">
+            <p className="font-semibold text-sm">
+              {Math.floor(
+                (new Date(endAt).getTime() - new Date(startAt).getTime()) /
+                  (1000 * 60)
+              )}{" "}
+              minutes
+            </p>
+            <div className="-mt-2">
+              <AttachmentsCard appUrl={appUrl} attachments={attachments} />
+            </div>
+          </div>
         </div>
       </div>
     </div>

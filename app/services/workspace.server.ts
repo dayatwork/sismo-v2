@@ -261,15 +261,28 @@ export async function getTaskDashboardData() {
   ).length;
 
   const totalTasks = tasks.length;
-  const totalCompletedTasks = tasks.filter(
-    (task) => task.status === "DONE"
-  ).length;
-  const totalInprogressTasks = tasks.filter(
-    (task) => task.status === "IN_PROGRESS"
-  ).length;
-  const totalStuckTasks = tasks.filter(
-    (task) => task.status === "STUCK"
-  ).length;
+  let totalBacklogTasks = 0;
+  let totalTodoTasks = 0;
+  let totalInProgressTasks = 0;
+  let totalDoneTasks = 0;
+  let totalOnHoldTasks = 0;
+  let totalStuckTasks = 0;
+
+  tasks.forEach((task) => {
+    if (task.status === "BACKLOG") {
+      totalBacklogTasks++;
+    } else if (task.status === "TODO") {
+      totalTodoTasks++;
+    } else if (task.status === "IN_PROGRESS") {
+      totalInProgressTasks++;
+    } else if (task.status === "DONE") {
+      totalDoneTasks++;
+    } else if (task.status === "ON_HOLD") {
+      totalOnHoldTasks++;
+    } else if (task.status === "STUCK") {
+      totalStuckTasks++;
+    }
+  });
 
   const users = await prisma.user.findMany({
     include: {
@@ -299,8 +312,11 @@ export async function getTaskDashboardData() {
     totalPrivateWorkspaces,
     totalActiveBoards,
     totalPrivateBoards,
-    totalCompletedTasks,
-    totalInprogressTasks,
+    totalBacklogTasks,
+    totalTodoTasks,
+    totalInProgressTasks,
+    totalDoneTasks,
+    totalOnHoldTasks,
     totalStuckTasks,
     usersData,
   };
